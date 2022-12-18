@@ -104,7 +104,8 @@ fn main() -> std::io::Result<()> {
     //println!("1: {line1}, 2: {line2}, 3: {line3}");
    
    /* wow it turns out intersecting more than 2 sets in rust is a shitshow */
-    let set12:HashSet<char> = set1.intersection(&set2).cloned().collect();
+    //let set12:HashSet<char> = set1.intersection(&set2).cloned().collect();
+    let set12 = &set1 & &set2;
     let mut i = set12.intersection(&set3);
     //let mut i = set1.intersection(&set2).cloned().collect::<HashSet<char>>().intersection(&set3);
     //let mut i = set1.intersection(&set2.intersection(&set3).cloned().collect());
