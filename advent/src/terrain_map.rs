@@ -2,7 +2,7 @@ use crate::{Point,Dims};
 
 pub struct TerrainMap<T:Copy+Default> {
   v: Vec< Vec<T>>, //each inner vector is a horizontal row
-  dims: Dims,
+  pub dims: Dims,
 }
 
 impl<T:Copy+Default> TerrainMap<T> {
@@ -14,13 +14,11 @@ impl<T:Copy+Default> TerrainMap<T> {
     return tm;
   }
 
-  pub fn dims(&self) -> Dims {
-    self.dims
-  }
-
   pub fn get(&self, p: Point) -> T {
-    assert!(p.x >= 0);
-    assert!(p.y >= 0);
+    assert!(p.x >= self.dims.minx);
+    assert!(p.y >= self.dims.miny);
+    assert!(p.x < self.dims.minx.saturating_add_unsigned(self.dims.width));
+    assert!(p.y < self.dims.miny.saturating_add_unsigned(self.dims.height));
 
     let v = self.v.get(p.y as usize).unwrap();
     *v.get(p.x as usize).unwrap()
@@ -39,12 +37,14 @@ mod tests {
 
     #[test]
     fn test_new() {
-      let mut tm = TerrainMap::<usize>::new(5,19);
-      assert!(tm.width == 5);
-      assert!(tm.height == 19);
+      let mut tm = TerrainMap::<usize>::new(Dims{width:5,height:19,..Default::default()});
+      assert!(tm.dims.minx == 0);
+      assert!(tm.dims.miny == 0);
+      assert!(tm.dims.width == 5);
+      assert!(tm.dims.height == 19);
 
-      tm.set(Dims{x:1,y:2}, 15);
-      assert!(tm.get(Dims{x:1, y:2}) == 15);
+      tm.set(Point{x:1,y:2}, 15);
+      assert!(tm.get(Point{x:1, y:2}) == 15);
     }
 }
  
