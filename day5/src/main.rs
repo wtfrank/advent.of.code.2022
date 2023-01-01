@@ -1,44 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
-use std::collections::HashSet;
-use std::vec;
-use std::fmt;
 
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_prio() {
-        //assert_eq!(item_prio(&'a'), 1);
-    }
-}
-
-#[derive(Debug)]
-struct Range {
-  start: u32,
-  end: u32,
-}
-
-impl fmt::Display for Range{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Write strictly the first element into the supplied output
-        // stream: `f`. Returns `fmt::Result` which indicates whether the
-        // operation succeeded or failed. Note that `write!` uses syntax which
-        // is very similar to `println!`.
-        write!(f, "[{}-{}]", self.start, self.end)
-    }
-}
-
-fn parse_range(range: &str) -> Range {
-  let a: Vec<&str> = range.split('-').collect();
-  assert!(a.len() == 2);
-  Range {
-    start: a[0].parse::<u32>().expect("invalid input"),
-    end: a[1].parse::<u32>().expect("numeric input"),
-  }
-}
 
 fn parse_stack(columns: &mut Vec< Vec< char >>, line: &str) {
   let v:Vec<char> = line.chars().collect();

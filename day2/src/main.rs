@@ -72,10 +72,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_add() {
-        assert_eq!(add(1, 2), 3);
-    }
-    #[test]
     fn test_match_score() {
         assert_eq!(match_score(Move::Rock, Move::Paper), 1);
         assert_eq!(match_score(Move::Rock, Move::Rock), 4);

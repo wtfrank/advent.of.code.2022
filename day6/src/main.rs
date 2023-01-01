@@ -1,21 +1,8 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::collections::HashSet;
-use std::vec;
-use std::fmt;
 
 use std::collections::VecDeque;
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_prio() {
-        //assert_eq!(item_prio(&'a'), 1);
-    }
-}
 
 
 const MSG_SIZE:usize = 14;

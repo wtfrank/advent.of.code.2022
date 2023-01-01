@@ -61,7 +61,7 @@ fn load_scan(filename: &str) -> TerrainMap<ScanData> {
     paths.push(path);
   }
 
-  let mut tm = TerrainMap::<ScanData>::new(Dims{width:max_x+1+max_y, height:max_y+3});
+  let mut tm = TerrainMap::<ScanData>::new(Dims{width:max_x+1+max_y, height:max_y+3,..Default::default()});
   for path in paths {
     for i in 1..path.len() {
       let mut p = path[i-1];
@@ -93,8 +93,8 @@ fn load_scan(filename: &str) -> TerrainMap<ScanData> {
 }
 
 fn add_floor(map: &mut TerrainMap<ScanData>) {
-  for x in 0..map.dims().width {
-    map.set(Point{x:x as isize, y:map.dims().height as isize -1}, ScanData::Rock);
+  for x in 0..map.dims.width {
+    map.set(Point{x:x as isize, y:map.dims.height as isize -1}, ScanData::Rock);
   }
 }
 
@@ -124,7 +124,7 @@ fn simulate_fall(map: &mut TerrainMap<ScanData>) -> usize {
         break;
       }
      
-      if s.y >= map.dims().height as isize - 1 {
+      if s.y >= map.dims.height as isize - 1 {
         return count;
       }
     }

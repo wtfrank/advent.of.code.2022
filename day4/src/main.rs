@@ -1,18 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
-use std::collections::HashSet;
 use std::fmt;
 
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_prio() {
-        //assert_eq!(item_prio(&'a'), 1);
-    }
-}
 
 #[derive(Debug)]
 struct Range {

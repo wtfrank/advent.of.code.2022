@@ -29,7 +29,7 @@ mod tests {
     }
     #[test]
     fn test_path_goal() {
-      let (tm,start,end) = load_terrain("testinput.txt");
+      let (tm,_start,end) = load_terrain("testinput.txt");
       let dist = shortest_path_to_goal(&tm, end);
       assert_eq!(dist, 29);
     }
@@ -58,8 +58,8 @@ fn trace_back( parents: &TerrainMap<Point>, start: Point, end: Point) -> usize {
 /// breadth first search
 fn shortest_path( map: &TerrainMap<usize>, from: Point, to: Point) -> usize {
   let mut queue = VecDeque::<Point>::new();
-  let mut visited = TerrainMap::<bool>::new(map.dims());
-  let mut prev = TerrainMap::<Point>::new(map.dims());
+  let mut visited = TerrainMap::<bool>::new(map.dims);
+  let mut prev = TerrainMap::<Point>::new(map.dims);
 
   visited.set(from, true);
   queue.push_back(from);
@@ -75,7 +75,7 @@ fn shortest_path( map: &TerrainMap<usize>, from: Point, to: Point) -> usize {
       if new.x < 0 || new.y < 0 {
         continue;
       }
-      if new.x as usize >= map.dims().width || new.y as usize >= map.dims().height {
+      if new.x as usize >= map.dims.width || new.y as usize >= map.dims.height {
         continue;
       }
       if visited.get(new) {
@@ -96,8 +96,8 @@ fn shortest_path( map: &TerrainMap<usize>, from: Point, to: Point) -> usize {
 /// now search from heighest to any node with height 0
 fn shortest_path_to_goal( map: &TerrainMap<usize>, from: Point) -> usize {
   let mut queue = VecDeque::<Point>::new();
-  let mut visited = TerrainMap::<bool>::new(map.dims());
-  let mut prev = TerrainMap::<Point>::new(map.dims());
+  let mut visited = TerrainMap::<bool>::new(map.dims);
+  let mut prev = TerrainMap::<Point>::new(map.dims);
 
   visited.set(from, true);
   queue.push_back(from);
@@ -112,7 +112,7 @@ fn shortest_path_to_goal( map: &TerrainMap<usize>, from: Point) -> usize {
       if new.x < 0 || new.y < 0 {
         continue;
       }
-      if new.x as usize >= map.dims().width || new.y as usize >= map.dims().height {
+      if new.x as usize >= map.dims.width || new.y as usize >= map.dims.height {
         continue;
       }
       if visited.get(new) {
@@ -141,7 +141,7 @@ fn determine_map_dims(data: &str) -> Dims {
       width = w;
     }
   }
-  return Dims{width, height};
+  return Dims{width, height,..Default::default()};
 }
 
 fn load_terrain(filename: &str) -> (TerrainMap<usize>, Point, Point) {
