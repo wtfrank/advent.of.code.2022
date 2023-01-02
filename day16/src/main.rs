@@ -56,8 +56,8 @@ struct Room {
 }
 
 #[derive(Debug)]
-struct PathStep {
-  room: String,
+struct PathStep<'a> {
+  room: &'a str,
   open_valves: usize,
   cum_pressure: usize,
   dist: usize,
@@ -125,17 +125,17 @@ fn simplify_graph(graph:&HashMap<String,Room>) -> HashMap<String, HashMap<String
   return distances;
 }
 
-fn do_calc_pressure( graph: &HashMap<String,Room>, room_distances: &HashMap<String, HashMap<String,usize>>, max_time: usize, path: &mut Vec::<PathStep>, discovered: &mut HashSet::<String>, highest_pressure: &mut usize, room:&str) 
+fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashMap<String, HashMap<String,usize>>, max_time: usize, path: &mut Vec::<PathStep<'a>>, discovered: &mut HashSet::<String>, highest_pressure: &mut usize, room:&'a str)
 {
   //println!("Entering {room} with path length {}", path.len());
   discovered.insert(String::from(room));
   if path.len() <= 0 {
     assert!(room == SOURCE);
-    path.push( PathStep{room: String::from(room), open_valves:0, cum_pressure: 0, dist: 0} );
+    path.push( PathStep{room: room, open_valves:0, cum_pressure: 0, dist: 0} );
   }
   else {
     let prev = path.get(path.len()-1).unwrap();
-    let dist = room_distances.get(&prev.room).unwrap().get(room).unwrap();
+    let dist = room_distances.get(prev.room).unwrap().get(room).unwrap();
     //println!("distance from {} to {}={}, open_valves={},cum_pressure={},cum dist={}",
 //        &prev.room, &room, dist, prev.open_valves, prev.cum_pressure, prev.dist);
     if prev.dist + dist > max_time {
@@ -150,7 +150,7 @@ fn do_calc_pressure( graph: &HashMap<String,Room>, room_distances: &HashMap<Stri
     }
     else {
       path.push( PathStep{
-          room: String::from(room), 
+          room: room,
           open_valves: prev.open_valves + graph.get(room).unwrap().flow,
           cum_pressure: prev.cum_pressure + dist * prev.open_valves,
           dist: prev.dist + dist,

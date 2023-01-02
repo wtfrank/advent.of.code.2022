@@ -93,7 +93,7 @@ fn shortest_path( map: &TerrainMap<usize>, from: Point, to: Point) -> usize {
   return 0;
 }
 
-/// now search from heighest to any node with height 0
+/// now search from highest to any node with height 0
 fn shortest_path_to_goal( map: &TerrainMap<usize>, from: Point) -> usize {
   let mut queue = VecDeque::<Point>::new();
   let mut visited = TerrainMap::<bool>::new(map.dims);
