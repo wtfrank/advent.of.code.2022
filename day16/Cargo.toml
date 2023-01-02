@@ -9,3 +9,4 @@ edition = "2021"
 advent = { path = "../advent" }
 sscanf = "0.4"
 priority-queue = "1.3"
+rustc-hash = "1.1"

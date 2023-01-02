@@ -1,10 +1,14 @@
 use std::fs::File;
 use std::io::prelude::*;
-use std::collections::HashSet;
-use std::collections::HashMap;
+//use std::collections::HashSet;
+//use std::collections::HashMap;
+use rustc_hash::FxHashSet;
+use rustc_hash::FxHashMap;
 use priority_queue::PriorityQueue;
 use std::cmp::Reverse;
 
+type HashSet<T> = FxHashSet<T>;
+type HashMap<T,U> = FxHashMap<T,U>;
 
 #[cfg(test)]
 mod tests {
@@ -24,6 +28,8 @@ mod tests {
 
       let max_pressure = calc_releasable_pressure(&graph, &room_distances, 30);
       assert_eq!(max_pressure, 1651);
+      let max_pressure = calc_releasable_pressure_v2(&graph, &room_distances, 26);
+      assert_eq!(max_pressure, 1707);
     }
 }
 
@@ -34,7 +40,7 @@ fn load_graph(filename: &str) -> HashMap<String,Room>
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
 
-  let mut graph = HashMap::new();
+  let mut graph = HashMap::<String,Room>::default();
   for line in contents.lines() {
     let r = sscanf::sscanf_unescaped!(line, "Valve {String} has flow rate={usize}; tunnels? leads? to valves? {String}");
     match r {
@@ -72,13 +78,13 @@ struct PathStep<'a> {
  * first search.
  */
 fn simplify_graph(graph:&HashMap<String,Room>) -> HashMap<String, HashMap<String,usize>> {
-  let mut useful_rooms = HashSet::<String>::new();
-  let mut distances = HashMap::new();
+  let mut useful_rooms = HashSet::<String>::default();
+  let mut distances = HashMap::default();
 
   for (name,room) in graph {
     if name == SOURCE || room.flow > 0 {
       useful_rooms.insert(name.clone());
-      distances.insert(name.clone(), HashMap::new());
+      distances.insert(name.clone(), HashMap::default());
     }
   }
 
@@ -87,10 +93,10 @@ fn simplify_graph(graph:&HashMap<String,Room>) -> HashMap<String, HashMap<String
   //now we use djikstra's algo to find the distance between each useful room. we could do this
   //more efficiently by exploiting that the forward/reverse directions are of the same length.
   for r1 in &useful_rooms {
-    let mut dist = HashMap::<String,usize>::new();
-    let mut queue = PriorityQueue::<String,Reverse<usize>>::new();
-    let mut visited = HashSet::<String>::new();
-    let mut prev = HashMap::<String,String>::new();
+    let mut dist = HashMap::<String,usize>::default();
+    let mut queue = PriorityQueue::<String,Reverse<usize>>::default();
+    let mut visited = HashSet::<String>::default();
+    let mut prev = HashMap::<String,String>::default();
 
     for r2 in graph {
       dist.insert( r2.0.clone(), usize::MAX);
@@ -180,6 +186,91 @@ fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashM
   //println!("Leaving {room} (path len {})", path.len());
 }
 
+
+fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashMap<String, HashMap<String,usize>>, max_time: usize, path: &mut Vec::<PathStep<'a>>, path2: &mut Vec::<PathStep<'a>>, discovered: &mut HashSet::<String>, highest_pressure: &mut usize, room:&'a str)
+{
+  //println!("Entering {room} with path length {}", path.len());
+  discovered.insert(String::from(room));
+  if path.len() <= 0 {
+    assert!(room == SOURCE);
+    path.push( PathStep{room: room, open_valves:0, cum_pressure: 0, dist: 0} );
+    path2.push( PathStep{room: room, open_valves:0, cum_pressure: 0, dist: 0} );
+  }
+  else {
+    let prev = path.get(path.len()-1).unwrap();
+    let dist = room_distances.get(prev.room).unwrap().get(room).unwrap();
+    //println!("distance from {} to {}={}, open_valves={},cum_pressure={},cum dist={}",
+//        &prev.room, &room, dist, prev.open_valves, prev.cum_pressure, prev.dist);
+    if prev.dist + dist > max_time {
+      let prev2 = path2.get(path2.len()-1).unwrap();
+      let total_pressure = prev.cum_pressure + (max_time - prev.dist) * prev.open_valves +
+                           prev2.cum_pressure+ (max_time - prev2.dist)* prev2.open_valves;
+      if total_pressure > *highest_pressure {
+        *highest_pressure = total_pressure;
+        println!("New best path1: {highest_pressure} via {path:?}_{path2:?}");
+      }
+      discovered.remove(room);
+      //println!("Leaving {room} (path len {})", path.len());
+      return;
+    }
+    else {
+      path.push( PathStep{
+          room: room,
+          open_valves: prev.open_valves + graph.get(room).unwrap().flow,
+          cum_pressure: prev.cum_pressure + dist * prev.open_valves,
+          dist: prev.dist + dist,
+      });
+    }
+  }
+
+
+  /* now see which route will next completed, and advance the other route if necessary */
+  let next_path1;
+  let next_path2;
+  let next_room;
+  let swapped;
+  if path.get(path.len()-1).unwrap().dist > path2.get(path2.len()-1).unwrap().dist {
+    next_path1 = path2;
+    next_path2 = path;
+    next_room = next_path2.get(next_path2.len()-1).unwrap().room;
+    swapped = true;
+  }
+  else {
+    next_path1 = path;
+    next_path2 = path2;
+    next_room = room;
+    swapped = false;
+  }
+  let mut avail = 0;
+  for (r2,_) in room_distances.get(next_room).unwrap() {
+    if !discovered.contains(r2)  {
+      avail += 1;
+
+      do_calc_pressure_v2( &graph, &room_distances, max_time, next_path1, next_path2, discovered, highest_pressure, r2 );
+    }
+  }
+
+  if avail == 0 {
+    let prev = next_path1.get(next_path1.len()-1).unwrap();
+    let prev2 = next_path2.get(next_path2.len()-1).unwrap();
+    let total_pressure = prev.cum_pressure + (max_time - prev.dist) * prev.open_valves +
+                         prev2.cum_pressure+ (max_time - prev2.dist)* prev2.open_valves;
+    if total_pressure > *highest_pressure {
+      *highest_pressure = total_pressure;
+      println!("New best path2: {highest_pressure} via {next_path1:?}!{next_path2:?}");
+    }
+  }
+
+  if swapped {
+    next_path2.pop();
+  }
+  else {
+    next_path1.pop();
+  }
+  discovered.remove(room);
+  //println!("Leaving {room} (path len {})", path.len());
+}
+
 fn calc_releasable_pressure( graph: &HashMap<String,Room>, room_distances: &HashMap<String, HashMap<String,usize>>, max_time: usize) -> usize {
   //depth_first_search to explore all possible visit sequences starting from AA
   let mut highest_pressure = 0;
@@ -187,12 +278,28 @@ fn calc_releasable_pressure( graph: &HashMap<String,Room>, room_distances: &Hash
   //each recursion we store the current path, cumulative pressure, time on a stack
   let mut path = Vec::<PathStep>::new();
 
-  let mut discovered = HashSet::<String>::new();
+  let mut discovered = HashSet::<String>::default();
 
   do_calc_pressure( &graph, &room_distances, max_time, &mut path, &mut discovered, &mut highest_pressure, SOURCE );
 
   return highest_pressure;
 }
+
+fn calc_releasable_pressure_v2( graph: &HashMap<String,Room>, room_distances: &HashMap<String, HashMap<String,usize>>, max_time: usize) -> usize {
+  //depth_first_search to explore all possible visit sequences starting from AA
+  let mut highest_pressure = 0;
+
+  //each recursion we store the current path, cumulative pressure, time on a stack
+  let mut path1 = Vec::<PathStep>::new();
+  let mut path2 = Vec::<PathStep>::new();
+
+  let mut discovered = HashSet::<String>::default();
+
+  do_calc_pressure_v2( &graph, &room_distances, max_time, &mut path1, &mut path2, &mut discovered, &mut highest_pressure, SOURCE );
+
+  return highest_pressure;
+}
+
 
 const SOURCE: &str = "AA";
 
@@ -201,6 +308,9 @@ fn main() -> std::io::Result<()> {
   let room_distances = simplify_graph(&graph);
   let max_pressure = calc_releasable_pressure(&graph, &room_distances, 30);
 
+  println!("max pressure: {max_pressure}");
+
+  let max_pressure = calc_releasable_pressure_v2(&graph, &room_distances, 26);
   println!("max pressure: {max_pressure}");
 
   Ok(())
