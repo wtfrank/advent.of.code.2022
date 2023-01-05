@@ -16,9 +16,9 @@ mod tests {
       assert!(end.x == 5);
       assert!(end.y == 2);
 
-      assert!(tm.get(start) == 0);
-      assert!(tm.get(end) == 25);
-      assert!(tm.get(Point{x:2,y:0}) == 1);
+      assert!(tm.get(&start) == 0);
+      assert!(tm.get(&end) == 25);
+      assert!(tm.get(&Point{x:2,y:0}) == 1);
     }
 
    #[test]
@@ -47,7 +47,7 @@ fn trace_back( parents: &TerrainMap<Point>, start: Point, end: Point) -> usize {
 
   //println!("{}: {}", dist, cur);
   while cur != end {
-    cur = parents.get(cur);
+    cur = parents.get(&cur);
     dist += 1;
     //println!("{}: {}", dist, cur);
   }
@@ -61,7 +61,7 @@ fn shortest_path( map: &TerrainMap<usize>, from: Point, to: Point) -> usize {
   let mut visited = TerrainMap::<bool>::new(map.dims);
   let mut prev = TerrainMap::<Point>::new(map.dims);
 
-  visited.set(from, true);
+  visited.set(&from, true);
   queue.push_back(from);
   while queue.len() > 0 {
     let v = queue.pop_front().unwrap();
@@ -78,14 +78,14 @@ fn shortest_path( map: &TerrainMap<usize>, from: Point, to: Point) -> usize {
       if new.x as usize >= map.dims.width || new.y as usize >= map.dims.height {
         continue;
       }
-      if visited.get(new) {
+      if visited.get(&new) {
         continue;
       }
-      if map.get(new) > map.get(v) + 1 {
+      if map.get(&new) > map.get(&v) + 1 {
         continue;
       }
-      visited.set(new, true);
-      prev.set(new, v);
+      visited.set(&new, true);
+      prev.set(&new, v);
       queue.push_back(new);
     }
   }
@@ -99,11 +99,11 @@ fn shortest_path_to_goal( map: &TerrainMap<usize>, from: Point) -> usize {
   let mut visited = TerrainMap::<bool>::new(map.dims);
   let mut prev = TerrainMap::<Point>::new(map.dims);
 
-  visited.set(from, true);
+  visited.set(&from, true);
   queue.push_back(from);
   while queue.len() > 0 {
     let v = queue.pop_front().unwrap();
-    if map.get(v) == 0 {
+    if map.get(&v) == 0 {
       return trace_back(&prev, v, from);
     }
 
@@ -115,14 +115,14 @@ fn shortest_path_to_goal( map: &TerrainMap<usize>, from: Point) -> usize {
       if new.x as usize >= map.dims.width || new.y as usize >= map.dims.height {
         continue;
       }
-      if visited.get(new) {
+      if visited.get(&new) {
         continue;
       }
-      if map.get(new) < map.get(v) - 1 {
+      if map.get(&new) < map.get(&v) - 1 {
         continue;
       }
-      visited.set(new, true);
-      prev.set(new, v);
+      visited.set(&new, true);
+      prev.set(&new, v);
       queue.push_back(new);
     }
   }
@@ -167,7 +167,7 @@ fn load_terrain(filename: &str) -> (TerrainMap<usize>, Point, Point) {
       }
 
       let elevation = c.to_digit(36).unwrap()-10;
-      tm.set(pos,elevation as usize);
+      tm.set(&pos,elevation as usize);
 
       pos.x += 1;
     }

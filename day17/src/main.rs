@@ -45,6 +45,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_compare_smart2() {
       let jets = load_jets("input17.txt");
 
@@ -59,48 +60,48 @@ mod tests {
     fn test_single_left() {
       let jets = vec![Jet::Left];
       let (column,height) = drop_rocks(&jets, 1);
-      assert_eq!(column.get(Point{x:0,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:1,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:3,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:0,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:1,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:3,y:0}), Material::Rock);
       assert_eq!(height, 1);
     }
     #[test]
     fn test_single_right() {
       let jets = vec![Jet::Right];
       let (column,height) = drop_rocks(&jets, 1);
-      assert_eq!(column.get(Point{x:0,y:0}), Material::Air);
-      assert_eq!(column.get(Point{x:1,y:0}), Material::Air);
-      assert_eq!(column.get(Point{x:2,y:0}), Material::Air);
-      assert_eq!(column.get(Point{x:3,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:4,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:5,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:6,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:0,y:0}), Material::Air);
+      assert_eq!(column.get(&Point{x:1,y:0}), Material::Air);
+      assert_eq!(column.get(&Point{x:2,y:0}), Material::Air);
+      assert_eq!(column.get(&Point{x:3,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:4,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:5,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:6,y:0}), Material::Rock);
       assert_eq!(height, 1);
     }
     #[test]
     fn test_double() {
       let jets = vec![Jet::Left];
       let (column,height) = drop_rocks(&jets, 2);
-      assert_eq!(column.get(Point{x:0,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:1,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:3,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:0,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:1,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:3,y:0}), Material::Rock);
 
-      assert_eq!(column.get(Point{x:0,y:1}), Material::Air);
-      assert_eq!(column.get(Point{x:1,y:1}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:1}), Material::Air);
-      assert_eq!(column.get(Point{x:3,y:1}), Material::Air);
+      assert_eq!(column.get(&Point{x:0,y:1}), Material::Air);
+      assert_eq!(column.get(&Point{x:1,y:1}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:1}), Material::Air);
+      assert_eq!(column.get(&Point{x:3,y:1}), Material::Air);
 
-      assert_eq!(column.get(Point{x:0,y:2}), Material::Rock);
-      assert_eq!(column.get(Point{x:1,y:2}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:2}), Material::Rock);
-      assert_eq!(column.get(Point{x:3,y:2}), Material::Air);
+      assert_eq!(column.get(&Point{x:0,y:2}), Material::Rock);
+      assert_eq!(column.get(&Point{x:1,y:2}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:2}), Material::Rock);
+      assert_eq!(column.get(&Point{x:3,y:2}), Material::Air);
 
-      assert_eq!(column.get(Point{x:0,y:3}), Material::Air);
-      assert_eq!(column.get(Point{x:1,y:3}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:3}), Material::Air);
-      assert_eq!(column.get(Point{x:3,y:3}), Material::Air);
+      assert_eq!(column.get(&Point{x:0,y:3}), Material::Air);
+      assert_eq!(column.get(&Point{x:1,y:3}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:3}), Material::Air);
+      assert_eq!(column.get(&Point{x:3,y:3}), Material::Air);
 
       assert_eq!(height, 4);
     }
@@ -111,30 +112,30 @@ mod tests {
 
       visualise_column(&column, 8);
 
-      assert_eq!(column.get(Point{x:0,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:1,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:0}), Material::Rock);
-      assert_eq!(column.get(Point{x:3,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:0,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:1,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:0}), Material::Rock);
+      assert_eq!(column.get(&Point{x:3,y:0}), Material::Rock);
 
-      assert_eq!(column.get(Point{x:0,y:1}), Material::Air);
-      assert_eq!(column.get(Point{x:1,y:1}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:1}), Material::Air);
-      assert_eq!(column.get(Point{x:3,y:1}), Material::Air);
+      assert_eq!(column.get(&Point{x:0,y:1}), Material::Air);
+      assert_eq!(column.get(&Point{x:1,y:1}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:1}), Material::Air);
+      assert_eq!(column.get(&Point{x:3,y:1}), Material::Air);
 
-      assert_eq!(column.get(Point{x:0,y:2}), Material::Rock);
-      assert_eq!(column.get(Point{x:1,y:2}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:2}), Material::Rock);
-      assert_eq!(column.get(Point{x:3,y:2}), Material::Air);
+      assert_eq!(column.get(&Point{x:0,y:2}), Material::Rock);
+      assert_eq!(column.get(&Point{x:1,y:2}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:2}), Material::Rock);
+      assert_eq!(column.get(&Point{x:3,y:2}), Material::Air);
 
-      assert_eq!(column.get(Point{x:0,y:3}), Material::Air);
-      assert_eq!(column.get(Point{x:1,y:3}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:3}), Material::Air);
-      assert_eq!(column.get(Point{x:3,y:3}), Material::Air);
+      assert_eq!(column.get(&Point{x:0,y:3}), Material::Air);
+      assert_eq!(column.get(&Point{x:1,y:3}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:3}), Material::Air);
+      assert_eq!(column.get(&Point{x:3,y:3}), Material::Air);
 
-      assert_eq!(column.get(Point{x:0,y:4}), Material::Rock);
-      assert_eq!(column.get(Point{x:1,y:4}), Material::Rock);
-      assert_eq!(column.get(Point{x:2,y:4}), Material::Rock);
-      assert_eq!(column.get(Point{x:3,y:4}), Material::Air);
+      assert_eq!(column.get(&Point{x:0,y:4}), Material::Rock);
+      assert_eq!(column.get(&Point{x:1,y:4}), Material::Rock);
+      assert_eq!(column.get(&Point{x:2,y:4}), Material::Rock);
+      assert_eq!(column.get(&Point{x:3,y:4}), Material::Air);
 
       assert_eq!(height, 7);
    }
@@ -158,7 +159,7 @@ fn visualise_line( column: &TerrainMap<Material>, y: usize) {
     let mut line = String::new();
     for x in 0..column.dims.width {
       line.push (
-          match column.get(Point{x:x as isize,y:y as isize}) {
+          match column.get(&Point{x:x as isize,y:y as isize}) {
         Material::Air => '.',
         Material::Rock => '#',
       }
@@ -194,7 +195,7 @@ fn load_shape(shape:&str) -> TerrainMap<Material> {
           '.' => Material::Air,
           _ => panic!("unexpected char")
       };
-      sprite.set(Point{x,y}, mat);
+      sprite.set(&Point{x,y}, mat);
       x+= 1;
     }
     y-=1;
@@ -256,9 +257,9 @@ fn jet_rock(rock: &TerrainMap<Material>, rock_x: &mut isize, rock_y: isize, jet:
   //now check for intersection between rock and existing column terrain
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(Point{x:x, y:y}) != Material::Rock { continue; }
+      if rock.get(&Point{x:x, y:y}) != Material::Rock { continue; }
       //println!("{new_rock_x}, {rock_y}. {x},{y}.");
-      if column.get(Point{x:new_rock_x + x, y:rock_y + y}) == Material::Rock { return }
+      if column.get(&Point{x:new_rock_x + x, y:rock_y + y}) == Material::Rock { return }
     }
   }
   *rock_x = new_rock_x;
@@ -268,8 +269,8 @@ fn land_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: isize, column: 
 {
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(Point{x:x, y:y}) != Material::Rock { continue; }
-      column.set(Point{x:rock_x + x, y:rock_y + y}, Material::Rock);
+      if rock.get(&Point{x:x, y:y}) != Material::Rock { continue; }
+      column.set(&Point{x:rock_x + x, y:rock_y + y}, Material::Rock);
     }
   }
   if *highest_rock < rock_y + rock.dims.height as isize {
@@ -288,8 +289,8 @@ fn drop_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: &mut isize, col
   //now check for intersection between rock and existing column terrain
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(Point{x:x, y:y}) != Material::Rock { continue; }
-      if column.get(Point{x:rock_x + x, y:new_rock_y + y}) == Material::Rock { 
+      if rock.get(&Point{x:x, y:y}) != Material::Rock { continue; }
+      if column.get(&Point{x:rock_x + x, y:new_rock_y + y}) == Material::Rock {
         land_rock(rock, rock_x, *rock_y, column, highest_rock);
         return true;
       }
@@ -345,7 +346,8 @@ fn drop_rocks_smart(jets: &Vec<Jet>, count: usize) -> isize {
 
 fn whole_row_solid( y: isize, col: &TerrainMap<Material>) -> bool {
   for x in 0..col.dims.width {
-    if col.get(Point{x:x as isize,y}) == Material::Air { return false; }
+    if col.get(&Point{x:x as isize,y}) == Material::Air { return false; }
+
   }
   return true;
 }

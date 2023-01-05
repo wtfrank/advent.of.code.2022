@@ -68,7 +68,7 @@ fn load_scan(filename: &str) -> TerrainMap<ScanData> {
       let q = path[i];
       assert!(p.x == q.x || p.y == q.y);
       loop {
-        tm.set(p, ScanData::Rock);
+        tm.set(&p, ScanData::Rock);
         if p == q {
           break;
         }
@@ -94,7 +94,7 @@ fn load_scan(filename: &str) -> TerrainMap<ScanData> {
 
 fn add_floor(map: &mut TerrainMap<ScanData>) {
   for x in 0..map.dims.width {
-    map.set(Point{x:x as isize, y:map.dims.height as isize -1}, ScanData::Rock);
+    map.set(&Point{x:x as isize, y:map.dims.height as isize -1}, ScanData::Rock);
   }
 }
 
@@ -104,19 +104,19 @@ fn simulate_fall(map: &mut TerrainMap<ScanData>) -> usize {
     let mut s = Point{x:500,y:0};
 
     loop {
-      if map.get(Point{x:s.x, y:s.y+1}) == ScanData::Air {
+      if map.get(&Point{x:s.x, y:s.y+1}) == ScanData::Air {
         s.y += 1;
       }
-      else if map.get(Point{x:s.x-1, y:s.y+1}) == ScanData::Air {
+      else if map.get(&Point{x:s.x-1, y:s.y+1}) == ScanData::Air {
         s.x -= 1;
         s.y += 1;
       }
-      else if map.get(Point{x:s.x+1, y:s.y+1}) == ScanData::Air {
+      else if map.get(&Point{x:s.x+1, y:s.y+1}) == ScanData::Air {
         s.x += 1;
         s.y += 1;
       }
       else {
-        map.set(s, ScanData::Sand);
+        map.set(&s, ScanData::Sand);
         count += 1;
         if s.x == 500 && s.y == 0 {
           return count;

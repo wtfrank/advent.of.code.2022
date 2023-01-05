@@ -17,6 +17,35 @@ impl Point {
   }
 }
 
+pub struct Point3 {
+  pub x:isize,
+  pub y:isize,
+  pub z:isize,
+}
+
+impl std::fmt::Display for Point3 {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "({}, {}, {})", self.x, self.y, self.z)
+  }
+}
+
+impl Point3 {
+  //! Rectilinear distance is also known as L1, taxicab or manhattan distance
+  pub fn rectilinear_dist(&self, p:&Point3) -> usize {
+      (isize::abs(self.x - p.x) + isize::abs(self.y-p.y) + isize::abs(self.z - p.z) ) as usize
+  }
+
+  pub fn from_vec(v: Vec<isize>) -> Point3 {
+    assert_eq!(v.len(), 3);
+    Point3{ x: v[0], y: v[1], z: v[2] }
+  }
+
+  pub fn max(&self) -> isize {
+    std::cmp::max(std::cmp::max(self.x, self.y),self.z)
+  }
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
