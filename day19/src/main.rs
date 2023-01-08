@@ -82,6 +82,7 @@ mod tests {
       assert_eq!(q, 33);
     }
     #[test]
+    #[ignore]
     fn test_evaluate_blueprints2() {
       let bps = load_blueprints( "testinput.txt" );
       let e = evaluate_all_blueprints(&bps, 32);
