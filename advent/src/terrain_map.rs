@@ -11,7 +11,7 @@ impl<T:Copy+Default> TerrainMap<T> {
     for _ in 0..dims.height {
       tm.v.push(vec![T::default();dims.width]);
     }
-    return tm;
+    tm
   }
 
   pub fn get(&self, p: &Point) -> T {
@@ -40,7 +40,7 @@ impl<T:Copy+Default> TerrainMap3<T> {
   pub fn new(dims: Dims3) -> TerrainMap3<T> {
     let mut tm:TerrainMap3<T> = TerrainMap3{ v: Vec::new(), dims };
       tm.v.resize_with(dims.width * dims.height * dims.depth, T::default);
-    return tm;
+    tm
   }
 
   fn point_to_offset(&self, p:&Point3) -> usize {
