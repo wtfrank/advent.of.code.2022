@@ -23,6 +23,15 @@
  * part 1. I looked at part 2, and it seemed to be simply a matter of changing a few constants
  * and letting it run for a bit longer. But the depth going from 24 -> 32 increases the size of
  * the problem by approximately 4^8. So the runtime extended from a few seconds to about 24 minutes.
+ *
+ * INTERESTING FINDING:
+ * Implementation 1 is substantially faster in debug mode
+ * depth 28 method 1 took 5.174142798s
+ * depth 28 method 2 took 14.505950026s
+ *
+ * Implementation 2 is slightly faster in release mode!
+ * depth 28 method 1 took 1.448345223s
+ * depth 28 method 2 took 1.35526231s
  */
 
 
@@ -73,6 +82,18 @@ mod tests {
     }
 
     #[test]
+    fn test_evaluate_blueprint_1() {
+      let bps = load_blueprints( "testinput.txt" );
+      assert_eq!(evaluate_blueprint( &bps[0], 24 ), 9 );
+    }
+
+    #[test]
+    fn test_evaluate_blueprint_2() {
+      let bps = load_blueprints( "testinput.txt" );
+      assert_eq!(evaluate_blueprint2( &bps[0], 24 ), 9 );
+    }
+
+    #[test]
     fn test_evaluate_blueprints() {
       let bps = load_blueprints( "testinput.txt" );
       let e = evaluate_all_blueprints(&bps[0..], 24);
@@ -115,7 +136,7 @@ fn load_blueprints( filename: &str) -> Vec<Blueprint>
   blueprints
 }
 
-#[derive(Debug,Default)]
+#[derive(Debug,Default,Clone,Copy)]
 struct BpState {
   ore: u16,
   clay: u16,
@@ -230,6 +251,92 @@ fn build_robot( bp: &Blueprint, s: &mut BpState, most_geodes: &mut u16, action: 
   s.geodes -= (ticks_to_start+1) * s.geodebots;
 }
 
+/* version of build_robot using a stack of states instead of pushing/popping changes */
+fn build_robot2( bp: &Blueprint, stack: &mut Vec<BpState>, most_geodes: &mut u16, action: BotBuildAction) {
+
+  let s = stack.get(stack.len()-1).unwrap();
+  let mut new_state = *s;
+  //apply the effects
+  // * calc X where X = how many ticks until sufficient materials present
+  // * extract for X + 1 ticks
+  // * reduce inventory
+  // * increment bot count and elapsed time
+
+  let materials:&Materials = match &action {
+    BotBuildAction::Ore => &bp.orebot,
+    BotBuildAction::Clay => &bp.claybot,
+    BotBuildAction::Obsidian => &bp.obsidianbot,
+    BotBuildAction::Geode => &bp.geodebot,
+  };
+
+  let mut ticks_to_start = 0;
+  if materials.ore > 0 && s.ore < materials.ore {
+    ticks_to_start = std::cmp::max(ticks_to_start, num::Integer::div_ceil(&(materials.ore - s.ore), &s.orebots));
+  }
+  if materials.clay > 0 && s.clay < materials.clay {
+    ticks_to_start = std::cmp::max(ticks_to_start, num::Integer::div_ceil(&(materials.clay - s.clay), &s.claybots));
+  }
+  if materials.obsidian > 0 && s.obsidian < materials.obsidian {
+    ticks_to_start = std::cmp::max(ticks_to_start, num::Integer::div_ceil(&(materials.obsidian - s.obsidian), &s.obsidianbots));
+  }
+
+  /* 1 tick to build, 1 tick to produce. if it hasn't built and produced before we run out of time
+   *   then we terminate
+   */
+  if ticks_to_start + 2 + s.time > s.available_time {
+    //println!("time limit reached! ticks_to_start={}, time={}", ticks_to_start, s.time);
+    let geodes = s.geodes + (s.available_time - s.time) * s.geodebots;
+    if geodes > *most_geodes {
+      *most_geodes = geodes;
+      debug!("New max geodes: {}", *most_geodes);
+    }
+    return;
+  }
+
+  new_state.ore += (ticks_to_start+1) * new_state.orebots;
+  new_state.clay += (ticks_to_start+1) * new_state.claybots;
+  new_state.obsidian += (ticks_to_start+1) * new_state.obsidianbots;
+  new_state.geodes += (ticks_to_start+1) * new_state.geodebots;
+
+  new_state.ore -= materials.ore;
+  new_state.clay -= materials.clay;
+  new_state.obsidian -= materials.obsidian;
+
+  new_state.time += ticks_to_start + 1;
+
+  match &action {
+    BotBuildAction::Ore => new_state.orebots+=1,
+    BotBuildAction::Clay => new_state.claybots+=1,
+    BotBuildAction::Obsidian => new_state.obsidianbots+=1,
+    BotBuildAction::Geode => new_state.geodebots+=1,
+  }
+
+  /* reference rules means we can't check the value after adding to the stack */
+  let ore_ok = new_state.orebots > 0;
+  let clay_ok = new_state.claybots > 0;
+  let obsidian_ok = new_state.obsidianbots > 0;
+
+  stack.push(new_state);
+
+  //build something else
+  if ore_ok {
+    build_robot2( bp, stack, most_geodes, BotBuildAction::Ore );
+  }
+  if ore_ok {
+    build_robot2( bp, stack, most_geodes, BotBuildAction::Clay );
+  }
+  if ore_ok && clay_ok {
+    build_robot2( bp, stack, most_geodes, BotBuildAction::Obsidian );
+  }
+  if ore_ok && obsidian_ok {
+    build_robot2( bp, stack, most_geodes, BotBuildAction::Geode);
+  }
+
+
+  //disapply the effects
+  stack.pop();
+}
+
 fn evaluate_blueprint( bp: &Blueprint, available_time: u16 ) -> u16 {
   
   let mut state = BpState{ orebots:1, available_time, ..Default::default()};
@@ -239,6 +346,20 @@ fn evaluate_blueprint( bp: &Blueprint, available_time: u16 ) -> u16 {
   build_robot( bp, &mut state, &mut most_geodes, BotBuildAction::Ore );
   debug!("Evaluate blueprint with clay as first action");
   build_robot( bp, &mut state, &mut most_geodes, BotBuildAction::Clay );
+
+  most_geodes
+}
+
+fn evaluate_blueprint2( bp: &Blueprint, available_time: u16 ) -> u16 {
+
+  let mut stack = Vec::new();
+  stack.push(BpState{ orebots:1, available_time, ..Default::default()});
+  let mut most_geodes = 0;
+
+  debug!("Evaluate blueprint with ore as first action");
+  build_robot2( bp, &mut stack, &mut most_geodes, BotBuildAction::Ore );
+  debug!("Evaluate blueprint with clay as first action");
+  build_robot2( bp, &mut stack, &mut most_geodes, BotBuildAction::Clay );
 
   most_geodes
 }
@@ -287,7 +408,13 @@ fn benchmark_depth() {
     evaluate_blueprint( &blueprints[0], i);
     let duration = start.elapsed();
 
-    println!("depth {i} took {duration:?}");
+    println!("depth {i} method 1 took {duration:?}");
+
+    let start = Instant::now();
+    evaluate_blueprint2( &blueprints[0], i);
+    let duration = start.elapsed();
+
+    println!("depth {i} method 2 took {duration:?}");
   }
 }
 
