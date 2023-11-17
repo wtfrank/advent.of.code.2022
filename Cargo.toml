@@ -1,2 +1,11 @@
 [workspace]
 members = ["advent", "day*"]
+
+[profile.release-lto]
+inherits = "release"
+lto = true
+
+
+[profile.release-lto-pgo]
+inherits = "release"
+lto = true
