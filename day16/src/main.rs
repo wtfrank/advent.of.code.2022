@@ -10,6 +10,18 @@ use std::cmp::Reverse;
 type HashSet<T> = FxHashSet<T>;
 type HashMap<T,U> = FxHashMap<T,U>;
 
+/* perf notes
+ *
+ * original version took 38m to do both parts (with part 2 taking the bulk)
+ *
+ * adding in a really weak heuristic that massively overestimates the
+ * highest achievable score from a position, allows so much pruning that
+ * the total time drops to 6m.
+ *
+ */
+
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -32,7 +44,6 @@ mod tests {
       assert_eq!(max_pressure, 1707);
     }
 }
-
 
 fn load_graph(filename: &str) -> HashMap<String,Room>
 {
@@ -164,6 +175,30 @@ fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashM
     }
   }
 
+
+  //see if we can prove we can't beat best and prune branches
+  //assume we open best valve each timestep (could improve to best remaining)
+  //triangle numbers for new valves n(n-1)/2
+  //so total flow is existing flow . time + triangle * biggest valve
+  let step = path.get(path.len()-1).unwrap();//wasteful?
+  let remaining_steps = max_time - step.dist;
+  if remaining_steps > 1 {
+    let best_case_existing_flow = step.cum_pressure + step.open_valves * remaining_steps;
+
+    let best_valve = 24; //hardcode
+    let best_case_new_flow = best_valve * remaining_steps*(remaining_steps-1)/2;
+    let best_case = best_case_existing_flow + best_case_new_flow;
+
+    if best_case < *highest_pressure {
+      println!("Hopeless! Optimistically, cannot beat best time. dist={}", step.dist);
+
+      path.pop();
+      discovered.remove(room);
+      return;
+    }
+  }
+
+
   let mut avail = 0;
   for (r2,_) in room_distances.get(room).unwrap() {
     if !discovered.contains(r2)  {
@@ -241,6 +276,41 @@ fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a Ha
     next_room = room;
     swapped = false;
   }
+
+  //see if we can prove we can't beat best and prune branches
+  //assume we open best valve each timestep (could improve to best remaining)
+  //triangle numbers for new valves n(n-1)/2
+  //so total flow is existing flow . time + triangle * biggest valve
+  let step1 = next_path1.get(next_path1.len()-1).unwrap();//wasteful?
+  let step2 = next_path2.get(next_path2.len()-1).unwrap();//wasteful?
+  let remaining_steps = std::cmp::max(max_time - step1.dist, max_time-step2.dist);
+  if remaining_steps > 1 {
+    let best_case_existing_flow = step1.cum_pressure + step2.cum_pressure + (step1.open_valves + step2.open_valves) * remaining_steps;
+
+    let best_valve = 24; //hardcode
+    let best_case_new_flow = 2* best_valve * remaining_steps*(remaining_steps-1)/2; // 2 people moving around the graph here
+    let best_case = best_case_existing_flow + best_case_new_flow;
+
+    if best_case < *highest_pressure {
+      //println!("Hopeless! Optimistically, cannot beat best time. dist={}", step.dist);
+
+      if swapped {
+        next_path2.pop();
+      }
+      else {
+        next_path1.pop();
+      }
+
+      discovered.remove(room);
+      return;
+    }
+  }
+
+
+
+
+
+
   let mut avail = 0;
   for (r2,_) in room_distances.get(next_room).unwrap() {
     if !discovered.contains(r2)  {
@@ -306,12 +376,12 @@ const SOURCE: &str = "AA";
 fn main() -> std::io::Result<()> {
   let graph = load_graph("input16.txt");
   let room_distances = simplify_graph(&graph);
-  let max_pressure = calc_releasable_pressure(&graph, &room_distances, 30);
+  let max_pressure1 = calc_releasable_pressure(&graph, &room_distances, 30);
 
-  println!("max pressure: {max_pressure}");
+  println!("max pressure: {max_pressure1}\n\n\n");
 
-  let max_pressure = calc_releasable_pressure_v2(&graph, &room_distances, 26);
-  println!("max pressure: {max_pressure}");
+  let max_pressure2 = calc_releasable_pressure_v2(&graph, &room_distances, 26);
+  println!("max pressure: {max_pressure2} ");
 
   Ok(())
 }
