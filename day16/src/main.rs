@@ -5,7 +5,9 @@ use std::io::prelude::*;
 use rustc_hash::FxHashSet;
 use rustc_hash::FxHashMap;
 use priority_queue::PriorityQueue;
-use std::cmp::Reverse;
+use std::cmp::{max,Reverse};
+use std::time::{Instant};
+
 
 type HashSet<T> = FxHashSet<T>;
 type HashMap<T,U> = FxHashMap<T,U>;
@@ -16,7 +18,7 @@ type HashMap<T,U> = FxHashMap<T,U>;
  *
  * adding in a really weak heuristic that massively overestimates the
  * highest achievable score from a position, allows so much pruning that
- * the total time drops to 6m.
+ * the total time drops to 387s.
  *
  */
 
@@ -42,6 +44,15 @@ mod tests {
       assert_eq!(max_pressure, 1651);
       let max_pressure = calc_releasable_pressure_v2(&graph, &room_distances, 26);
       assert_eq!(max_pressure, 1707);
+    }
+
+    #[test]
+    fn test_unopened_valve() {
+      let graph = load_graph("testinput.txt");
+      let room_distances = simplify_graph(&graph);
+      let mut discovered = HashSet::<String>::default();
+      let mut largest_unopened_valve = calc_largest_valve( &graph, &room_distances, &discovered );
+      assert_eq!(largest_unopened_valve, 22);
     }
 }
 
@@ -142,10 +153,11 @@ fn simplify_graph(graph:&HashMap<String,Room>) -> HashMap<String, HashMap<String
   return distances;
 }
 
-fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashMap<String, HashMap<String,usize>>, max_time: usize, path: &mut Vec::<PathStep<'a>>, discovered: &mut HashSet::<String>, highest_pressure: &mut usize, room:&'a str)
+fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashMap<String, HashMap<String,usize>>, max_time: usize, path: &mut Vec::<PathStep<'a>>, discovered: &mut HashSet::<String>, highest_pressure: &mut usize, largest_unopened_valve: &mut usize, room:&'a str)
 {
   //println!("Entering {room} with path length {}", path.len());
   discovered.insert(String::from(room));
+  let room_flow = graph.get(room).unwrap().flow;
   if path.len() <= 0 {
     assert!(room == SOURCE);
     path.push( PathStep{room: room, open_valves:0, cum_pressure: 0, dist: 0} );
@@ -162,16 +174,26 @@ fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashM
         println!("New best path1: {highest_pressure} via {path:?}");
       }
       discovered.remove(room);
+      if room_flow > *largest_unopened_valve {
+        *largest_unopened_valve = room_flow;
+      }
       //println!("Leaving {room} (path len {})", path.len());
       return;
     }
     else {
       path.push( PathStep{
           room: room,
-          open_valves: prev.open_valves + graph.get(room).unwrap().flow,
+          open_valves: prev.open_valves + room_flow,
           cum_pressure: prev.cum_pressure + dist * prev.open_valves,
           dist: prev.dist + dist,
       });
+      if room_flow > *largest_unopened_valve {
+        println!("valve tracking error: {room}, {room_flow}, unopened: {}, dist:{dist}", *largest_unopened_valve);
+      }
+      else if room_flow == *largest_unopened_valve {
+        *largest_unopened_valve = calc_largest_valve( graph, room_distances, discovered );
+        //println!("reducing largest valve from {room_flow} to {}, discovered={}", *largest_unopened_valve, discovered.len());
+      }
     }
   }
 
@@ -185,8 +207,7 @@ fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashM
   if remaining_steps > 1 {
     let best_case_existing_flow = step.cum_pressure + step.open_valves * remaining_steps;
 
-    let best_valve = 24; //hardcode
-    let best_case_new_flow = best_valve * remaining_steps*(remaining_steps-1)/2;
+    let best_case_new_flow = *largest_unopened_valve * remaining_steps*(remaining_steps-1)/2;
     let best_case = best_case_existing_flow + best_case_new_flow;
 
     if best_case < *highest_pressure {
@@ -194,6 +215,9 @@ fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashM
 
       path.pop();
       discovered.remove(room);
+      if room_flow > *largest_unopened_valve {
+        *largest_unopened_valve = room_flow;
+      }
       return;
     }
   }
@@ -203,7 +227,7 @@ fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashM
   for (r2,_) in room_distances.get(room).unwrap() {
     if !discovered.contains(r2)  {
       avail += 1;
-      do_calc_pressure( &graph, &room_distances, max_time, path, discovered, highest_pressure, r2 );
+      do_calc_pressure( &graph, &room_distances, max_time, path, discovered, highest_pressure, largest_unopened_valve, r2 );
     }
   }
 
@@ -218,14 +242,18 @@ fn do_calc_pressure<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashM
 
   path.pop();
   discovered.remove(room);
+  if room_flow > *largest_unopened_valve {
+    *largest_unopened_valve = room_flow;
+  }
   //println!("Leaving {room} (path len {})", path.len());
 }
 
 
-fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashMap<String, HashMap<String,usize>>, max_time: usize, path: &mut Vec::<PathStep<'a>>, path2: &mut Vec::<PathStep<'a>>, discovered: &mut HashSet::<String>, highest_pressure: &mut usize, room:&'a str)
+fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a HashMap<String, HashMap<String,usize>>, max_time: usize, path: &mut Vec::<PathStep<'a>>, path2: &mut Vec::<PathStep<'a>>, discovered: &mut HashSet::<String>, highest_pressure: &mut usize, largest_unopened_valve: &mut usize, room:&'a str)
 {
   //println!("Entering {room} with path length {}", path.len());
   discovered.insert(String::from(room));
+  let room_flow = graph.get(room).unwrap().flow;
   if path.len() <= 0 {
     assert!(room == SOURCE);
     path.push( PathStep{room: room, open_valves:0, cum_pressure: 0, dist: 0} );
@@ -246,6 +274,9 @@ fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a Ha
       }
       discovered.remove(room);
       //println!("Leaving {room} (path len {})", path.len());
+      if room_flow > *largest_unopened_valve {
+        *largest_unopened_valve = room_flow;
+      }
       return;
     }
     else {
@@ -255,6 +286,13 @@ fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a Ha
           cum_pressure: prev.cum_pressure + dist * prev.open_valves,
           dist: prev.dist + dist,
       });
+      if room_flow > *largest_unopened_valve {
+        println!("valve tracking error: {room}, {room_flow}, unopened: {}, dist:{dist}", *largest_unopened_valve);
+      }
+      else if room_flow == *largest_unopened_valve {
+        *largest_unopened_valve = calc_largest_valve( graph, room_distances, discovered );
+        //println!("reducing largest valve from {room_flow} to {}, discovered={}", *largest_unopened_valve, discovered.len());
+      }
     }
   }
 
@@ -283,12 +321,11 @@ fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a Ha
   //so total flow is existing flow . time + triangle * biggest valve
   let step1 = next_path1.get(next_path1.len()-1).unwrap();//wasteful?
   let step2 = next_path2.get(next_path2.len()-1).unwrap();//wasteful?
-  let remaining_steps = std::cmp::max(max_time - step1.dist, max_time-step2.dist);
+  let remaining_steps = max(max_time - step1.dist, max_time-step2.dist);
   if remaining_steps > 1 {
     let best_case_existing_flow = step1.cum_pressure + step2.cum_pressure + (step1.open_valves + step2.open_valves) * remaining_steps;
 
-    let best_valve = 24; //hardcode
-    let best_case_new_flow = 2* best_valve * remaining_steps*(remaining_steps-1)/2; // 2 people moving around the graph here
+    let best_case_new_flow = 2 * *largest_unopened_valve * remaining_steps*(remaining_steps-1)/2; // 2 people moving around the graph here
     let best_case = best_case_existing_flow + best_case_new_flow;
 
     if best_case < *highest_pressure {
@@ -302,21 +339,19 @@ fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a Ha
       }
 
       discovered.remove(room);
+      if room_flow > *largest_unopened_valve {
+        *largest_unopened_valve = room_flow;
+      }
       return;
     }
   }
-
-
-
-
-
 
   let mut avail = 0;
   for (r2,_) in room_distances.get(next_room).unwrap() {
     if !discovered.contains(r2)  {
       avail += 1;
 
-      do_calc_pressure_v2( &graph, &room_distances, max_time, next_path1, next_path2, discovered, highest_pressure, r2 );
+      do_calc_pressure_v2( &graph, &room_distances, max_time, next_path1, next_path2, discovered, highest_pressure, largest_unopened_valve, r2 );
     }
   }
 
@@ -339,6 +374,23 @@ fn do_calc_pressure_v2<'a>( graph: &HashMap<String,Room>, room_distances: &'a Ha
   }
   discovered.remove(room);
   //println!("Leaving {room} (path len {})", path.len());
+  if room_flow > *largest_unopened_valve {
+    *largest_unopened_valve = room_flow;
+  }
+}
+
+fn calc_largest_valve( graph: &HashMap<String,Room>, room_distances: &HashMap<String, HashMap<String, usize>>, discovered: &HashSet<String> ) -> usize {
+  
+  let mut largest_valve = 0;
+
+  for r in room_distances.keys() {
+    if discovered.contains(r) { continue; }
+    let v = graph.get(r).unwrap().flow;
+    if v > largest_valve {
+      largest_valve = v;
+    }
+  }
+  largest_valve
 }
 
 fn calc_releasable_pressure( graph: &HashMap<String,Room>, room_distances: &HashMap<String, HashMap<String,usize>>, max_time: usize) -> usize {
@@ -350,7 +402,9 @@ fn calc_releasable_pressure( graph: &HashMap<String,Room>, room_distances: &Hash
 
   let mut discovered = HashSet::<String>::default();
 
-  do_calc_pressure( &graph, &room_distances, max_time, &mut path, &mut discovered, &mut highest_pressure, SOURCE );
+  let mut largest_unopened_valve = calc_largest_valve( graph, room_distances, &discovered );
+
+  do_calc_pressure( &graph, &room_distances, max_time, &mut path, &mut discovered, &mut highest_pressure, &mut largest_unopened_valve, SOURCE );
 
   return highest_pressure;
 }
@@ -365,7 +419,9 @@ fn calc_releasable_pressure_v2( graph: &HashMap<String,Room>, room_distances: &H
 
   let mut discovered = HashSet::<String>::default();
 
-  do_calc_pressure_v2( &graph, &room_distances, max_time, &mut path1, &mut path2, &mut discovered, &mut highest_pressure, SOURCE );
+  let mut largest_unopened_valve = calc_largest_valve( graph, room_distances, &discovered );
+
+  do_calc_pressure_v2( &graph, &room_distances, max_time, &mut path1, &mut path2, &mut discovered, &mut highest_pressure, &mut largest_unopened_valve, SOURCE );
 
   return highest_pressure;
 }
@@ -374,14 +430,24 @@ fn calc_releasable_pressure_v2( graph: &HashMap<String,Room>, room_distances: &H
 const SOURCE: &str = "AA";
 
 fn main() -> std::io::Result<()> {
+  let setup_start = Instant::now();
   let graph = load_graph("input16.txt");
   let room_distances = simplify_graph(&graph);
+  let setup_duration = setup_start.elapsed();
+
+  let part1_start = Instant::now();
   let max_pressure1 = calc_releasable_pressure(&graph, &room_distances, 30);
+  let part1_duration = part1_start.elapsed();
 
   println!("max pressure: {max_pressure1}\n\n\n");
 
+  let part2_start = Instant::now();
   let max_pressure2 = calc_releasable_pressure_v2(&graph, &room_distances, 26);
+  let part2_duration = part2_start.elapsed();
+  let total_duration = setup_start.elapsed();
   println!("max pressure: {max_pressure2} ");
+
+  println!("setup: {setup_duration:?}, part1: {part1_duration:?}, part2: {part2_duration:?} total: {total_duration:?}");
 
   Ok(())
 }
