@@ -20,6 +20,8 @@ type HashMap<T,U> = FxHashMap<T,U>;
  * highest achievable score from a position, allows so much pruning that
  * the total time drops to 387s.
  *
+ * adding in a more accurate but more complex heuristic, the total time is 420s
+ *
  */
 
 

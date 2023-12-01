@@ -1,5 +1,5 @@
 [workspace]
-members = ["advent", "day*"]
+members = ["advent", "day*", "dday*"]
 
 [profile.release-lto]
 inherits = "release"
