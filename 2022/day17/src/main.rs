@@ -168,6 +168,7 @@ fn visualise_line( column: &TerrainMap<Material>, y: usize) {
     println!("{line}");
 }
 
+#[cfg(test)]
 fn visualise_column( column: &TerrainMap<Material>, max_height: usize) {
   for mut y in 0..max_height {
     y = max_height - y -1;
@@ -321,7 +322,7 @@ fn drop_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: &mut isize, col
  *
  */
 fn drop_rocks_smart(jets: &Vec<Jet>, count: usize) -> isize {
-  let total_jets = jets.len();
+  let _total_jets = jets.len();
 
   let block_cycle = 1725; //after this number of blocks it cycles
   let cycle_height_increase = 2694;
@@ -344,6 +345,7 @@ fn drop_rocks_smart(jets: &Vec<Jet>, count: usize) -> isize {
   return height;
 }
 
+/*
 fn whole_row_solid( y: isize, col: &TerrainMap<Material>) -> bool {
   for x in 0..col.dims.width {
     if col.get(&Point{x:x as isize,y}) == Material::Air { return false; }
@@ -351,6 +353,7 @@ fn whole_row_solid( y: isize, col: &TerrainMap<Material>) -> bool {
   }
   return true;
 }
+*/
 
 fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap::<Material>, isize) {
   //y is 0 at bottom
@@ -364,7 +367,7 @@ fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap::<Material>, isize) 
 
   let mut highest_rock = 0;
   let mut num_jets = 0;
-  for num_rocks in 0..count {
+  for _num_rocks in 0..count {
     let rock = rocks.next().unwrap();
     let mut rock_x = 2;
     let mut rock_y = highest_rock + 3;
@@ -402,7 +405,7 @@ fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap::<Material>, isize) 
 
 fn main() {
   let jets = load_jets("input17.txt");
-  let (col,height) = drop_rocks(&jets, 2022);
+  let (_col,height) = drop_rocks(&jets, 2022);
   println!("{height}");
   //visualise_column(&col, 100);
 

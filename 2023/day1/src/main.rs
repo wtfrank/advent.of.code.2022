@@ -2,7 +2,7 @@
 use std::fs::File;
 use std::io::Read;
 use clap::Parser;
-use log::debug;
+//use log::debug;
 
 
 use rustc_hash::FxHashMap;

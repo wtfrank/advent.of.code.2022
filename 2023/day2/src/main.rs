@@ -2,11 +2,11 @@
 use std::fs::File;
 use std::io::Read;
 use clap::Parser;
-use log::debug;
+//use log::debug;
 
 
-use rustc_hash::FxHashMap;
-type HashMap<T,U> = FxHashMap<T,U>;
+//use rustc_hash::FxHashMap;
+//type HashMap<T,U> = FxHashMap<T,U>;
 
 /// Day 19 of Advent of Code 2022
 #[derive(Parser, Debug)]
