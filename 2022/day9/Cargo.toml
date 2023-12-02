@@ -1,5 +1,5 @@
 [package]
-name = "day9"
+name = "aoc_2022_day9"
 version = "0.1.0"
 edition = "2021"
 
