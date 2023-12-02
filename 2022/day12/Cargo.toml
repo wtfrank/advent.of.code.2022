@@ -1,15 +1,12 @@
 [package]
-name = "day19"
+name = "day12"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#advent = { path = "../advent" }
-sscanf = "0.4"
-num = "0.4"
-clap = { version = "4.0", features = ["derive"] }
-log = "0.4"
-env_logger = "0.10"
-
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+advent = { path = "../../advent" }
+priority-queue = { version = "1.3" }
