@@ -1,5 +1,6 @@
 [workspace]
 members = ["advent", "2022/day*", "2023/day*"]
+resolver = "2"
 
 [profile.release-lto]
 inherits = "release"
