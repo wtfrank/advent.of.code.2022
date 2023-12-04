@@ -56,10 +56,10 @@ fn render_image(x_states: &Vec<isize>) -> String {
     }
   }
 
-  return output;
+  output
 }
 
-fn calculate_signal_strength(x_states: &Vec<isize>) -> isize {
+fn calculate_signal_strength(x_states: &[isize]) -> isize {
 
   let mut ret = 0;
   let mut i = 20;
@@ -71,7 +71,7 @@ fn calculate_signal_strength(x_states: &Vec<isize>) -> isize {
     }
   }
   
-  return ret;
+  ret
 }
 
 /* @return vector containing the state of x register after executing
@@ -99,7 +99,7 @@ fn simulate_execution(f: &str) -> Vec<isize> {
     }
   }
   
-  return x_states;
+  x_states
 }
 
 

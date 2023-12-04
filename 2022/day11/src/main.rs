@@ -92,7 +92,7 @@ fn remap_to_yaml(input: &str) -> String {
     }
 
   }
-  return output;
+  output
 }
 
 fn deserialize_starting_items <'de, D>(deserializer: D) -> Result<VecDeque<usize>, D::Error>
@@ -102,13 +102,13 @@ where D: Deserializer<'de>
 
   let mut v = VecDeque::<usize>::new();
   for t in s.split(|c:char| c.is_whitespace() || c == ',') {
-    if t.len() == 0 {
+    if t.is_empty() {
       continue;
     }
     let u = t.parse::<usize>().map_err(D::Error::custom)?;
     v.push_back(u);
   }
-  return Ok(v);
+  Ok(v)
 }
 
 fn parse_monkevar( input: &str ) -> Result<MonkeVar, ()> {
@@ -164,7 +164,7 @@ where D: Deserializer<'de>
     return Err(D::Error::custom("bad test format"));
   }
 
-  Ok(tokens.next().unwrap().parse::<usize>().map_err(D::Error::custom)?)
+  tokens.next().unwrap().parse::<usize>().map_err(D::Error::custom)
 }
 
 fn deserialize_test_result<'de, D>(deserializer: D) -> Result<usize, D::Error>
@@ -186,14 +186,14 @@ where D: Deserializer<'de>
     return Err(D::Error::custom("bad result format"));
   }
 
-  Ok(tokens.next().unwrap().parse::<usize>().map_err(D::Error::custom)?)
+  tokens.next().unwrap().parse::<usize>().map_err(D::Error::custom)
 }
 
 impl std::fmt::Display for Monke{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let mut starting_items = String::new();
         for si in self.has.iter() {
-          if starting_items.len() != 0 {
+          if !starting_items.is_empty() {
             starting_items += ", ";
           }
           starting_items += &si.to_string();
@@ -226,7 +226,7 @@ fn load_monke(f: &str) -> Vec<Monke> {
     i += 1;
   }
 
-  return monkes;
+  monkes
 }
 
 
@@ -311,12 +311,12 @@ fn process_round(monkes: &mut Vec<Monke>, reduce_worry:bool) {
     // to other monkes as we can't mutably borrow two items
     // from a vecdeque simultaneously.
     let mut items:VecDeque<usize> = m.has.drain(0..).collect();
-    m.inspections += items.len() as usize;
+    m.inspections += items.len();
     let sm = m.success_monke;
     let fm = m.failure_monke;
     let divisor = m.test_divisor;
     let operation = m.operation;
-    while items.len() > 0 {
+    while !items.is_empty() {
       let mut w:usize = items.pop_front().unwrap();
       // monke inspects
       w = process_operation(w, operation);
@@ -326,13 +326,13 @@ fn process_round(monkes: &mut Vec<Monke>, reduce_worry:bool) {
         w = (w as f64 / 3.0) as usize;
       }
       //limit by multiple to ensure numbers don't grow to stupid levels
-      w = w % divisor_multiple;
+      w %= divisor_multiple;
       // throw object
       if w % divisor == 0 {
-        monkes[sm as usize].receive(w);
+        monkes[sm].receive(w);
       }
       else {
-        monkes[fm as usize].receive(w);
+        monkes[fm].receive(w);
       }
     }
   }

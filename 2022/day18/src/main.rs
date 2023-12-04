@@ -29,12 +29,13 @@ fn load_points(filename: &str) -> Vec<Point3>
                 .lines()
                 .map(|l| l.split(',').map(
                         |n| n.parse::<isize>().unwrap()).collect())
-                .map(|v| Point3::from_vec(v))
+                .map( Point3::from_vec )
                 .collect();
 
-  return points;
+  points
 }
 
+#[allow(clippy::int_plus_one)]
 fn find_adjacent(points: &Vec<Point3>) -> usize
 {  
   let max = points.iter().map( |p| p.max() ).max().unwrap();
@@ -90,7 +91,7 @@ fn find_adjacent(points: &Vec<Point3>) -> usize
     }
   }
 
-  return points.len() * 6 - adjacent;
+  points.len() * 6 - adjacent
 }
 
 #[derive(Default,Clone,Copy,PartialEq)]
@@ -101,6 +102,7 @@ enum PointVisit {
   Unreachable,
 }
 
+#[allow(clippy::int_plus_one)]
 fn flood_fill(points: &Vec<Point3>) -> usize {
   let max = 1 + points.iter().map( |p| p.max() ).max().unwrap() as usize;
   let mut visited = TerrainMap3::<PointVisit>::new( Dims3{height:max, width:max, depth:max,..Default::default()});
@@ -163,7 +165,8 @@ fn flood_fill(points: &Vec<Point3>) -> usize {
   let inner_adj = find_adjacent(&interior);
   let outer_adj = find_adjacent(points);
   println!("inner {}, outer {}, diff {}", inner_adj, outer_adj, outer_adj-inner_adj);
-  return outer_adj - inner_adj;
+
+  outer_adj - inner_adj
 }
 
 fn main() {

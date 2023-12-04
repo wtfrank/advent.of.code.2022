@@ -51,14 +51,14 @@ fn parse_line( line: &str) -> (usize, HashSet::<usize>, Vec::<usize>) {
   let elf_str = r.2;
 
   for n in win_str.split(' ') {
-    if n.len() == 0 { continue; }
+    if n.is_empty() { continue; }
     let number = n.parse::<usize>().unwrap();
     winning_nos.insert(number);
   }
 
   //println!("win_str: \"{win_str}\", elf_str: \"{elf_str}\"");
   for n in elf_str.split(' ') {
-    if n.len() == 0 { continue; }
+    if n.is_empty() { continue; }
     let number = n.parse::<usize>().unwrap();
     elf_nos.push(number);
   }
@@ -97,7 +97,7 @@ fn load_data( filename: &str) -> (usize, usize)
 
   let mut score = 0;
   for line in contents.lines() {
-    let (card_id, winning_nos, elf_nos) = parse_line(&line);
+    let (card_id, winning_nos, elf_nos) = parse_line(line);
 
     let (wins, s) = analyse_card(&winning_nos, &elf_nos);
     score += s;

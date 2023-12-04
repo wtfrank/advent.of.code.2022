@@ -27,7 +27,6 @@ mod tests {
 fn process_cmd(tokens: &mut std::str::SplitWhitespace, current_dir_index: &mut usize, tree: &VecDeque<FsNode>) {
   let cmd = tokens.next().unwrap();
   if cmd == "ls" {
-    return;
   }
   else if cmd == "cd" {
     let arg = tokens.next().unwrap();
@@ -143,7 +142,7 @@ fn part1_total_usage(tree:&VecDeque<FsNode>) -> usize {
       total += node.cum_space;
     }
   }
-  return total;
+  total
 }
 
 fn part2_freeable_space(tree:&VecDeque<FsNode>) -> usize {
@@ -163,7 +162,7 @@ fn part2_freeable_space(tree:&VecDeque<FsNode>) -> usize {
   if best_dir == TOTAL_FS_SIZE {
     panic!("No directory was suitable to delete");
   }
-  return best_dir;
+  best_dir
 }
 
 fn main() -> std::io::Result<()> {

@@ -43,8 +43,8 @@ fn check_around( schematic: &TerrainMap::<char>, start: &Point, end: &Point ) ->
   if s.y < 0 {s.y = 0;}
 
   let mut e = Point{x: end.x+1, y:end.y+1};
-  if e.x >= schematic.dims.width as isize { e.x = e.x-1; }
-  if e.y >= schematic.dims.height as isize { e.y = e.y-1; }
+  if e.x >= schematic.dims.width as isize { e.x -= 1; }
+  if e.y >= schematic.dims.height as isize { e.y -= 1; }
 
   let mut pos = Point{ x: s.x, y: s.y };
 
@@ -70,8 +70,8 @@ fn check_around_for_gear( schematic: &TerrainMap::<char>, start: &Point, end: &P
   if s.y < 0 {s.y = 0;}
 
   let mut e = Point{x: end.x+1, y:end.y+1};
-  if e.x >= schematic.dims.width as isize { e.x = e.x-1; }
-  if e.y >= schematic.dims.height as isize { e.y = e.y-1; }
+  if e.x >= schematic.dims.width as isize { e.x -= 1; }
+  if e.y >= schematic.dims.height as isize { e.y -= 1; }
 
   let mut pos = Point{ x: s.x, y: s.y };
 
@@ -107,8 +107,8 @@ fn check_around_for_number( schematic: &TerrainMap::<char>, gpos: &Point, start:
   if s.y < 0 {s.y = 0;}
 
   let mut e = Point{x: gpos.x+1, y:gpos.y+1};
-  if e.x >= schematic.dims.width as isize { e.x = e.x-1; }
-  if e.y >= schematic.dims.height as isize { e.y = e.y-1; }
+  if e.x >= schematic.dims.width as isize { e.x -= 1; }
+  if e.y >= schematic.dims.height as isize { e.y -= 1; }
 
   let mut pos = Point{ x: s.x, y: s.y };
 
@@ -130,6 +130,7 @@ fn check_around_for_number( schematic: &TerrainMap::<char>, gpos: &Point, start:
 }
 
 
+#[allow(clippy::collapsible_else_if)]
 fn analyse_schematic2( schematic: &TerrainMap::<char> ) -> usize {
   //go through schematic starting from bottom right
   //find start/end pos of numbers, and value
@@ -210,6 +211,8 @@ fn analyse_schematic2( schematic: &TerrainMap::<char> ) -> usize {
   //we match each pair twice
   score / 2
 }
+
+#[allow(clippy::collapsible_else_if)]
 fn analyse_schematic( schematic: &TerrainMap::<char> ) -> usize {
   //go through schematic starting from bottom right
   //find start/end pos of numbers, and value
@@ -270,7 +273,8 @@ fn determine_map_dims(data: &str) -> Dims {
       width = w;
     }
   }
-  return Dims{width, height,..Default::default()};
+
+  Dims{width, height,..Default::default()}
 }
 
 fn load_data( filename: &str) -> TerrainMap::<char>

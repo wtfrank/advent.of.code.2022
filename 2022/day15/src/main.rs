@@ -224,6 +224,7 @@ fn sum_ranges(ranges: &LinkedList<Range<isize>>, beacons: &HashSet<Point>, row: 
   sum
 }
 
+#[allow(clippy::needless_range_loop)]
 fn load_scan(filename: &str, rows: usize) -> 
     (Vec<LinkedList<Range<isize>>>, HashSet<Point>)
 {
@@ -244,6 +245,18 @@ fn load_scan(filename: &str, rows: usize) ->
 
     sensors.insert(s);
     beacons.insert(b);
+
+    // clippy want this iteration style but it makes the programme
+    // consistently 5%+ slower
+    /*
+    for (row, old_range) in ranges.iter_mut().enumerate() {
+      let range = create_range(s,b,row as isize);
+      match range {
+        None=>continue,
+        Some(r) => insert_range(r, old_range),
+      }
+    }*/
+
     for row in 0..rows+1 {
       let range = create_range(s,b,row as isize);
       match range {
@@ -255,7 +268,7 @@ fn load_scan(filename: &str, rows: usize) ->
   (ranges, beacons)
 }
 
-fn calc_tuning_frequency( ranges: &Vec<LinkedList<Range<isize>>>, max:usize) -> usize{
+fn calc_tuning_frequency( ranges: &[LinkedList<Range<isize>>], max:usize) -> usize{
   for y in 0..max+1 {
     let rs = ranges.get(y).unwrap();
     if rs.len() > 1 {
@@ -267,7 +280,7 @@ fn calc_tuning_frequency( ranges: &Vec<LinkedList<Range<isize>>>, max:usize) -> 
       assert_eq!(first.end + 1, second.start);
       return 4_000_000 * (second.start as usize -1) + y;
     }
-    else if rs.len() <= 0 {
+    else if rs.is_empty() {
       panic!("unexpectedly nothing in row {y}");
     }
     else {

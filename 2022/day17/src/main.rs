@@ -37,7 +37,8 @@ mod tests {
       let (_, height) = drop_rocks(&jets, 2022);
       assert_eq!(height, 3068);
     }
-//    #[test]
+    #[test]
+    #[ignore]
     fn test_compare_smart() {
       let jets = load_jets("testinput.txt");
       let height = drop_rocks_smart(&jets, 1000000000000);
@@ -189,15 +190,13 @@ fn load_shape(shape:&str) -> TerrainMap<Material> {
 
   let mut y = (y-1) as isize;
   for line in shape.lines() {
-    let mut x = 0;
-    for char in line.chars() {
-      let mat:Material = match char {
+    for (x,c) in line.chars().enumerate() {
+      let mat:Material = match c {
           '#' => Material::Rock,
           '.' => Material::Air,
           _ => panic!("unexpected char")
       };
-      sprite.set(&Point{x,y}, mat);
-      x+= 1;
+      sprite.set(&Point{x:x as isize,y}, mat);
     }
     y-=1;
   }
@@ -206,25 +205,26 @@ fn load_shape(shape:&str) -> TerrainMap<Material> {
 }
 
 fn init_rocks() -> Vec<TerrainMap<Material>> {
-  let mut v = Vec::new();
-  v.push( load_shape(
-          "####") );
-  v.push( load_shape(
+  let v = vec![
+    load_shape( "####"),
+    load_shape(
           ".#.\n\
            ###\n\
-           .#."));
-  v.push( load_shape(
+           .#."),
+    load_shape(
           "..#\n\
            ..#\n\
-           ###"));
-  v.push( load_shape(
+           ###"),
+    load_shape(
           "#\n\
            #\n\
            #\n\
-           #"));
-  v.push( load_shape(
+           #"),
+    load_shape(
           "##\n\
-           ##"));
+           ##"),
+  ];
+
   v
  }
 
@@ -258,7 +258,7 @@ fn jet_rock(rock: &TerrainMap<Material>, rock_x: &mut isize, rock_y: isize, jet:
   //now check for intersection between rock and existing column terrain
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(&Point{x:x, y:y}) != Material::Rock { continue; }
+      if rock.get(&Point{x, y}) != Material::Rock { continue; }
       //println!("{new_rock_x}, {rock_y}. {x},{y}.");
       if column.get(&Point{x:new_rock_x + x, y:rock_y + y}) == Material::Rock { return }
     }
@@ -270,7 +270,7 @@ fn land_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: isize, column: 
 {
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(&Point{x:x, y:y}) != Material::Rock { continue; }
+      if rock.get(&Point{x, y}) != Material::Rock { continue; }
       column.set(&Point{x:rock_x + x, y:rock_y + y}, Material::Rock);
     }
   }
@@ -290,7 +290,7 @@ fn drop_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: &mut isize, col
   //now check for intersection between rock and existing column terrain
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(&Point{x:x, y:y}) != Material::Rock { continue; }
+      if rock.get(&Point{x, y}) != Material::Rock { continue; }
       if column.get(&Point{x:rock_x + x, y:new_rock_y + y}) == Material::Rock {
         land_rock(rock, rock_x, *rock_y, column, highest_rock);
         return true;
@@ -299,7 +299,7 @@ fn drop_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: &mut isize, col
   }
 
   *rock_y = new_rock_y;
-  return false;
+  false
 }
 
 /* the rocks and jets cycle. we maybe can exploit this to
@@ -342,7 +342,7 @@ fn drop_rocks_smart(jets: &Vec<Jet>, count: usize) -> isize {
 
   height += iters as isize * cycle_height_increase;
 
-  return height;
+  height
 }
 
 /*
@@ -375,11 +375,11 @@ fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap::<Material>, isize) 
     loop {
       //jet push
       let jet = jets.next().unwrap();
-      jet_rock(&rock, &mut rock_x, rock_y, jet, &column);
+      jet_rock(rock, &mut rock_x, rock_y, jet, &column);
       num_jets += 1;
       //move down
       // if can't move down, update highest_rock, and break
-      if drop_rock(&rock, rock_x, &mut rock_y, &mut column, &mut highest_rock) { 
+      if drop_rock(rock, rock_x, &mut rock_y, &mut column, &mut highest_rock) { 
         //check for a solid line all the way across
         /*
         for ly in 0..rock.dims.height {
@@ -410,7 +410,7 @@ fn main() {
   //visualise_column(&col, 100);
 
   //this is an absurd number of iterations and memory usage
-  let height = drop_rocks_smart(&jets, 1000_000_000_000);
+  let height = drop_rocks_smart(&jets, 1_000_000_000_000);
   //let (_,height) = drop_rocks(&jets, 300_000);
   println!("{height}");
 }

@@ -63,7 +63,7 @@ fn match_score(mv1:Move, mv2:Move) -> i32 {
   
   let m1 = move_to_value(mv1);
   let m2 = move_to_value(mv2);
-  return m1 + 3 * ( (4+m1-m2)%3)
+  m1 + 3 * ( (4+m1-m2)%3)
 }
 
 

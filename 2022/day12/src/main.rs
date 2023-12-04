@@ -52,7 +52,7 @@ fn trace_back( parents: &TerrainMap<Point>, start: Point, end: Point) -> usize {
     //println!("{}: {}", dist, cur);
   }
 
-  return dist;
+  dist
 }
 
 /// breadth first search
@@ -63,7 +63,7 @@ fn shortest_path( map: &TerrainMap<usize>, from: Point, to: Point) -> usize {
 
   visited.set(&from, true);
   queue.push_back(from);
-  while queue.len() > 0 {
+  while !queue.is_empty() {
     let v = queue.pop_front().unwrap();
     if v == to {
       return trace_back(&prev, to, from);
@@ -90,7 +90,7 @@ fn shortest_path( map: &TerrainMap<usize>, from: Point, to: Point) -> usize {
     }
   }
 
-  return 0;
+  0
 }
 
 /// now search from highest to any node with height 0
@@ -101,7 +101,7 @@ fn shortest_path_to_goal( map: &TerrainMap<usize>, from: Point) -> usize {
 
   visited.set(&from, true);
   queue.push_back(from);
-  while queue.len() > 0 {
+  while !queue.is_empty() {
     let v = queue.pop_front().unwrap();
     if map.get(&v) == 0 {
       return trace_back(&prev, v, from);
@@ -127,7 +127,7 @@ fn shortest_path_to_goal( map: &TerrainMap<usize>, from: Point) -> usize {
     }
   }
 
-  return 0;
+  0
 }
 
 
@@ -141,7 +141,8 @@ fn determine_map_dims(data: &str) -> Dims {
       width = w;
     }
   }
-  return Dims{width, height,..Default::default()};
+
+  Dims{width, height,..Default::default()}
 }
 
 fn load_terrain(filename: &str) -> (TerrainMap<usize>, Point, Point) {
@@ -176,7 +177,7 @@ fn load_terrain(filename: &str) -> (TerrainMap<usize>, Point, Point) {
     pos.y += 1;
   }
 
-  return (tm, start, end);
+  (tm, start, end)
 }
 
 

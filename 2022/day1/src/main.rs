@@ -12,14 +12,12 @@ fn main() -> std::io::Result<()> {
 
     let mut cur:i32 = 0;
     for line in contents.lines() {
-      if line.len() == 0
-      {
+      if line.is_empty() {
         if cur > highest {
           println!("new elf with most calories so far: {cur}");
           highest = cur;
         }
-        else
-        {
+        else {
           println!("pathetic elf");
         }
         totals.push(cur);

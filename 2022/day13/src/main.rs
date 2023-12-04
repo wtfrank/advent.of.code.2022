@@ -101,11 +101,11 @@ fn do_parse_packet(chars: &mut std::str::Chars) -> Packet {
     match c  {
       Some('[') => v.push( do_parse_packet( chars ) ),
       Some(']') => { 
-          if cur.len() > 0 { v.push( Packet::Integer( cur.parse::<usize>().unwrap() ));} 
+          if !cur.is_empty() { v.push( Packet::Integer( cur.parse::<usize>().unwrap() )); }
           return Packet::List(v);
       },
       Some(',') => { 
-          if cur.len() > 0 { v.push( Packet::Integer( cur.parse::<usize>().unwrap() )); cur.clear(); }
+          if !cur.is_empty() { v.push( Packet::Integer( cur.parse::<usize>().unwrap() )); cur.clear(); }
       },
       Some(d @ '0'..='9') => cur.push(d),
       _ => panic!("Invalid data"),
@@ -129,15 +129,7 @@ fn parse_packet(p: &str) -> Packet {
 fn packets_cmp(packet1: &Packet, packet2: &Packet) -> Ordering {
   if let Packet::Integer(x) = packet1 {
     if let Packet::Integer(y) = packet2 {
-      if x < y {
-        return Ordering::Less;
-      }
-      else if x == y {
-        return Ordering::Equal;
-      }
-      else {
-        return Ordering::Greater;
-      }
+      return x.cmp(y);
     }
   }
 
@@ -207,11 +199,12 @@ fn compare_packets(filename: &str) -> usize {
 
     idx += 1;
     let n = lines.next();
-    if let None = n {
+    if n.is_none() {
       break;
     }
   }
-  return total;
+
+  total
 }
 
 #[derive(Eq,PartialEq)]
@@ -222,7 +215,7 @@ enum Packet {
 
 impl Ord for Packet {
     fn cmp(&self, other: &Self) -> Ordering {
-        packets_cmp(self, &other)
+        packets_cmp(self, other)
     }
 }
 
@@ -248,7 +241,7 @@ fn decoder_key(filename: &str) -> usize {
     match lines.next() {
       None => break,
       Some(packet_str) => {
-        if packet_str.len() <= 0 {
+        if packet_str.is_empty() {
           continue;
         }
         packets.push(parse_packet(packet_str));
@@ -264,16 +257,16 @@ fn decoder_key(filename: &str) -> usize {
   let mut idx1 = 0;
   let mut idx2 = 0;
 
-  for i in 0..packets.len() {
-    if packets_cmp(&divider1, &packets[i]) == Ordering::Equal {
+  for (i, packet) in packets.iter().enumerate() {
+    if packets_cmp(&divider1, packet) == Ordering::Equal {
       idx1 = i+1;
     }
-    else if packets_cmp(&divider2, &packets[i]) == Ordering::Equal {
+    else if packets_cmp(&divider2, packet) == Ordering::Equal {
       idx2 = i+1;
     }
   }
 
-  return idx1 * idx2;
+  idx1 * idx2
 }
 
 fn main() -> std::io::Result<()> {

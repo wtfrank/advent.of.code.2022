@@ -356,7 +356,7 @@ fn build_robot_prep_state( bp: &Blueprint, s: &mut BpState, _most_geodes: &mut u
 /* version of build_robot using a stack of states instead of pushing/popping changes */
 fn build_robot2( bp: &Blueprint, stack: &mut Vec<BpState>, most_geodes: &mut u16, action: BotBuildAction) {
 
-  let s = stack.get(stack.len()-1).unwrap();
+  let s = stack.last().unwrap();
   let mut new_state = *s;
   new_state.action = action;
   //apply the effects
@@ -443,7 +443,7 @@ fn build_robot2( bp: &Blueprint, stack: &mut Vec<BpState>, most_geodes: &mut u16
 /* in order to get more parallelism, the first level of recursion spawns threads */
 fn build_robot5_outer( bp: &Blueprint, stack: &mut Vec<BpState>, most_geodes: &mut u16, action: BotBuildAction) {
 
-  let s = stack.get(stack.len()-1).unwrap();
+  let s = stack.last().unwrap();
   let mut new_state = *s;
   new_state.action = action;
   //apply the effects
@@ -715,8 +715,8 @@ fn evaluate_blueprint7( bp: &Blueprint, available_time: u16 ) -> u16 {
     let h1 = std::thread::spawn(move||{
       let mut state = BpState{ orebots:1, available_time: a1, ..Default::default()};
       let mut most_geodes = 0;
-      for s in 0..seq.len()-1 {
-        build_robot_prep_state( &bp1, &mut state, &mut most_geodes, seq[s]);
+      for s in seq.iter().take(seq.len()-1) {
+        build_robot_prep_state( &bp1, &mut state, &mut most_geodes, *s);
       }
       build_robot( &bp1, &mut state, &mut most_geodes, seq[seq.len()-1]);
       most_geodes

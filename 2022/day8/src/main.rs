@@ -29,7 +29,7 @@ impl<T:Copy+Default> TreeMap<T> {
     for _ in 0..size {
       tm.v.push(vec![T::default();size]);
     }
-    return tm;
+    tm
   }
   pub fn get(&self, x: usize, y:usize) -> T {
     let v = self.v.get(y).unwrap();
@@ -60,19 +60,15 @@ fn load_map(f: &str) -> TreeMap<usize> {
   let dim = (f64::sqrt((1+4*flen) as f64) as usize -1)/2;
   println!("file size: {flen}, dim: {dim}");
   let mut tree_map = TreeMap::<usize>::new(dim);
-  let mut y = 0;
-  for l in contents.lines() {
-    let mut x = 0;
-    for c in l.chars() {
+  for (y,l) in contents.lines().enumerate() {
+    for (x,c) in l.chars().enumerate() {
       let height = String::from(c).parse::<usize>().unwrap();
       assert!( height <= 9 );
       tree_map.set(x, y, height);
-      x+=1;
     }
-    y+=1;
   }
  
-  return tree_map;
+  tree_map
 }
 
 enum Direction {
@@ -144,9 +140,9 @@ fn visible_trees( tree_map: &TreeMap<usize> ) -> usize {
       }
     }
   }
-
   println!("{} visible trees", vcount);
-  return vcount;
+
+  vcount
 }
 
 fn scenic_score( tree_map: &TreeMap<usize>, x: usize, y: usize ) -> usize {
@@ -202,7 +198,8 @@ fn scenic_score( tree_map: &TreeMap<usize>, x: usize, y: usize ) -> usize {
     }
     yd += 1;
   }
-  return left_score*right_score*up_score*down_score;
+
+  left_score*right_score*up_score*down_score
 }
 
 fn best_scenic_score( tree_map: &TreeMap<usize> ) -> usize {
@@ -217,7 +214,8 @@ fn best_scenic_score( tree_map: &TreeMap<usize> ) -> usize {
     }
   }
   println!("best scenic score: {score}");
-  return score;
+
+  score
 }
 
 fn main() -> std::io::Result<()> {

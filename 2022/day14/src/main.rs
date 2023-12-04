@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
+use std::cmp::Ordering;
 
 use advent::{TerrainMap,Dims,Point};
 
@@ -73,23 +74,38 @@ fn load_scan(filename: &str) -> TerrainMap<ScanData> {
           break;
         }
 
+        match p.x.cmp(&q.x) {
+          Ordering::Greater => p.x -= 1,
+          Ordering::Less => p.x += 1,
+          _ => (),
+        }
+
+        /*
         if p.x > q.x {
           p.x -= 1;
         }
         else if p.x < q.x {
           p.x += 1;
+        }*/
+
+        match p.y.cmp(&q.y) {
+          Ordering::Greater => p.y -= 1,
+          Ordering::Less => p.y += 1,
+          _ => (),
         }
+        /*
         if p.y > q.y {
           p.y -= 1;
         }
         else if p.y < q.y {
           p.y += 1;
         }
+        */
       }
     }
   }
 
-  return tm;
+  tm
 }
 
 fn add_floor(map: &mut TerrainMap<ScanData>) {

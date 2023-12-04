@@ -60,14 +60,14 @@ fn load_calib( filename: &str) -> usize
   let mut calib:usize = 0;
   for line in contents.lines() {
     for c in line.chars() {
-      if c >= '0' && c <= '9' {
+      if c.is_ascii_digit() {
         let val = c.to_digit(10).unwrap() as usize;
         calib += 10 * val;
         break;
       }
     }
     for c in line.chars().rev() {
-      if c >= '0' && c <= '9' {
+      if c.is_ascii_digit() {
         let val = c.to_digit(10).unwrap() as usize;
         calib += val;
         break;

@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::collections::HashSet;
+use std::cmp::Ordering;
 
 
 #[cfg(test)]
@@ -59,20 +60,32 @@ fn process_path(f: &str, rope_len: usize) -> usize {
            (knots[k-1].x - knots[k].x).abs() > 1 {
           println!("pos {k} has to move (head is at {})", knots[0]);
 
-          
+          match knots[k-1].y.cmp(&knots[k].y) {
+            Ordering::Greater => knots[k].y += 1,
+            Ordering::Less => knots[k].y -= 1,
+            _ => (),
+          }
+          /*
           if knots[k-1].y - knots[k].y > 0 {
             knots[k].y += 1;
           }
           else if knots[k-1].y - knots[k].y < 0 {
             knots[k].y -= 1;
-          }
+          }*/
 
+          match knots[k-1].x.cmp(&knots[k].x) {
+            Ordering::Greater => knots[k].x += 1,
+            Ordering::Less => knots[k].x -= 1,
+            _ => (),
+          }
+          /*
           if knots[k-1].x - knots[k].x > 0 {
             knots[k].x += 1;
           }
           else if knots[k-1].x - knots[k].x < 0 {
             knots[k].x -= 1;
           }
+          */
         }
     /*
       if (h_y-t_y).abs() > 1 || (h_x-t_x).abs() > 1 {
@@ -96,7 +109,8 @@ fn process_path(f: &str, rope_len: usize) -> usize {
     }
   }
   println!("Visited {}", visited.len());
-  return visited.len();
+
+  visited.len()
 }
 
 

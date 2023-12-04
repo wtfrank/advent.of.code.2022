@@ -6,7 +6,7 @@ use std::io::prelude::*;
 fn parse_stack(columns: &mut Vec< Vec< char >>, line: &str) {
   let v:Vec<char> = line.chars().collect();
   let num_stacks:usize = (v.len()+1) / 4;
-  if columns.len() == 0 {
+  if columns.is_empty() {
     println!("dealing with {num_stacks} stacks");
     for _ in 0..num_stacks {
       columns.push( Vec::<char>::new() );
@@ -16,14 +16,16 @@ fn parse_stack(columns: &mut Vec< Vec< char >>, line: &str) {
   for i in 0..num_stacks {
     let col:&mut Vec<char> = columns.get_mut(i).unwrap();
     let c = v[1+(i*4)];
+    if let 'A'..='Z' = c {col.insert(0, c); println!("adding {c} to stack {i}");}
+    /*
     match c {
       'A'..='Z' => {col.insert(0, c); println!("adding {c} to stack {i}");},
       _ => ()
-    }
+    }*/
   }
 }
 
-fn apply_move(columns: &mut Vec< Vec< char >>, line: &str) {
+fn apply_move(columns: &mut [ Vec< char > ], line: &str) {
   let (count, mut from, mut to) = sscanf::sscanf!(line, "move {usize} from {usize} to {usize}").expect("invalid input line {line}");
   from -=1;
   to -=1;
@@ -53,10 +55,10 @@ fn main() -> std::io::Result<()> {
       None => continue,
       Some(cc) => {
         if cc == '[' {
-          parse_stack(&mut columns, &line);
+          parse_stack(&mut columns, line);
         }
         else if cc == 'm' {
-          apply_move(&mut columns, &line);
+          apply_move(&mut columns, line);
         }
         else {
             continue;
