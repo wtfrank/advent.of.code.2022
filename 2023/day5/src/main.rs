@@ -188,10 +188,9 @@ fn seed_loc( almanac: &Almanac, seed: usize ) -> usize {
   let light = almanac.water_light.get(water);
   let temperature = almanac.light_temperature.get(light);
   let humidity = almanac.temperature_humidity.get(temperature);
-  let location = almanac.humidity_location.get(humidity);
   //println!("seed {seed}, soil {soil}, fert {fertiliser}, water {water}, light {light}, temp {temperature}, humidity {humidity}, loc {location}");
 
-  location
+  almanac.humidity_location.get(humidity)
 }
 
 fn seed_loc_range( almanac: &Almanac, seedranges: &[SeedRange] ) -> Vec<SeedRange> {
@@ -201,9 +200,8 @@ fn seed_loc_range( almanac: &Almanac, seedranges: &[SeedRange] ) -> Vec<SeedRang
   let light = almanac.water_light.get_ranges(&water);
   let temperature = almanac.light_temperature.get_ranges(&light);
   let humidity = almanac.temperature_humidity.get_ranges(&temperature);
-  let location = almanac.humidity_location.get_ranges(&humidity);
-
-  location
+  
+  almanac.humidity_location.get_ranges(&humidity)
 }
 
 fn find_lowest2( almanac: &Almanac ) -> usize {
@@ -220,7 +218,7 @@ fn find_lowest2( almanac: &Almanac ) -> usize {
 
     let seedranges = vec![SeedRange{ start: s, length: l}];
 
-    let locranges = seed_loc_range(&almanac, &seedranges);
+    let locranges = seed_loc_range(almanac, &seedranges);
 
     for lr in locranges {
       if lr.start < lowest { lowest = lr.start; }
@@ -288,7 +286,7 @@ fn load_data( filename: &str) -> Almanac
           }
           else {
             let r = sscanf::sscanf_unescaped!(line, "seeds: {String}").unwrap();
-            for s in r.split(" ") {
+            for s in r.split(' ') {
               let seed = s.parse::<usize>().unwrap();
               almanac.seeds.push(seed);
             }
@@ -304,7 +302,7 @@ fn load_data( filename: &str) -> Almanac
           }
         }
         else if !line.is_empty() {
-          parse_range(&line, &mut almanac.seed_soil);
+          parse_range(line, &mut almanac.seed_soil);
         }
         else {
           parse_progress = ParseFields::SoilFertiliser;
@@ -323,7 +321,7 @@ fn load_data( filename: &str) -> Almanac
           }
         }
         else if !line.is_empty() {
-          parse_range(&line, &mut almanac.soil_fertiliser);
+          parse_range(line, &mut almanac.soil_fertiliser);
         }
         else {
           parse_progress = ParseFields::FertiliserWater;
@@ -342,7 +340,7 @@ fn load_data( filename: &str) -> Almanac
           }
         }
         else if !line.is_empty() {
-          parse_range(&line, &mut almanac.fertiliser_water);
+          parse_range(line, &mut almanac.fertiliser_water);
         }
         else {
           parse_progress = ParseFields::WaterLight;
@@ -361,7 +359,7 @@ fn load_data( filename: &str) -> Almanac
           }
         }
         else if !line.is_empty() {
-          parse_range(&line, &mut almanac.water_light);
+          parse_range(line, &mut almanac.water_light);
         }
         else {
           parse_progress = ParseFields::LightTemperature;
@@ -380,7 +378,7 @@ fn load_data( filename: &str) -> Almanac
           }
         }
         else if !line.is_empty() {
-          parse_range(&line, &mut almanac.light_temperature);
+          parse_range(line, &mut almanac.light_temperature);
         }
         else {
           parse_progress = ParseFields::TemperatureHumidity;
@@ -399,13 +397,13 @@ fn load_data( filename: &str) -> Almanac
           }
         }
         else if !line.is_empty() {
-          parse_range(&line, &mut almanac.temperature_humidity);
+          parse_range(line, &mut almanac.temperature_humidity);
         }
         else {
           parse_progress = ParseFields::HumidityLocation;
           heading_found = false;
           if almanac.temperature_humidity.is_empty() {panic!("not loaded any temp humid maps");}
-          sort_range(  &mut almanac.temperature_humidity );
+          sort_range( &mut almanac.temperature_humidity );
         }
       },
       ParseFields::HumidityLocation => {
@@ -418,7 +416,7 @@ fn load_data( filename: &str) -> Almanac
           }
         }
         else if !line.is_empty() {
-          parse_range(&line, &mut almanac.humidity_location);
+          parse_range(line, &mut almanac.humidity_location);
         }
         else {
           if almanac.humidity_location.is_empty() {panic!("not loaded any humid loc maps");}
