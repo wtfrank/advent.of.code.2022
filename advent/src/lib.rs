@@ -9,3 +9,6 @@ pub use point::Point3;
 mod dims;
 pub use dims::Dims;
 pub use dims::Dims3;
+
+mod interval;
+pub use interval::Interval;
