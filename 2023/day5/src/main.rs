@@ -3,6 +3,8 @@ use std::fs::File;
 use std::io::Read;
 use clap::Parser;
 
+use advent::{Interval, Overlap};
+
 //use std::collections::HashSet;
 use std::cmp::Ordering;
 
@@ -40,19 +42,12 @@ mod tests {
 }
 
 struct RangeComponent {
-  source: usize,
+  interval: Interval,
   dest: usize,
-  length: usize,
 }
 
 struct Range {
   _ranges: Vec<RangeComponent>,
-}
-
-#[derive(Default,Copy,Clone,PartialEq,Eq)]
-struct SeedRange {
-  start: usize,
-  length: usize,
 }
 
 impl Range {
@@ -61,16 +56,16 @@ impl Range {
   }
   fn get( &self, val: usize ) -> usize {
     for r in self._ranges.iter() {
-      if val >= r.source && val < r.source+r.length {
-        return val - r.source + r.dest;
+      if val >= r.interval.start as usize && val < r.interval.end() as usize {
+        return val - r.interval.start as usize + r.dest;
       }
     }
     
     val
   }
-  fn get_ranges( &self, ranges_in: &[SeedRange] ) -> Vec<SeedRange> {
+  fn get_ranges( &self, ranges_in: &[Interval] ) -> Vec<Interval> {
     let mut output = Vec::new();
-    let mut ranges = Vec::<SeedRange>::new();
+    let mut ranges = Vec::<Interval>::new();
     for r in ranges_in.iter() {
       ranges.push(*r);
     }
@@ -81,54 +76,64 @@ impl Range {
         //split up this range as necessary based on internal ranges which are sorted
         let mut range_consumed = false;
         for r2 in &self._ranges {
-          let end = range.start + range.length;
+          let overlap = range.cmp_overlap(&r2.interval);
           //range ends before lowest entry
-          if end < r2.source {
+          if overlap == Overlap::Less {
             output.push(range);
             range_consumed = true;
             break;
           }
           //range starts before but ends within entry
-          else if end >= r2.source && end < r2.source + r2.length && range.start < r2.source {
-            let bef = SeedRange{start: range.start, length: r2.source - range.start};
-            let mid = SeedRange{start: r2.dest, length: range.length - bef.length };
+          else if overlap == Overlap::Left {
+            let bef = Interval{start: range.start, length: r2.interval.start as usize - range.start as usize};
+            let mid = Interval{start: r2.dest as isize, length: range.length - bef.length };
             output.push(bef);
+            output.push(mid);
+            range_consumed = true;
+            break;
+          }
+          else if overlap == Overlap::Equal {
+            let mid = Interval{start: r2.dest as isize, length: r2.interval.length };
             output.push(mid);
             range_consumed = true;
             break;
           }
           //range starts before but ends after entry
-          else if end > r2.source + r2.length && range.start < r2.source {
-            let bef = SeedRange{start: range.start, length: r2.source - range.start};
-            let mid = SeedRange{start: r2.dest, length: r2.length };
-            let after = SeedRange{start: r2.source + r2.length, length: range.length - r2.length - bef.length};
-            output.push(bef);
+          else if overlap == Overlap::Outside {
+            let bef = Interval{start: range.start, length: r2.interval.start as usize - range.start as usize};
+            let mid = Interval{start: r2.dest as isize, length: r2.interval.length };
+            let after = Interval{start: r2.interval.end(), length: range.length - r2.interval.length - bef.length};
+            if bef.length > 0 {
+              output.push(bef);
+            }
             output.push(mid);
-            extra_ranges.push(after);
+            if after.length > 0 {
+              extra_ranges.push(after);
+            }
             range_consumed = true;
             break;
           }
           //range starts and ends within entry
-          else if end <= r2.source + r2.length && range.start >= r2.source {
-            let mid = SeedRange{ start: r2.dest + range.start-r2.source, length: range.length };
+          else if overlap == Overlap::Inside {
+            let mid = Interval{ start: r2.dest as isize + range.start-r2.interval.start, length: range.length };
             output.push(mid);
             range_consumed = true;
             break;
           }
           //range starts within and ends after entry
-          else if range.start >= r2.source && range.start < r2.source + r2.length && end > r2.source + r2.length {
-            let mid = SeedRange{ start: r2.dest + range.start-r2.source, length: r2.length - (range.start-r2.source) };
+          else if overlap == Overlap::Right {
+            let mid = Interval{ start: r2.dest as isize + range.start-r2.interval.start, length: r2.interval.length - (range.start as usize - r2.interval.start as usize) };
             //println!("range length {}, r2 length {}, rstart {}, r2start {}",
             //  range.length, r2.length, range.start, r2.source);
-            let after = SeedRange{start: r2.source + r2.length, length: range.length + (range.start-r2.source) - r2.length };
+            let after = Interval{start: r2.interval.end(), length: range.length + (range.start as usize -r2.interval.start as usize ) - r2.interval.length };
             output.push(mid);
             extra_ranges.push(after);
             range_consumed = true;
             break;
           }
           else {
-            if range.start < r2.source + r2.length { panic!("not all cases covered"); }
-            if end < r2.source + r2.length { panic!("not all cases covered"); }
+            if range.start < r2.interval.end() { panic!("not all cases covered"); }
+            if range.end() < r2.interval.end() { panic!("not all cases covered"); }
             //range starts after entry so we should check against other ranges
           }
         }
@@ -193,7 +198,7 @@ fn seed_loc( almanac: &Almanac, seed: usize ) -> usize {
   almanac.humidity_location.get(humidity)
 }
 
-fn seed_loc_range( almanac: &Almanac, seedranges: &[SeedRange] ) -> Vec<SeedRange> {
+fn seed_loc_range( almanac: &Almanac, seedranges: &[Interval] ) -> Vec<Interval> {
   let soil = almanac.seed_soil.get_ranges(seedranges);
   let fertiliser = almanac.soil_fertiliser.get_ranges(&soil);
   let water = almanac.fertiliser_water.get_ranges(&fertiliser);
@@ -204,11 +209,11 @@ fn seed_loc_range( almanac: &Almanac, seedranges: &[SeedRange] ) -> Vec<SeedRang
   almanac.humidity_location.get_ranges(&humidity)
 }
 
-fn find_lowest2( almanac: &Almanac ) -> usize {
+fn find_lowest2( almanac: &Almanac ) -> isize {
 
   if almanac.seeds.len() %2 != 0 { panic!("odd number of seed ranges") }
 
-  let mut lowest = usize::MAX;
+  let mut lowest = isize::MAX;
   let mut it = almanac.seeds.iter();
   let mut start = it.next();
   let mut length = it.next();
@@ -216,7 +221,7 @@ fn find_lowest2( almanac: &Almanac ) -> usize {
     let s = *start.unwrap();
     let l = *length.unwrap();
 
-    let seedranges = vec![SeedRange{ start: s, length: l}];
+    let seedranges = vec![Interval{ start: s as isize, length: l}];
 
     let locranges = seed_loc_range(almanac, &seedranges);
 
@@ -256,13 +261,13 @@ enum ParseFields {
 fn parse_range( line: &str, ranges: &mut Range ) {
   let r = sscanf::sscanf_unescaped!(line, "{usize} {usize} {usize}").unwrap();
   let dest = r.0;
-  let source = r.1;
+  let source = r.1 as isize;
   let length = r.2;
-  ranges._ranges.push( RangeComponent{ source, dest, length } );
+  ranges._ranges.push( RangeComponent{ interval: Interval{ start: source, length}, dest } );
 }
 
 fn sort_range( ranges: &mut Range ) {
-  ranges._ranges.sort_by(|a,b| a.source.partial_cmp(&b.source).unwrap());
+  ranges._ranges.sort_by(|a,b| a.interval.start.partial_cmp(&b.interval.start).unwrap());
 }
 
 fn load_data( filename: &str) -> Almanac
