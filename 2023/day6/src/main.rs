@@ -84,8 +84,8 @@ fn load_data( filename: &str) -> (Vec<(usize,usize)>, (usize, usize))
   assert_eq!(times.len(), distances.len());
   let pairs:Vec<(usize,usize)> = zip(times, distances).collect();
 
-  let combined_time = l1.replace(" ", "");
-  let combined_dist = l2.replace(" ", "");
+  let combined_time = l1.replace(' ', "");
+  let combined_dist = l2.replace(' ', "");
 
   let ct = combined_time.parse::<usize>().unwrap();
   let cd = combined_dist.parse::<usize>().unwrap();
