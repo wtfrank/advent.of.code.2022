@@ -14,9 +14,9 @@ YEAR=${YEAR:-$(date +%Y)}
 BASE_PATH="$(dirname $(realpath $0))"
 
 LEADERBOARD="$(cat leaderboard_id.txt)"
-SAVE_FILE="leaderboard.json"
+SAVE_FILE="$BASE_PATH/leaderboard.json"
 
 URL="https://adventofcode.com/$YEAR/leaderboard/private/view/$LEADERBOARD.json"
 
-curl -b "$BASE_PATH"/session_cookie.txt "$URL" -o "$SAVE_FILE"
+curl -b "$BASE_PATH"/../session_cookie.txt "$URL" -o "$SAVE_FILE"
 

@@ -5,5 +5,5 @@
 **/*.swo
 **/*input*.txt
 session_cookie.txt
-leaderboard_id.txt
-leaderboard.json
+leaderboard/leaderboard_id.txt
+leaderboard/leaderboard.json
