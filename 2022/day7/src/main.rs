@@ -14,7 +14,7 @@ mod tests {
       v.push_back(FsNode{ name: String::from("/"), index: 0, parent: None, size: None, cum_space: 0 });
       let mut current_dir_index = 0;
 
-      parse_input("test_input.txt", &mut current_dir_index, &mut v );
+      parse_input("testinput.txt", &mut current_dir_index, &mut v );
 
       calc_usage(&mut v);
 

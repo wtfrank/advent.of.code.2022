@@ -8,7 +8,7 @@ mod tests {
 
     #[test]
     fn test_visibility() {
-      let map = load_map("test_input.txt");
+      let map = load_map("testinput.txt");
       assert!(visible_trees(&map) == 21);
     }
     #[test]

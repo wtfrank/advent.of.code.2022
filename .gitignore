@@ -3,7 +3,7 @@
 **/target
 **/*.swp
 **/*.swo
-**/*input*.txt
+**/input*.txt
 session_cookie.txt
 leaderboard/leaderboard_id.txt
 leaderboard/leaderboard.json
