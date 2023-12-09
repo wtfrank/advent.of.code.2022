@@ -13,3 +13,7 @@ pub use dims::Dims3;
 mod interval;
 pub use interval::Interval;
 pub use interval::Overlap;
+
+mod maths;
+pub use maths::prime_factors;
+pub use maths::lcm;
