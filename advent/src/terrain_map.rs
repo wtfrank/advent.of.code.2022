@@ -1,5 +1,6 @@
 use crate::{Point,Point3,Dims,Dims3};
 
+#[derive(Debug)]
 pub struct TerrainMap<T:Copy+Default> {
   v: Vec< Vec<T>>, //each inner vector is a horizontal row
   pub dims: Dims,
@@ -31,6 +32,7 @@ impl<T:Copy+Default> TerrainMap<T> {
   }
 }
 
+#[derive(Debug)]
 pub struct TerrainMap3<T:Copy+Default> {
   v: Vec<T>,
   pub dims: Dims3,
