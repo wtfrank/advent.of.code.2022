@@ -9,6 +9,7 @@ pub use point::Point3;
 mod dims;
 pub use dims::Dims;
 pub use dims::Dims3;
+pub use dims::determine_map_dims;
 
 mod interval;
 pub use interval::Interval;

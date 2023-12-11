@@ -28,3 +28,21 @@ impl std::fmt::Display for Dims3 {
         self.minz, self.minz.saturating_add_unsigned(self.depth)-1)
   }
 }
+
+/* a utility function which takes as input a
+ * multi-line string and calculates its
+ * dimensions
+ */
+pub fn determine_map_dims(data: &str) -> Dims {
+  let mut width = 0;
+  let mut height = 0;
+  for l in data.lines() {
+    height += 1;
+    let w = l.len();
+    if w > width {
+      width = w;
+    }
+  }
+
+  Dims{width, height,..Default::default()}
+}
