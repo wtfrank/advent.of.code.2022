@@ -6,4 +6,6 @@
 **/input*.txt
 session_cookie.txt
 leaderboard/leaderboard_id.txt
-leaderboard/leaderboard.json
+leaderboard/*.json
+analysis/*
+TODO.txt
