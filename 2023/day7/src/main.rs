@@ -1,7 +1,6 @@
-
+use clap::Parser;
 use std::fs::File;
 use std::io::Read;
-use clap::Parser;
 
 //use std::iter::zip;
 
@@ -17,9 +16,9 @@ use std::collections::HashMap;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-   /// Name of the person to greet
-   #[arg(short, long, default_value_t=false)]
-   benchmark: bool,
+  /// Name of the person to greet
+  #[arg(short, long, default_value_t = false)]
+  benchmark: bool,
 }
 
 #[cfg(test)]
@@ -28,7 +27,7 @@ mod tests {
 
   #[test]
   fn test_load1() {
-    let mut data = load_data( "testinput.txt" );
+    let mut data = load_data("testinput.txt");
     let score = analyse_data(&mut data);
 
     assert_eq!(data[0].bid, 765);
@@ -42,7 +41,7 @@ mod tests {
 
   #[test]
   fn test_load2() {
-    let mut data = load_data( "testinput.txt" );
+    let mut data = load_data("testinput.txt");
     let score = analyse_data_j(&mut data);
 
     assert_eq!(data[0].bid, 765);
@@ -53,7 +52,6 @@ mod tests {
     println!("{data:?}");
     assert_eq!(score, 5905);
   }
-
 
   #[test]
   fn test_hand_eval() {
@@ -73,7 +71,7 @@ mod tests {
     assert_eq!(s7, HandStrength::HighCard);
   }
 
- #[test]
+  #[test]
   fn test_hand_eval_j() {
     let s0 = hand_strength_j("JJJJJ");
     assert_eq!(s0, HandStrength::FiveOAK);
@@ -101,7 +99,7 @@ mod tests {
   }
 }
 
-#[derive(Debug,Eq)]
+#[derive(Debug, Eq)]
 struct Hand {
   cards: String,
   bid: usize,
@@ -121,7 +119,6 @@ impl PartialEq for Hand {
 
 impl Ord for Hand {
   fn cmp(&self, other: &Hand) -> Ordering {
-
     let a = self;
     let b = other;
     let a_strength = hand_strength(&a.cards);
@@ -168,13 +165,10 @@ impl Ord for Hand {
       Ordering::Equal
     }*/
   }
-
-
 }
 
 impl Hand {
-
-  fn cmp_high_card(&self, other: &Hand) -> Ordering{
+  fn cmp_high_card(&self, other: &Hand) -> Ordering {
     let a = self;
     let b = other;
     let mut a_it = a.cards.chars();
@@ -187,20 +181,22 @@ impl Hand {
       if ac != bc {
         ac = card_to_char(ac);
         bc = card_to_char(bc);
-        if ac > bc { return Ordering::Greater; }
-        if bc > ac { return Ordering::Less; }
+        if ac > bc {
+          return Ordering::Greater;
+        }
+        if bc > ac {
+          return Ordering::Less;
+        }
         panic!("cards were equal");
       }
 
       a = a_it.next();
       b = b_it.next();
-
     }
 
     println!("cards were equal");
     Ordering::Equal
-
-  } 
+  }
 
   fn cmp_high_card_j(&self, other: &Hand) -> Ordering {
     let a = self;
@@ -215,14 +211,17 @@ impl Hand {
       if ac != bc {
         ac = card_to_char_j(ac);
         bc = card_to_char_j(bc);
-        if ac > bc { return Ordering::Greater; }
-        if bc > ac { return Ordering::Less; }
+        if ac > bc {
+          return Ordering::Greater;
+        }
+        if bc > ac {
+          return Ordering::Less;
+        }
         panic!("cards were equal");
       }
 
       a = a_it.next();
       b = b_it.next();
-
     }
 
     println!("cards were equal");
@@ -241,7 +240,7 @@ fn cmp_j(a: &Hand, b: &Hand) -> Ordering {
     ordering = a.cmp_high_card_j(b);
   }
   ordering
-/*
+  /*
   if a_strength > b_strength {
     //println!("greater");
     Ordering::Greater
@@ -285,27 +284,39 @@ fn cmp_j(a: &Hand, b: &Hand) -> Ordering {
   }*/
 }
 
-
-
-fn card_to_char( card: char ) -> char {
-  if card == 'T' { 'a' }
-  else if card == 'J' { 'b' }
-  else if card == 'Q' { 'c' }
-  else if card == 'K' { 'd' }
-  else if card == 'A' { 'e' }
-  else { card }
+fn card_to_char(card: char) -> char {
+  if card == 'T' {
+    'a'
+  } else if card == 'J' {
+    'b'
+  } else if card == 'Q' {
+    'c'
+  } else if card == 'K' {
+    'd'
+  } else if card == 'A' {
+    'e'
+  } else {
+    card
+  }
 }
 
-fn card_to_char_j( card: char ) -> char {
-  if card == 'T' { 'a' }
-  else if card == 'J' { '0' }
-  else if card == 'Q' { 'c' }
-  else if card == 'K' { 'd' }
-  else if card == 'A' { 'e' }
-  else { card }
+fn card_to_char_j(card: char) -> char {
+  if card == 'T' {
+    'a'
+  } else if card == 'J' {
+    '0'
+  } else if card == 'Q' {
+    'c'
+  } else if card == 'K' {
+    'd'
+  } else if card == 'A' {
+    'e'
+  } else {
+    card
+  }
 }
 
-#[derive(Debug,PartialOrd,Ord,PartialEq,Eq)]
+#[derive(Debug, PartialOrd, Ord, PartialEq, Eq)]
 enum HandStrength {
   HighCard,
   OnePair,
@@ -316,10 +327,10 @@ enum HandStrength {
   FiveOAK,
 }
 
-fn hand_strength( hand: &str ) -> HandStrength {
-  let mut counts = HashMap::< char, usize >::default();
+fn hand_strength(hand: &str) -> HandStrength {
+  let mut counts = HashMap::<char, usize>::default();
   for card in hand.chars() {
-    counts.entry(card).and_modify(|e| { *e += 1 }).or_insert(1);
+    counts.entry(card).and_modify(|e| *e += 1).or_insert(1);
   }
 
   for value in counts.values() {
@@ -351,24 +362,21 @@ fn hand_strength( hand: &str ) -> HandStrength {
     }
   }
 
-
   HandStrength::HighCard
 }
 
-fn hand_strength_j( hand: &str ) -> HandStrength {
-  let mut counts = HashMap::< char, usize >::default();
+fn hand_strength_j(hand: &str) -> HandStrength {
+  let mut counts = HashMap::<char, usize>::default();
   let mut joker_count = 0;
   for card in hand.chars() {
     if card == 'J' {
       joker_count += 1;
-    }
-    
-    else {
+    } else {
       //counts.entry(card).and_modify(|e| { *e += 1 }).or_insert(1);
 
       match counts.entry(card) {
         std::collections::hash_map::Entry::Occupied(mut e) => {
-          e.insert(e.get()+1);
+          e.insert(e.get() + 1);
         }
         std::collections::hash_map::Entry::Vacant(e) => {
           e.insert(1);
@@ -431,35 +439,31 @@ fn hand_strength_j( hand: &str ) -> HandStrength {
   HandStrength::HighCard
 }
 
-
-fn analyse_data( hands: &mut[Hand]) -> usize {
+fn analyse_data(hands: &mut [Hand]) -> usize {
   hands.sort();
 
   let mut score = 0;
   for (i, hand) in hands.iter().enumerate() {
-    let rank = i+1;
+    let rank = i + 1;
     score += rank * hand.bid;
     //println!("rank: {rank}, bid: {}, score: {score}", hand.bid);
   }
   score
 }
 
-fn analyse_data_j( hands: &mut [Hand]) -> usize {
+fn analyse_data_j(hands: &mut [Hand]) -> usize {
   hands.sort_by(cmp_j);
 
   let mut score = 0;
   for (i, hand) in hands.iter().enumerate() {
-    let rank = i+1;
+    let rank = i + 1;
     score += rank * hand.bid;
     //println!("rank: {rank}, bid: {}, score: {score}", hand.bid);
   }
   score
 }
 
-
-
-fn load_data( filename: &str ) -> Vec<Hand>
-{
+fn load_data(filename: &str) -> Vec<Hand> {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
@@ -467,26 +471,24 @@ fn load_data( filename: &str ) -> Vec<Hand>
   let mut hands = Vec::<Hand>::new();
   for line in contents.lines() {
     let r = sscanf::sscanf_unescaped!(line, "{String} {usize}").unwrap();
-    hands.push(Hand {cards: r.0, bid: r.1});
+    hands.push(Hand { cards: r.0, bid: r.1 });
   }
   hands
 }
 
-
 fn main() {
-    env_logger::init();
+  env_logger::init();
 
-    let args = Args::parse();
-    if args.benchmark {
-      return;
-    }
+  let args = Args::parse();
+  if args.benchmark {
+    return;
+  }
 
-    let mut data = load_data( "input7.txt" );
-    let score1 = analyse_data(&mut data);
+  let mut data = load_data("input7.txt");
+  let score1 = analyse_data(&mut data);
 
-    println!("score1: {score1}");
+  println!("score1: {score1}");
 
-    let score2 = analyse_data_j(&mut data);
-    println!("score2: {score2}");
-
+  let score2 = analyse_data_j(&mut data);
+  println!("score2: {score2}");
 }

@@ -1,9 +1,8 @@
-
+use clap::Parser;
 use std::fs::File;
 use std::io::Read;
-use clap::Parser;
 
-use advent::{TerrainMap,Dims,Point};
+use advent::{Dims, Point, TerrainMap};
 
 //use enum_iterator::{all,Sequence};
 
@@ -28,9 +27,9 @@ use std::collections::HashSet;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-   /// Name of the person to greet
-   #[arg(short, long, default_value_t=false)]
-   benchmark: bool,
+  /// Name of the person to greet
+  #[arg(short, long, default_value_t = false)]
+  benchmark: bool,
 }
 
 #[cfg(test)]
@@ -39,7 +38,7 @@ mod tests {
 
   #[test]
   fn test_load1() {
-    let data = load_data( "testinput1.txt" );
+    let data = load_data("testinput1.txt");
     //let data = expand_galaxy( &data );
     //let expanded_data = load_data( "testinput2.txt" );
     //assert_eq!(data, expanded_data);
@@ -53,7 +52,7 @@ mod tests {
 }
 
 fn empty_col(x: usize, map: &TerrainMap<bool>) -> bool {
-  let mut p = Point{x:x as isize, y:0};
+  let mut p = Point { x: x as isize, y: 0 };
   for y in 0..map.dims.height {
     p.y = y as isize;
     if map.get(&p) {
@@ -64,7 +63,7 @@ fn empty_col(x: usize, map: &TerrainMap<bool>) -> bool {
 }
 
 fn empty_row(y: usize, map: &TerrainMap<bool>) -> bool {
-  let mut p = Point{x:0, y:y as isize};
+  let mut p = Point { x: 0, y: y as isize };
   for x in 0..map.dims.width {
     p.x = x as isize;
     if map.get(&p) {
@@ -74,7 +73,7 @@ fn empty_row(y: usize, map: &TerrainMap<bool>) -> bool {
   true
 }
 
-fn expand_galaxy2( map1: &TerrainMap<bool> ) -> (HashSet<isize>,HashSet<isize>) {
+fn expand_galaxy2(map1: &TerrainMap<bool>) -> (HashSet<isize>, HashSet<isize>) {
   let mut expand_rows = HashSet::<isize>::default();
   let mut expand_cols = HashSet::<isize>::default();
 
@@ -84,7 +83,7 @@ fn expand_galaxy2( map1: &TerrainMap<bool> ) -> (HashSet<isize>,HashSet<isize>) 
     }
   }
 
-  for y in 0..map1.dims.height{
+  for y in 0..map1.dims.height {
     if empty_row(y, map1) {
       expand_rows.insert(y as isize);
     }
@@ -92,7 +91,6 @@ fn expand_galaxy2( map1: &TerrainMap<bool> ) -> (HashSet<isize>,HashSet<isize>) 
 
   (expand_rows, expand_cols)
 }
-
 
 fn determine_map_dims(data: &str) -> Dims {
   let mut width = 0;
@@ -105,18 +103,22 @@ fn determine_map_dims(data: &str) -> Dims {
     }
   }
 
-  Dims{width, height,..Default::default()}
+  Dims {
+    width,
+    height,
+    ..Default::default()
+  }
 }
 
-fn load_data( filename: &str ) -> TerrainMap::<bool> {
+fn load_data(filename: &str) -> TerrainMap<bool> {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
 
-  let mut map = TerrainMap::<bool>::new( determine_map_dims(&contents));
+  let mut map = TerrainMap::<bool>::new(determine_map_dims(&contents));
 
-  let mut p = Point {x:0,y:0};
-  for line in contents.lines(){
+  let mut p = Point { x: 0, y: 0 };
+  for line in contents.lines() {
     for c in line.chars() {
       if c == '#' {
         map.set(&p, true);
@@ -127,12 +129,12 @@ fn load_data( filename: &str ) -> TerrainMap::<bool> {
     p.y += 1;
   }
 
-    //sequences.push( line.split(' ').map( |a| a.parse::<isize>().unwrap() ).collect() );
-    //let r = sscanf::sscanf!(line, "{String} = ({String}, {String})").unwrap();
+  //sequences.push( line.split(' ').map( |a| a.parse::<isize>().unwrap() ).collect() );
+  //let r = sscanf::sscanf!(line, "{String} = ({String}, {String})").unwrap();
   map
 }
 
-fn find_galaxies(map: &TerrainMap<bool>) -> Vec::<Point> {
+fn find_galaxies(map: &TerrainMap<bool>) -> Vec<Point> {
   let mut galaxies = Vec::<Point>::new();
 
   let mut p = Point::default();
@@ -177,7 +179,7 @@ fn analyse_data(map: &TerrainMap<bool>, expansion: usize) -> usize {
 
   let mut score = 0;
   for a in 0..galaxies2.len() {
-    for b in a+1..galaxies2.len() {
+    for b in a + 1..galaxies2.len() {
       let ga = galaxies2[a];
       let gb = galaxies2[b];
 
@@ -189,7 +191,6 @@ fn analyse_data(map: &TerrainMap<bool>, expansion: usize) -> usize {
   score as usize
 }
 
-
 fn main() {
   env_logger::init();
 
@@ -198,11 +199,10 @@ fn main() {
     return;
   }
 
-  let data = load_data( "input11.txt" );
+  let data = load_data("input11.txt");
   //let data = expand_galaxy(&data);
-  let score1 = analyse_data(&data,1);
-  let score2 = analyse_data(&data,999_999);
+  let score1 = analyse_data(&data, 1);
+  let score2 = analyse_data(&data, 999_999);
   println!("score1: {score1}");
   println!("score2: {score2}");
-
 }

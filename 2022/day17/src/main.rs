@@ -1,183 +1,184 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-use advent::{TerrainMap,Dims,Point};
+use advent::{Dims, Point, TerrainMap};
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+  use super::*;
 
-    #[test]
-    fn test_rocks() {
-      let mut rocks = init_rocks();
-      let r5 = rocks.pop().unwrap();
-      assert_eq!(r5.dims.width, 2);
-      assert_eq!(r5.dims.height, 2);
+  #[test]
+  fn test_rocks() {
+    let mut rocks = init_rocks();
+    let r5 = rocks.pop().unwrap();
+    assert_eq!(r5.dims.width, 2);
+    assert_eq!(r5.dims.height, 2);
 
-      let r4 = rocks.pop().unwrap();
-      assert_eq!(r4.dims.width, 1);
-      assert_eq!(r4.dims.height, 4);
+    let r4 = rocks.pop().unwrap();
+    assert_eq!(r4.dims.width, 1);
+    assert_eq!(r4.dims.height, 4);
 
-      let r3 = rocks.pop().unwrap();
-      assert_eq!(r3.dims.width, 3);
-      assert_eq!(r3.dims.height, 3);
+    let r3 = rocks.pop().unwrap();
+    assert_eq!(r3.dims.width, 3);
+    assert_eq!(r3.dims.height, 3);
 
-      let r2 = rocks.pop().unwrap();
-      assert_eq!(r2.dims.width, 3);
-      assert_eq!(r2.dims.height, 3);
+    let r2 = rocks.pop().unwrap();
+    assert_eq!(r2.dims.width, 3);
+    assert_eq!(r2.dims.height, 3);
 
-      let r1 = rocks.pop().unwrap();
-      assert_eq!(r1.dims.width, 4);
-      assert_eq!(r1.dims.height, 1);
+    let r1 = rocks.pop().unwrap();
+    assert_eq!(r1.dims.width, 4);
+    assert_eq!(r1.dims.height, 1);
+  }
+
+  #[test]
+  fn test_compare() {
+    let jets = load_jets("testinput.txt");
+    let (_, height) = drop_rocks(&jets, 2022);
+    assert_eq!(height, 3068);
+  }
+  #[test]
+  #[ignore]
+  fn test_compare_smart() {
+    let jets = load_jets("testinput.txt");
+    let height = drop_rocks_smart(&jets, 1000000000000);
+    assert_eq!(height, 1514285714288);
+  }
+
+  #[test]
+  #[ignore]
+  fn test_compare_smart2() {
+    let jets = load_jets("input17.txt");
+
+    for i in 3450..4000 {
+      let (_, h1) = drop_rocks(&jets, i);
+      let h2 = drop_rocks_smart(&jets, i);
+      assert_eq!(h1, h2);
     }
+  }
 
-    #[test]
-    fn test_compare() {
-      let jets = load_jets("testinput.txt");
-      let (_, height) = drop_rocks(&jets, 2022);
-      assert_eq!(height, 3068);
-    }
-    #[test]
-    #[ignore]
-    fn test_compare_smart() {
-      let jets = load_jets("testinput.txt");
-      let height = drop_rocks_smart(&jets, 1000000000000);
-      assert_eq!(height, 1514285714288);
-    }
+  #[test]
+  fn test_single_left() {
+    let jets = vec![Jet::Left];
+    let (column, height) = drop_rocks(&jets, 1);
+    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
+    assert_eq!(height, 1);
+  }
+  #[test]
+  fn test_single_right() {
+    let jets = vec![Jet::Right];
+    let (column, height) = drop_rocks(&jets, 1);
+    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 4, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 5, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 6, y: 0 }), Material::Rock);
+    assert_eq!(height, 1);
+  }
+  #[test]
+  fn test_double() {
+    let jets = vec![Jet::Left];
+    let (column, height) = drop_rocks(&jets, 2);
+    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
 
-    #[test]
-    #[ignore]
-    fn test_compare_smart2() {
-      let jets = load_jets("input17.txt");
+    assert_eq!(column.get(&Point { x: 0, y: 1 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 1 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 1 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 1 }), Material::Air);
 
-      for i in 3450..4000 {
-        let (_,h1) = drop_rocks(&jets, i);
-        let h2 = drop_rocks_smart(&jets, i);
-        assert_eq!( h1, h2 );
-      }
-    }
+    assert_eq!(column.get(&Point { x: 0, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 2 }), Material::Air);
 
-    #[test]
-    fn test_single_left() {
-      let jets = vec![Jet::Left];
-      let (column,height) = drop_rocks(&jets, 1);
-      assert_eq!(column.get(&Point{x:0,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:1,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:3,y:0}), Material::Rock);
-      assert_eq!(height, 1);
-    }
-    #[test]
-    fn test_single_right() {
-      let jets = vec![Jet::Right];
-      let (column,height) = drop_rocks(&jets, 1);
-      assert_eq!(column.get(&Point{x:0,y:0}), Material::Air);
-      assert_eq!(column.get(&Point{x:1,y:0}), Material::Air);
-      assert_eq!(column.get(&Point{x:2,y:0}), Material::Air);
-      assert_eq!(column.get(&Point{x:3,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:4,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:5,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:6,y:0}), Material::Rock);
-      assert_eq!(height, 1);
-    }
-    #[test]
-    fn test_double() {
-      let jets = vec![Jet::Left];
-      let (column,height) = drop_rocks(&jets, 2);
-      assert_eq!(column.get(&Point{x:0,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:1,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:3,y:0}), Material::Rock);
+    assert_eq!(column.get(&Point { x: 0, y: 3 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 3 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 3 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 3 }), Material::Air);
 
-      assert_eq!(column.get(&Point{x:0,y:1}), Material::Air);
-      assert_eq!(column.get(&Point{x:1,y:1}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:1}), Material::Air);
-      assert_eq!(column.get(&Point{x:3,y:1}), Material::Air);
+    assert_eq!(height, 4);
+  }
+  #[test]
+  fn test_triple() {
+    let jets = vec![Jet::Left];
+    let (column, height) = drop_rocks(&jets, 3);
 
-      assert_eq!(column.get(&Point{x:0,y:2}), Material::Rock);
-      assert_eq!(column.get(&Point{x:1,y:2}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:2}), Material::Rock);
-      assert_eq!(column.get(&Point{x:3,y:2}), Material::Air);
+    visualise_column(&column, 8);
 
-      assert_eq!(column.get(&Point{x:0,y:3}), Material::Air);
-      assert_eq!(column.get(&Point{x:1,y:3}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:3}), Material::Air);
-      assert_eq!(column.get(&Point{x:3,y:3}), Material::Air);
+    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
 
-      assert_eq!(height, 4);
-    }
-    #[test]
-    fn test_triple() {
-      let jets = vec![Jet::Left];
-      let (column,height) = drop_rocks(&jets, 3);
+    assert_eq!(column.get(&Point { x: 0, y: 1 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 1 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 1 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 1 }), Material::Air);
 
-      visualise_column(&column, 8);
+    assert_eq!(column.get(&Point { x: 0, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 2 }), Material::Air);
 
-      assert_eq!(column.get(&Point{x:0,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:1,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:0}), Material::Rock);
-      assert_eq!(column.get(&Point{x:3,y:0}), Material::Rock);
+    assert_eq!(column.get(&Point { x: 0, y: 3 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 3 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 3 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 3 }), Material::Air);
 
-      assert_eq!(column.get(&Point{x:0,y:1}), Material::Air);
-      assert_eq!(column.get(&Point{x:1,y:1}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:1}), Material::Air);
-      assert_eq!(column.get(&Point{x:3,y:1}), Material::Air);
+    assert_eq!(column.get(&Point { x: 0, y: 4 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 4 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 4 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 4 }), Material::Air);
 
-      assert_eq!(column.get(&Point{x:0,y:2}), Material::Rock);
-      assert_eq!(column.get(&Point{x:1,y:2}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:2}), Material::Rock);
-      assert_eq!(column.get(&Point{x:3,y:2}), Material::Air);
-
-      assert_eq!(column.get(&Point{x:0,y:3}), Material::Air);
-      assert_eq!(column.get(&Point{x:1,y:3}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:3}), Material::Air);
-      assert_eq!(column.get(&Point{x:3,y:3}), Material::Air);
-
-      assert_eq!(column.get(&Point{x:0,y:4}), Material::Rock);
-      assert_eq!(column.get(&Point{x:1,y:4}), Material::Rock);
-      assert_eq!(column.get(&Point{x:2,y:4}), Material::Rock);
-      assert_eq!(column.get(&Point{x:3,y:4}), Material::Air);
-
-      assert_eq!(height, 7);
-   }
-
-}
-
-enum Jet {
-    Left,
-    Right
-}
-
-#[derive(Default,Copy,Clone,PartialEq,Debug)]
-enum Material {
-    #[default]
-    Air,
-    Rock,
-}
-
-
-fn visualise_line( column: &TerrainMap<Material>, y: usize) {
-    let mut line = String::new();
-    for x in 0..column.dims.width {
-      line.push (
-          match column.get(&Point{x:x as isize,y:y as isize}) {
-        Material::Air => '.',
-        Material::Rock => '#',
-      }
-      );
-    }
-    println!("{line}");
-}
-
-#[cfg(test)]
-fn visualise_column( column: &TerrainMap<Material>, max_height: usize) {
-  for mut y in 0..max_height {
-    y = max_height - y -1;
-    visualise_line( column, y);
+    assert_eq!(height, 7);
   }
 }
 
-fn load_shape(shape:&str) -> TerrainMap<Material> {
+enum Jet {
+  Left,
+  Right,
+}
+
+#[derive(Default, Copy, Clone, PartialEq, Debug)]
+enum Material {
+  #[default]
+  Air,
+  Rock,
+}
+
+fn visualise_line(column: &TerrainMap<Material>, y: usize) {
+  let mut line = String::new();
+  for x in 0..column.dims.width {
+    line.push(
+      match column.get(&Point {
+        x: x as isize,
+        y: y as isize,
+      }) {
+        Material::Air => '.',
+        Material::Rock => '#',
+      },
+    );
+  }
+  println!("{line}");
+}
+
+#[cfg(test)]
+fn visualise_column(column: &TerrainMap<Material>, max_height: usize) {
+  for mut y in 0..max_height {
+    y = max_height - y - 1;
+    visualise_line(column, y);
+  }
+}
+
+fn load_shape(shape: &str) -> TerrainMap<Material> {
   let mut y = 0;
   let mut x = 0;
 
@@ -186,19 +187,23 @@ fn load_shape(shape:&str) -> TerrainMap<Material> {
     x = line.len();
   }
 
-  let mut sprite = TerrainMap::new(Dims{width:x, height:y,..Default::default()});
+  let mut sprite = TerrainMap::new(Dims {
+    width: x,
+    height: y,
+    ..Default::default()
+  });
 
-  let mut y = (y-1) as isize;
+  let mut y = (y - 1) as isize;
   for line in shape.lines() {
-    for (x,c) in line.chars().enumerate() {
-      let mat:Material = match c {
-          '#' => Material::Rock,
-          '.' => Material::Air,
-          _ => panic!("unexpected char")
+    for (x, c) in line.chars().enumerate() {
+      let mat: Material = match c {
+        '#' => Material::Rock,
+        '.' => Material::Air,
+        _ => panic!("unexpected char"),
       };
-      sprite.set(&Point{x:x as isize,y}, mat);
+      sprite.set(&Point { x: x as isize, y }, mat);
     }
-    y-=1;
+    y -= 1;
   }
 
   sprite
@@ -206,30 +211,33 @@ fn load_shape(shape:&str) -> TerrainMap<Material> {
 
 fn init_rocks() -> Vec<TerrainMap<Material>> {
   let v = vec![
-    load_shape( "####"),
+    load_shape("####"),
     load_shape(
-          ".#.\n\
+      ".#.\n\
            ###\n\
-           .#."),
+           .#.",
+    ),
     load_shape(
-          "..#\n\
+      "..#\n\
            ..#\n\
-           ###"),
+           ###",
+    ),
     load_shape(
-          "#\n\
+      "#\n\
            #\n\
            #\n\
-           #"),
+           #",
+    ),
     load_shape(
-          "##\n\
-           ##"),
+      "##\n\
+           ##",
+    ),
   ];
 
   v
- }
+}
 
-fn load_jets(filename: &str) -> Vec<Jet>
-{
+fn load_jets(filename: &str) -> Vec<Jet> {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
@@ -247,31 +255,63 @@ fn load_jets(filename: &str) -> Vec<Jet>
   jets
 }
 
-fn jet_rock(rock: &TerrainMap<Material>, rock_x: &mut isize, rock_y: isize, jet: &Jet, column: &TerrainMap::<Material>)
-{
+fn jet_rock(rock: &TerrainMap<Material>, rock_x: &mut isize, rock_y: isize, jet: &Jet, column: &TerrainMap<Material>) {
   let new_rock_x;
   match *jet {
-    Jet::Left => if *rock_x == 0 { return } else { new_rock_x = *rock_x-1 },
-    Jet::Right => if *rock_x + rock.dims.width as isize >= column.dims.width as isize { return } else { new_rock_x = *rock_x + 1}
+    Jet::Left => {
+      if *rock_x == 0 {
+        return;
+      } else {
+        new_rock_x = *rock_x - 1
+      }
+    }
+    Jet::Right => {
+      if *rock_x + rock.dims.width as isize >= column.dims.width as isize {
+        return;
+      } else {
+        new_rock_x = *rock_x + 1
+      }
+    }
   }
 
   //now check for intersection between rock and existing column terrain
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(&Point{x, y}) != Material::Rock { continue; }
+      if rock.get(&Point { x, y }) != Material::Rock {
+        continue;
+      }
       //println!("{new_rock_x}, {rock_y}. {x},{y}.");
-      if column.get(&Point{x:new_rock_x + x, y:rock_y + y}) == Material::Rock { return }
+      if column.get(&Point {
+        x: new_rock_x + x,
+        y: rock_y + y,
+      }) == Material::Rock
+      {
+        return;
+      }
     }
   }
   *rock_x = new_rock_x;
 }
 
-fn land_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: isize, column: &mut TerrainMap::<Material>, highest_rock: &mut isize)
-{
+fn land_rock(
+  rock: &TerrainMap<Material>,
+  rock_x: isize,
+  rock_y: isize,
+  column: &mut TerrainMap<Material>,
+  highest_rock: &mut isize,
+) {
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(&Point{x, y}) != Material::Rock { continue; }
-      column.set(&Point{x:rock_x + x, y:rock_y + y}, Material::Rock);
+      if rock.get(&Point { x, y }) != Material::Rock {
+        continue;
+      }
+      column.set(
+        &Point {
+          x: rock_x + x,
+          y: rock_y + y,
+        },
+        Material::Rock,
+      );
     }
   }
   if *highest_rock < rock_y + rock.dims.height as isize {
@@ -280,9 +320,14 @@ fn land_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: isize, column: 
 }
 
 // @return true if the rock landed
-fn drop_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: &mut isize, column: &mut TerrainMap::<Material>, highest_rock: &mut isize) -> bool
-{
-  let new_rock_y = *rock_y -1;
+fn drop_rock(
+  rock: &TerrainMap<Material>,
+  rock_x: isize,
+  rock_y: &mut isize,
+  column: &mut TerrainMap<Material>,
+  highest_rock: &mut isize,
+) -> bool {
+  let new_rock_y = *rock_y - 1;
   if new_rock_y < 0 {
     land_rock(rock, rock_x, *rock_y, column, highest_rock);
     return true;
@@ -290,8 +335,14 @@ fn drop_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: &mut isize, col
   //now check for intersection between rock and existing column terrain
   for y in 0..rock.dims.height as isize {
     for x in 0..rock.dims.width as isize {
-      if rock.get(&Point{x, y}) != Material::Rock { continue; }
-      if column.get(&Point{x:rock_x + x, y:new_rock_y + y}) == Material::Rock {
+      if rock.get(&Point { x, y }) != Material::Rock {
+        continue;
+      }
+      if column.get(&Point {
+        x: rock_x + x,
+        y: new_rock_y + y,
+      }) == Material::Rock
+      {
         land_rock(rock, rock_x, *rock_y, column, highest_rock);
         return true;
       }
@@ -313,7 +364,7 @@ fn drop_rock(rock: &TerrainMap<Material>, rock_x: isize, rock_y: &mut isize, col
  * the height has increased by 2694.
  * It's not obvious that there have to be cycles, because even though jets/rocks cycle, the number
  * of locations that each rock falls differs depending on the terrain underneath.
- * We could write some code that detects cycles automatically, but given that we've got fairly high 
+ * We could write some code that detects cycles automatically, but given that we've got fairly high
  * confidence in a consistent cycle through manual log inspection, we'll just hardcode what we've
  * found, for speed.
  *
@@ -327,18 +378,18 @@ fn drop_rocks_smart(jets: &Vec<Jet>, count: usize) -> isize {
   let block_cycle = 1725; //after this number of blocks it cycles
   let cycle_height_increase = 2694;
 
-  if count < 2 * block_cycle { 
-     let (_, height) = drop_rocks(jets, count);
-     return height;
+  if count < 2 * block_cycle {
+    let (_, height) = drop_rocks(jets, count);
+    return height;
   }
 
   //We'll simulate a small amount for real and calcualate the rest
 
   let rem = count % block_cycle;
 
-  let iters = count/block_cycle -1;
+  let iters = count / block_cycle - 1;
 
-  let (_, mut height) = drop_rocks(jets, block_cycle+rem);
+  let (_, mut height) = drop_rocks(jets, block_cycle + rem);
 
   height += iters as isize * cycle_height_increase;
 
@@ -355,9 +406,13 @@ fn whole_row_solid( y: isize, col: &TerrainMap<Material>) -> bool {
 }
 */
 
-fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap::<Material>, isize) {
+fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap<Material>, isize) {
   //y is 0 at bottom
-  let mut column = TerrainMap::<Material>::new( Dims{ width:7, height: 3 + 3*count,..Default::default()});
+  let mut column = TerrainMap::<Material>::new(Dims {
+    width: 7,
+    height: 3 + 3 * count,
+    ..Default::default()
+  });
   let rocks = init_rocks();
   let jet_len = jets.len();
   let rock_len = rocks.len();
@@ -379,7 +434,7 @@ fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap::<Material>, isize) 
       num_jets += 1;
       //move down
       // if can't move down, update highest_rock, and break
-      if drop_rock(rock, rock_x, &mut rock_y, &mut column, &mut highest_rock) { 
+      if drop_rock(rock, rock_x, &mut rock_y, &mut column, &mut highest_rock) {
         //check for a solid line all the way across
         /*
         for ly in 0..rock.dims.height {
@@ -387,15 +442,15 @@ fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap::<Material>, isize) 
             println!("Solid row at rock {}+{}({}), jet {}({}), highest {}", num_rocks % rock_len, ly, num_rocks, num_jets % jet_len, num_jets, highest_rock);
           }
         }*/
-        break; 
+        break;
       }
     }
 
     //println!("{}", num_jets % jet_len);
-    if num_jets % jet_len == 0 
-    //    && num_rocks % rock_len == 0 
+    if num_jets % jet_len == 0
+    //    && num_rocks % rock_len == 0
     {
-      visualise_line( &column, highest_rock as usize );
+      visualise_line(&column, highest_rock as usize);
     }
   }
   println!("total jets: {num_jets}");
@@ -405,7 +460,7 @@ fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap::<Material>, isize) 
 
 fn main() {
   let jets = load_jets("input17.txt");
-  let (_col,height) = drop_rocks(&jets, 2022);
+  let (_col, height) = drop_rocks(&jets, 2022);
   println!("{height}");
   //visualise_column(&col, 100);
 

@@ -1,63 +1,57 @@
-
+use clap::Parser;
 use std::fs::File;
 use std::io::Read;
-use clap::Parser;
 //use log::debug;
 
-
 use rustc_hash::FxHashMap;
-type HashMap<T,U> = FxHashMap<T,U>;
+type HashMap<T, U> = FxHashMap<T, U>;
 
 /// Day 19 of Advent of Code 2022
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-   /// Name of the person to greet
-   #[arg(short, long, default_value_t=false)]
-   benchmark: bool,
+  /// Name of the person to greet
+  #[arg(short, long, default_value_t = false)]
+  benchmark: bool,
 }
 
-
-#[derive(Debug,PartialEq,Clone)]
+#[derive(Debug, PartialEq, Clone)]
 struct Materials {
   ore: u16,
   clay: u16,
   obsidian: u16,
 }
 
-#[derive(Debug,PartialEq,Clone)]
+#[derive(Debug, PartialEq, Clone)]
 struct Blueprint {
   orebot: Materials,
   claybot: Materials,
   obsidianbot: Materials,
-  geodebot: Materials
+  geodebot: Materials,
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+  use super::*;
 
+  #[test]
+  fn test_load1() {
+    let calib = load_calib("testinput.txt");
+    assert_eq!(calib, 142);
+  }
 
-    #[test]
-    fn test_load1() {
-      let calib = load_calib( "testinput.txt" );
-      assert_eq!(calib, 142 );
-    }
-
-    #[test]
-    fn test_load2() {
-      let calib = load_calib2( "testinput2.txt" );
-      assert_eq!(calib, 281 );
-    }
-
+  #[test]
+  fn test_load2() {
+    let calib = load_calib2("testinput2.txt");
+    assert_eq!(calib, 281);
+  }
 }
- 
-fn load_calib( filename: &str) -> usize
-{
+
+fn load_calib(filename: &str) -> usize {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
-  let mut calib:usize = 0;
+  let mut calib: usize = 0;
   for line in contents.lines() {
     for c in line.chars() {
       if c.is_ascii_digit() {
@@ -77,11 +71,8 @@ fn load_calib( filename: &str) -> usize
   calib
 }
 
-
-
-fn load_calib2( filename: &str) -> usize
-{
-  let mut tokens = HashMap::<&str,usize>::default();
+fn load_calib2(filename: &str) -> usize {
+  let mut tokens = HashMap::<&str, usize>::default();
   tokens.insert("one", 1);
   tokens.insert("1", 1);
   tokens.insert("two", 2);
@@ -104,11 +95,11 @@ fn load_calib2( filename: &str) -> usize
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
-  let mut calib:usize = 0;
+  let mut calib: usize = 0;
   for line in contents.lines() {
     let mut lowest_pos = 9999999999;
     let mut lowest_value = 0;
-    for (token,value) in tokens.iter() {
+    for (token, value) in tokens.iter() {
       let pos = line.find(token);
       if pos.is_some() {
         let pos = pos.unwrap();
@@ -122,7 +113,7 @@ fn load_calib2( filename: &str) -> usize
 
     let mut highest_pos = 0;
     let mut highest_value = 0;
-    for (token,value) in tokens.iter() {
+    for (token, value) in tokens.iter() {
       let pos = line.rfind(token);
       if pos.is_some() {
         let pos = pos.unwrap();
@@ -132,24 +123,22 @@ fn load_calib2( filename: &str) -> usize
         }
       }
     }
- 
+
     calib += highest_value;
   }
   calib
 }
 
-
-
 fn main() {
-    env_logger::init();
+  env_logger::init();
 
-    let args = Args::parse();
-    if args.benchmark {
-      return;
-    }
+  let args = Args::parse();
+  if args.benchmark {
+    return;
+  }
 
-    let answer1 = load_calib( "input1.txt" );
-    println!("answer: {answer1}");
-    let answer2 = load_calib2( "input1.txt" );
-    println!("answer: {answer2}");
+  let answer1 = load_calib("input1.txt");
+  println!("answer: {answer1}");
+  let answer2 = load_calib2("input1.txt");
+  println!("answer: {answer2}");
 }

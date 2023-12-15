@@ -38,15 +38,13 @@ struct Args {
   benchmark: bool,
 }
 
-
 #[allow(dead_code)]
 fn analyse_data(_data: &mut [char]) -> (usize, usize) {
-
-  (0,0)
+  (0, 0)
 }
 
 fn hash_step(s: &str) -> usize {
-  let mut cv:usize = 0;
+  let mut cv: usize = 0;
   for b in s.as_bytes() {
     cv += *b as usize;
     cv *= 17;
@@ -56,7 +54,7 @@ fn hash_step(s: &str) -> usize {
   cv
 }
 
-fn load_data(filename: &str) -> (usize,usize) {
+fn load_data(filename: &str) -> (usize, usize) {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
@@ -73,7 +71,7 @@ fn load_data(filename: &str) -> (usize,usize) {
   }
 
   for group in contents.split(',') {
-    let idx:usize = match group.find('=') {
+    let idx: usize = match group.find('=') {
       Some(a) => a,
       None => group.find('-').unwrap(),
     };
@@ -83,7 +81,7 @@ fn load_data(filename: &str) -> (usize,usize) {
     let v = boxes.get_mut(b).unwrap();
     if action == "-" {
       let mut idx = usize::MAX;
-      for (i,(lab,_)) in v.iter().enumerate() {
+      for (i, (lab, _)) in v.iter().enumerate() {
         if label == lab {
           idx = i;
           break;
@@ -93,13 +91,12 @@ fn load_data(filename: &str) -> (usize,usize) {
         v.remove(idx);
         println!("removed {label} box {b}");
       }
-    }
-    else {
+    } else {
       let mut it = action.chars();
       assert_eq!(it.next().unwrap(), '=');
       let power = (it.next().unwrap() as u32 - '0' as u32) as usize;
       let mut found = false;
-      for (lab,pow) in v.iter_mut() {
+      for (lab, pow) in v.iter_mut() {
         if label == lab {
           found = true;
           *pow = power;
@@ -108,7 +105,7 @@ fn load_data(filename: &str) -> (usize,usize) {
         }
       }
       if !found {
-        v.push_back( (label.to_string(), power) );
+        v.push_back((label.to_string(), power));
         println!("added {label} power {power} to back of box {b}");
       }
     }
@@ -117,17 +114,14 @@ fn load_data(filename: &str) -> (usize,usize) {
   for (bn, bx) in boxes.iter().enumerate() {
     for (ln, (_, foc)) in bx.iter().enumerate() {
       println!("box {bn}, slot {ln}, focal length {foc}");
-      score2 += (bn +1) * (ln+1) * foc;
+      score2 += (bn + 1) * (ln + 1) * foc;
     }
   }
 
-
-
-
   (score1, score2)
   //for line in contents.lines() {
-    //sequences.push( line.split(' ').map( |a| a.parse::<isize>().unwrap() ).collect() );
-    //let r = sscanf::sscanf!(line, "{String} = ({String}, {String})").unwrap();
+  //sequences.push( line.split(' ').map( |a| a.parse::<isize>().unwrap() ).collect() );
+  //let r = sscanf::sscanf!(line, "{String} = ({String}, {String})").unwrap();
 }
 
 fn main() {

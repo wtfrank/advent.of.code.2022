@@ -122,13 +122,7 @@ fn do_analyse_fast<'a>(
           let mut part_score = 0;
           //assume damaged
           if in_seq && seq_remain > 0 {
-            part_score += do_analyse_fast(
-              &cond[pos as usize + 1..],
-              &seq[seq_pos..],
-              in_seq,
-              seq_remain - 1,
-              memo,
-            );
+            part_score += do_analyse_fast(&cond[pos as usize + 1..], &seq[seq_pos..], in_seq, seq_remain - 1, memo);
           } else if !in_seq && seq_pos < seq.len() {
             part_score += do_analyse_fast(
               &cond[pos as usize + 1..],
@@ -141,12 +135,10 @@ fn do_analyse_fast<'a>(
 
           //assume working
           if in_seq && seq_remain == 0 {
-            part_score +=
-              do_analyse_fast(&cond[pos as usize + 1..], &seq[seq_pos..], false, 0, memo);
+            part_score += do_analyse_fast(&cond[pos as usize + 1..], &seq[seq_pos..], false, 0, memo);
           }
           if !in_seq {
-            part_score +=
-              do_analyse_fast(&cond[pos as usize + 1..], &seq[seq_pos..], false, 0, memo);
+            part_score += do_analyse_fast(&cond[pos as usize + 1..], &seq[seq_pos..], false, 0, memo);
           }
 
           memo.insert(key, part_score);
@@ -273,28 +265,14 @@ fn do_analyse(
         if in_seq && seq_remain == 0 {
           cur_seq.push(Spring::Operational);
           let csl = cur_seq.len();
-          score += do_analyse(
-            &cond[pos as usize + 1..],
-            &seq[seq_pos..],
-            orig_len,
-            false,
-            0,
-            cur_seq,
-          );
+          score += do_analyse(&cond[pos as usize + 1..], &seq[seq_pos..], orig_len, false, 0, cur_seq);
           assert_eq!(cur_seq.len(), csl);
           cur_seq.pop();
         }
         if !in_seq {
           cur_seq.push(Spring::Operational);
           let csl = cur_seq.len();
-          score += do_analyse(
-            &cond[pos as usize + 1..],
-            &seq[seq_pos..],
-            orig_len,
-            false,
-            0,
-            cur_seq,
-          );
+          score += do_analyse(&cond[pos as usize + 1..], &seq[seq_pos..], orig_len, false, 0, cur_seq);
           assert_eq!(cur_seq.len(), csl);
           cur_seq.pop();
         }

@@ -113,13 +113,7 @@ fn tip_s(data: &mut TerrainMap<char>) -> usize {
             first_free -= 1;
           }
           if pos > y as isize {
-            data.set(
-              &Point {
-                x: x as isize,
-                y: pos,
-              },
-              'O',
-            );
+            data.set(&Point { x: x as isize, y: pos }, 'O');
             data.set(
               &Point {
                 x: x as isize,
@@ -212,13 +206,7 @@ fn tip_e(data: &mut TerrainMap<char>) -> usize {
             first_free -= 1;
           }
           if pos > x as isize {
-            data.set(
-              &Point {
-                x: pos,
-                y: y as isize,
-              },
-              'O',
-            );
+            data.set(&Point { x: pos, y: y as isize }, 'O');
             data.set(
               &Point {
                 x: x as isize,

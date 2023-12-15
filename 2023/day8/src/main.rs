@@ -248,10 +248,7 @@ fn analyse_data3(dirs: &str, nodes: &HashMap<String, (String, String)>) -> usize
   }
   println!("number of ghosts: {}", cur_node.len());
 
-  let cycles: Vec<usize> = cur_node
-    .iter()
-    .map(|g| find_cycle(*g, &dv, &nv, &ends_z))
-    .collect();
+  let cycles: Vec<usize> = cur_node.iter().map(|g| find_cycle(*g, &dv, &nv, &ends_z)).collect();
   //for g_start in &cur_node {
   //  find_cycle(*g_start, &dv, &nv, &ends_z );
   //}

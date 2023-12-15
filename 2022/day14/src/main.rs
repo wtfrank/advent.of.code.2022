@@ -1,34 +1,34 @@
+use std::cmp::Ordering;
 use std::fs::File;
 use std::io::prelude::*;
-use std::cmp::Ordering;
 
-use advent::{TerrainMap,Dims,Point};
+use advent::{Dims, Point, TerrainMap};
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+  use super::*;
 
-   #[test]
-    fn test_compare() {
-      let mut m = load_scan("testinput.txt");
-      let units = simulate_fall(&mut m);
-      assert_eq!(units, 24);
-    }
-   #[test]
-    fn test_compare2() {
-      let mut m = load_scan("testinput.txt");
-      add_floor(&mut m);
-      let units = simulate_fall(&mut m);
-      assert_eq!(units, 93);
-    }
+  #[test]
+  fn test_compare() {
+    let mut m = load_scan("testinput.txt");
+    let units = simulate_fall(&mut m);
+    assert_eq!(units, 24);
+  }
+  #[test]
+  fn test_compare2() {
+    let mut m = load_scan("testinput.txt");
+    add_floor(&mut m);
+    let units = simulate_fall(&mut m);
+    assert_eq!(units, 93);
+  }
 }
 
-#[derive(Default,Copy,Clone,PartialEq,Eq)]
+#[derive(Default, Copy, Clone, PartialEq, Eq)]
 enum ScanData {
   #[default]
   Air,
   Rock,
-  Sand
+  Sand,
 }
 
 fn load_scan(filename: &str) -> TerrainMap<ScanData> {
@@ -37,11 +37,11 @@ fn load_scan(filename: &str) -> TerrainMap<ScanData> {
   file.read_to_string(&mut contents).unwrap();
 
   let lines = contents.lines();
-  let mut paths: Vec< Vec< Point >> = Vec::new();
+  let mut paths: Vec<Vec<Point>> = Vec::new();
   let mut max_x = 0;
   let mut max_y = 0;
   for line in lines {
-    let mut path:Vec<Point> = Vec::new();
+    let mut path: Vec<Point> = Vec::new();
     for tok in line.split_whitespace() {
       if tok == "->" {
         continue;
@@ -56,16 +56,23 @@ fn load_scan(filename: &str) -> TerrainMap<ScanData> {
       if y > max_y {
         max_y = y;
       }
-      path.push(Point{x:x as isize,y:y as isize});
+      path.push(Point {
+        x: x as isize,
+        y: y as isize,
+      });
       assert_eq!(i.next(), None);
     }
     paths.push(path);
   }
 
-  let mut tm = TerrainMap::<ScanData>::new(Dims{width:max_x+1+max_y, height:max_y+3,..Default::default()});
+  let mut tm = TerrainMap::<ScanData>::new(Dims {
+    width: max_x + 1 + max_y,
+    height: max_y + 3,
+    ..Default::default()
+  });
   for path in paths {
     for i in 1..path.len() {
-      let mut p = path[i-1];
+      let mut p = path[i - 1];
       let q = path[i];
       assert!(p.x == q.x || p.y == q.y);
       loop {
@@ -110,28 +117,31 @@ fn load_scan(filename: &str) -> TerrainMap<ScanData> {
 
 fn add_floor(map: &mut TerrainMap<ScanData>) {
   for x in 0..map.dims.width {
-    map.set(&Point{x:x as isize, y:map.dims.height as isize -1}, ScanData::Rock);
+    map.set(
+      &Point {
+        x: x as isize,
+        y: map.dims.height as isize - 1,
+      },
+      ScanData::Rock,
+    );
   }
 }
 
 fn simulate_fall(map: &mut TerrainMap<ScanData>) -> usize {
   let mut count = 0;
   loop {
-    let mut s = Point{x:500,y:0};
+    let mut s = Point { x: 500, y: 0 };
 
     loop {
-      if map.get(&Point{x:s.x, y:s.y+1}) == ScanData::Air {
+      if map.get(&Point { x: s.x, y: s.y + 1 }) == ScanData::Air {
         s.y += 1;
-      }
-      else if map.get(&Point{x:s.x-1, y:s.y+1}) == ScanData::Air {
+      } else if map.get(&Point { x: s.x - 1, y: s.y + 1 }) == ScanData::Air {
         s.x -= 1;
         s.y += 1;
-      }
-      else if map.get(&Point{x:s.x+1, y:s.y+1}) == ScanData::Air {
+      } else if map.get(&Point { x: s.x + 1, y: s.y + 1 }) == ScanData::Air {
         s.x += 1;
         s.y += 1;
-      }
-      else {
+      } else {
         map.set(&s, ScanData::Sand);
         count += 1;
         if s.x == 500 && s.y == 0 {
@@ -139,15 +149,13 @@ fn simulate_fall(map: &mut TerrainMap<ScanData>) -> usize {
         }
         break;
       }
-     
+
       if s.y >= map.dims.height as isize - 1 {
         return count;
       }
     }
-
   }
 }
-
 
 fn main() -> std::io::Result<()> {
   let mut m = load_scan("input14.txt");

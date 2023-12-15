@@ -38,7 +38,7 @@ struct Args {
 fn cmp_cols(map: &TerrainMap<char>, x1: usize, x2: usize) -> usize {
   let mut errors = 0;
   for y in 0..map.dims.height {
-    if map.get(&Point{x:x1 as isize, y:y as isize}) != map.get( &Point{x:x2 as isize, y:y as isize} ) {
+    if map.getc(x1 as isize, y as isize) != map.getc(x2 as isize, y as isize) {
       errors += 1;
     }
   }
@@ -48,37 +48,35 @@ fn cmp_cols(map: &TerrainMap<char>, x1: usize, x2: usize) -> usize {
 fn cmp_rows(map: &TerrainMap<char>, y1: usize, y2: usize) -> usize {
   let mut errors = 0;
   for x in 0..map.dims.width {
-    if map.get(&Point{x:x as isize, y:y1 as isize}) != map.get( &Point{x:x as isize, y:y2 as isize} ) {
+    if map.getc(x as isize, y1 as isize) != map.getc(x as isize, y2 as isize) {
       errors += 1;
     }
   }
   errors
 }
 
-
-
 fn reflects_vert(map: &TerrainMap<char>, x: usize) -> usize {
-  if x == 0 || x >= map.dims.width{ 
+  if x == 0 || x >= map.dims.width {
     panic!("bad input");
   }
-  
+
   let cols = std::cmp::min(x, map.dims.width - x);
 
   let mut errors = 0;
 
   let mut x2;
-  for x1 in x-cols..x {
+  for x1 in x - cols..x {
     //x2 = 2* cols + (x-cols) - x1;
-    x2 = x + x - x1-1;
+    x2 = x + x - x1 - 1;
     println!("comparing {cols} cols {x1}&{x2} for {x}");
-    errors +=cmp_cols(map, x1, x2);
+    errors += cmp_cols(map, x1, x2);
   }
 
   errors
 }
 
 fn reflects_horiz(map: &TerrainMap<char>, y: usize) -> usize {
-  if y == 0 || y >= map.dims.height { 
+  if y == 0 || y >= map.dims.height {
     panic!("bad input");
   }
 
@@ -89,10 +87,10 @@ fn reflects_horiz(map: &TerrainMap<char>, y: usize) -> usize {
 
   let mut errors = 0;
   let mut y2;
-  for y1 in y-rows..y {
+  for y1 in y - rows..y {
     //y2 = 2 * rows + (y-rows) - y1;
     //y2 = rows + y - y1;
-    y2 = y + y -y1 -1;
+    y2 = y + y - y1 - 1;
     println!("comparing {rows} rows {y1}&{y2} for {y}");
     errors += cmp_rows(map, y1, y2);
   }
@@ -100,8 +98,7 @@ fn reflects_horiz(map: &TerrainMap<char>, y: usize) -> usize {
   errors
 }
 
-
-fn analyse_data(data: &[TerrainMap<char>]) -> (usize,usize) {
+fn analyse_data(data: &[TerrainMap<char>]) -> (usize, usize) {
   let mut vert = 0;
   let mut horiz = 0;
 
@@ -132,8 +129,7 @@ fn analyse_data(data: &[TerrainMap<char>]) -> (usize,usize) {
         horiz += y;
         foundh += 1;
         println!("horiz reflection at {y}");
-      }
-      else if errors == 1 {
+      } else if errors == 1 {
         smudgeh += y;
         foundsh += 1;
         println!("smudged horiz reflection at {y}");
@@ -146,10 +142,15 @@ fn analyse_data(data: &[TerrainMap<char>]) -> (usize,usize) {
   (vert + 100 * horiz, smudgev + 100 * smudgeh)
 }
 
-fn lines_to_map( lines: &[String] ) -> TerrainMap<char> {
-  let dims = Dims {minx:0, miny:0, width: lines[0].len(), height: lines.len()};
+fn lines_to_map(lines: &[String]) -> TerrainMap<char> {
+  let dims = Dims {
+    minx: 0,
+    miny: 0,
+    width: lines[0].len(),
+    height: lines.len(),
+  };
   let mut map = TerrainMap::new(dims);
-  let mut p = Point {x:0, y:0};
+  let mut p = Point { x: 0, y: 0 };
   for l in lines.iter() {
     for c in l.chars() {
       map.set(&p, c);
@@ -163,7 +164,7 @@ fn lines_to_map( lines: &[String] ) -> TerrainMap<char> {
   map
 }
 
-fn load_data(filename: &str) -> Vec::<TerrainMap<char>> {
+fn load_data(filename: &str) -> Vec<TerrainMap<char>> {
   let mut data = Vec::new();
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
@@ -172,16 +173,15 @@ fn load_data(filename: &str) -> Vec::<TerrainMap<char>> {
   let mut linebuf = Vec::new();
   for line in contents.lines() {
     if line.is_empty() {
-      data.push( lines_to_map( &linebuf ) );
+      data.push(lines_to_map(&linebuf));
       linebuf.clear();
-    }
-    else {
+    } else {
       linebuf.push(line.to_string());
     }
-  //sequences.push( line.split(' ').map( |a| a.parse::<isize>().unwrap() ).collect() );
-  //let r = sscanf::sscanf!(line, "{String} = ({String}, {String})").unwrap();
+    //sequences.push( line.split(' ').map( |a| a.parse::<isize>().unwrap() ).collect() );
+    //let r = sscanf::sscanf!(line, "{String} = ({String}, {String})").unwrap();
   }
-  data.push( lines_to_map( &linebuf ) );
+  data.push(lines_to_map(&linebuf));
 
   data
 }
@@ -218,9 +218,8 @@ mod tests {
   #[test]
   fn test_load2() {
     let data = load_data("testinput.txt");
-    let (score1,score2) = analyse_data(&data);
+    let (score1, score2) = analyse_data(&data);
     assert_eq!(score1, 405);
     assert_eq!(score2, 400);
   }
-
 }

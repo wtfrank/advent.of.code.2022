@@ -1,38 +1,36 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+  use super::*;
 
-   #[test]
-    fn test_visibility() {
-      let x_states = simulate_execution("testinput.txt");
-      let signal_strength = calculate_signal_strength(&x_states);
-      assert!(signal_strength == 13140);
-    }
-    #[test]
-    fn test_render() {
-      let expected = "##..##..##..##..##..##..##..##..##..##..\n\
+  #[test]
+  fn test_visibility() {
+    let x_states = simulate_execution("testinput.txt");
+    let signal_strength = calculate_signal_strength(&x_states);
+    assert!(signal_strength == 13140);
+  }
+  #[test]
+  fn test_render() {
+    let expected = "##..##..##..##..##..##..##..##..##..##..\n\
 ###...###...###...###...###...###...###.\n\
 ####....####....####....####....####....\n\
 #####.....#####.....#####.....#####.....\n\
 ######......######......######......####\n\
 #######.......#######.......#######.....\n";
-      let x_states = simulate_execution("testinput.txt");
-      let screenshot = render_image(&x_states);
-      println!("Rendered:\n{screenshot}");
-      println!("Expected:\n{expected}");
-      assert!(screenshot == expected);
-      
-    }
+    let x_states = simulate_execution("testinput.txt");
+    let screenshot = render_image(&x_states);
+    println!("Rendered:\n{screenshot}");
+    println!("Expected:\n{expected}");
+    assert!(screenshot == expected);
+  }
 }
 
-#[derive(Debug,Copy,Clone,Hash,PartialEq,Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 struct Point {
-  x:isize,
-  y:isize,
+  x: isize,
+  y: isize,
 }
 impl std::fmt::Display for Point {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -43,12 +41,11 @@ impl std::fmt::Display for Point {
 fn render_image(x_states: &Vec<isize>) -> String {
   let mut output = String::new();
   for i in 1..x_states.len() {
-    let x = x_states[i-1];
-    let col:isize = (i as isize -1)%40;
-    if x >= col -1 && x <= col +1 {
+    let x = x_states[i - 1];
+    let col: isize = (i as isize - 1) % 40;
+    if x >= col - 1 && x <= col + 1 {
       output += "#";
-    }
-    else {
+    } else {
       output += ".";
     }
     if (i % 40) == 0 {
@@ -60,17 +57,16 @@ fn render_image(x_states: &Vec<isize>) -> String {
 }
 
 fn calculate_signal_strength(x_states: &[isize]) -> isize {
-
   let mut ret = 0;
   let mut i = 20;
   loop {
-    ret += x_states[i-1] * i as isize;
+    ret += x_states[i - 1] * i as isize;
     i += 40;
     if i > 220 {
       break;
     }
   }
-  
+
   ret
 }
 
@@ -91,17 +87,20 @@ fn simulate_execution(f: &str) -> Vec<isize> {
     let mut t = l.split_whitespace();
     let first = t.next().unwrap();
     match first {
-      "noop" => { x_states.push(x_states[x_states.len()-1]); },
-      "addx" => { let arg = t.next().unwrap().parse::<isize>().unwrap(); 
-                    x_states.push(x_states[x_states.len()-1]);
-                    x_states.push(x_states[x_states.len()-1] + arg); },
+      "noop" => {
+        x_states.push(x_states[x_states.len() - 1]);
+      }
+      "addx" => {
+        let arg = t.next().unwrap().parse::<isize>().unwrap();
+        x_states.push(x_states[x_states.len() - 1]);
+        x_states.push(x_states[x_states.len() - 1] + arg);
+      }
       _ => panic!("unexpected input"),
     }
   }
-  
+
   x_states
 }
-
 
 fn main() -> std::io::Result<()> {
   let x_states = simulate_execution("input10.txt");

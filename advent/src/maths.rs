@@ -1,4 +1,3 @@
-
 /* returns a vector of prime factors in ascending order
  * If a prime factorises a number of times, there will be
  * repeats
@@ -29,7 +28,7 @@ pub fn prime_factors(n: usize) -> Vec<usize> {
 pub fn lcm(numbers: &[usize]) -> usize {
   let mut factors = Vec::<Vec<usize>>::new();
   for n in numbers {
-    factors.push( prime_factors( *n ).into_iter().rev().collect() );
+    factors.push(prime_factors(*n).into_iter().rev().collect());
   }
 
   let mut result = 1;
@@ -38,16 +37,24 @@ pub fn lcm(numbers: &[usize]) -> usize {
     let mut all_empty = true;
     let mut lowest = usize::MAX;
     for fs in &factors {
-      if fs.is_empty() { continue }
+      if fs.is_empty() {
+        continue;
+      }
 
       all_empty = false;
-      if *fs.last().unwrap() < lowest { lowest = *fs.last().unwrap() }
+      if *fs.last().unwrap() < lowest {
+        lowest = *fs.last().unwrap()
+      }
     }
 
-    if all_empty { break; }
+    if all_empty {
+      break;
+    }
 
     for fs in &mut factors {
-      if fs.is_empty() { continue }
+      if fs.is_empty() {
+        continue;
+      }
       if *fs.last().unwrap() == lowest {
         fs.pop();
       }
