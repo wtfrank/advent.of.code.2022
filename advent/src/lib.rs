@@ -3,6 +3,7 @@ pub use terrain_map::TerrainMap;
 pub use terrain_map::TerrainMap3;
 
 mod point;
+pub use point::Direction;
 pub use point::Point;
 pub use point::Point3;
 

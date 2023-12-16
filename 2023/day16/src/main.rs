@@ -7,7 +7,7 @@ use std::io::Read;
 //use std::fmt;
 //use std::str::FromStr;
 
-use advent::{determine_map_dims, Point, TerrainMap};
+use advent::{determine_map_dims, Direction, Point, TerrainMap};
 
 //use enum_iterator::{all,Sequence};
 
@@ -36,33 +36,6 @@ struct Args {
   /// Name of the person to greet
   #[arg(short, long, default_value_t = false)]
   benchmark: bool,
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
-enum Direction {
-  North,
-  East,
-  South,
-  West,
-}
-
-fn neighbour(pos: &Point, dir: Direction) -> Point {
-  let mut new_pos = *pos;
-  match dir {
-    Direction::North => {
-      new_pos.y -= 1;
-    }
-    Direction::East => {
-      new_pos.x += 1;
-    }
-    Direction::South => {
-      new_pos.y += 1;
-    }
-    Direction::West => {
-      new_pos.x -= 1;
-    }
-  }
-  new_pos
 }
 
 fn mirror_dir(mirror: char, dir: Direction) -> Direction {
@@ -140,21 +113,21 @@ fn calc_energised(map: &TerrainMap<char>, point: Point, dir: Direction) -> usize
 
     match tile {
       '.' => {
-        let new_pos = neighbour(&pos, dir);
+        let new_pos = pos.neighbour(dir);
         if map.dims.contains(&new_pos) {
           beam_queue.push((new_pos, dir));
         }
       }
       '/' => {
         let new_dir = mirror_dir(tile, dir);
-        let new_pos = neighbour(&pos, new_dir);
+        let new_pos = pos.neighbour(new_dir);
         if map.dims.contains(&new_pos) {
           beam_queue.push((new_pos, new_dir));
         }
       }
       '\\' => {
         let new_dir = mirror_dir(tile, dir);
-        let new_pos = neighbour(&pos, new_dir);
+        let new_pos = pos.neighbour(new_dir);
         if map.dims.contains(&new_pos) {
           beam_queue.push((new_pos, new_dir));
         }
@@ -162,17 +135,17 @@ fn calc_energised(map: &TerrainMap<char>, point: Point, dir: Direction) -> usize
       '|' => {
         //pointy end
         if dir == Direction::South || dir == Direction::North {
-          let new_pos = neighbour(&pos, dir);
+          let new_pos = pos.neighbour(dir);
           if map.dims.contains(&new_pos) {
             beam_queue.push((new_pos, dir));
           }
         } else {
           //splits
-          let new_pos1 = neighbour(&pos, Direction::South);
+          let new_pos1 = pos.neighbour(Direction::South);
           if map.dims.contains(&new_pos1) {
             beam_queue.push((new_pos1, Direction::South));
           }
-          let new_pos2 = neighbour(&pos, Direction::North);
+          let new_pos2 = pos.neighbour(Direction::North);
           if map.dims.contains(&new_pos2) {
             beam_queue.push((new_pos2, Direction::North));
           }
@@ -181,17 +154,17 @@ fn calc_energised(map: &TerrainMap<char>, point: Point, dir: Direction) -> usize
       '-' => {
         //pointy end
         if dir == Direction::East || dir == Direction::West {
-          let new_pos = neighbour(&pos, dir);
+          let new_pos = pos.neighbour(dir);
           if map.dims.contains(&new_pos) {
             beam_queue.push((new_pos, dir));
           }
         } else {
           //splits
-          let new_pos1 = neighbour(&pos, Direction::East);
+          let new_pos1 = pos.neighbour(Direction::East);
           if map.dims.contains(&new_pos1) {
             beam_queue.push((new_pos1, Direction::East));
           }
-          let new_pos2 = neighbour(&pos, Direction::West);
+          let new_pos2 = pos.neighbour(Direction::West);
           if map.dims.contains(&new_pos2) {
             beam_queue.push((new_pos2, Direction::West));
           }

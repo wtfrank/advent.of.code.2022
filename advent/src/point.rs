@@ -15,6 +15,27 @@ impl Point {
   pub fn rectilinear_dist(&self, p: &Point) -> usize {
     (isize::abs(self.x - p.x) + isize::abs(self.y - p.y)) as usize
   }
+
+  pub fn neighbour(&self, dir: Direction) -> Point {
+    match dir {
+      Direction::North => Point {
+        x: self.x,
+        y: self.y - 1,
+      },
+      Direction::East => Point {
+        x: self.x + 1,
+        y: self.y,
+      },
+      Direction::South => Point {
+        x: self.x,
+        y: self.y + 1,
+      },
+      Direction::West => Point {
+        x: self.x - 1,
+        y: self.y,
+      },
+    }
+  }
 }
 
 pub struct Point3 {
@@ -49,6 +70,14 @@ impl Point3 {
   }
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
+pub enum Direction {
+  North,
+  East,
+  South,
+  West,
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -63,5 +92,13 @@ mod tests {
     assert_eq!(a.rectilinear_dist(&b), 1);
     assert_eq!(a.rectilinear_dist(&c), 2);
     assert_eq!(a.rectilinear_dist(&c), c.rectilinear_dist(&a));
+  }
+  #[test]
+  fn test_neighbour() {
+    let a = Point { x: 0, y: 0 };
+    assert_eq!(a.neighbour(Direction::North), Point { x: 0, y: -1 });
+    assert_eq!(a.neighbour(Direction::East), Point { x: 1, y: 0 });
+    assert_eq!(a.neighbour(Direction::South), Point { x: 0, y: 1 });
+    assert_eq!(a.neighbour(Direction::West), Point { x: -1, y: 0 });
   }
 }
