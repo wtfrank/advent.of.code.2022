@@ -174,16 +174,13 @@ fn calc_energised(map: &TerrainMap<char>, point: Point, dir: Direction) -> usize
     }
   }
 
-  let mut score = 0;
-  for y in 0..energised.dims.height {
-    for x in 0..energised.dims.width {
-      if energised.getc(x as isize, y as isize) {
-        score += 1;
+  energised.iter().fold(0, |acc, e| {
+    acc
+      + match e {
+        false => 0,
+        true => 1,
       }
-    }
-  }
-
-  score
+  })
 }
 
 fn load_data(filename: &str) -> TerrainMap<char> {

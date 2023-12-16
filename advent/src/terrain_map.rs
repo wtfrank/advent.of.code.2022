@@ -15,7 +15,21 @@ pub struct TerrainMap<T: Copy + Default> {
   pub dims: Dims,
 }
 
-impl<T: Copy + Default> TerrainMap<T> {
+/*
+ * doesn't make sense to have an into_iter of type T, as we can't take things out of the map due to
+ * the size.
+ * So we have an into_iter of type &T, and &mut T.
+ * we also have row_iter and row_iter_mut, col_iter and col_iter_mut
+ */
+/*
+pub struct TerrainMapRowIterator<T> {
+}
+
+pub struct TerrainMapColIterator<T> {
+}
+*/
+
+impl<'a, T: Copy + Default> TerrainMap<T> {
   pub fn new(dims: Dims) -> TerrainMap<T> {
     let mut tm: TerrainMap<T> = TerrainMap {
       v: Vec::new(),
@@ -79,6 +93,28 @@ impl<T: Copy + Default> TerrainMap<T> {
       Origin::BottomRight => Origin::TopRight,
       Origin::TopRight => Origin::TopLeft,
     }
+  }
+
+  pub fn iter(&'a mut self) -> std::slice::Iter<'a, T> {
+    self.v.iter()
+  }
+}
+
+impl<'a, T: Copy + Default> std::iter::IntoIterator for &'a TerrainMap<T> {
+  type Item = &'a T;
+  type IntoIter = std::slice::Iter<'a, T>;
+
+  fn into_iter(self) -> Self::IntoIter {
+    self.v.iter()
+  }
+}
+
+impl<'a, T: Copy + Default> std::iter::IntoIterator for &'a mut TerrainMap<T> {
+  type Item = &'a mut T;
+  type IntoIter = std::slice::IterMut<'a, T>;
+
+  fn into_iter(self) -> Self::IntoIter {
+    self.v.iter_mut()
   }
 }
 
@@ -242,5 +278,27 @@ mod tests {
     tm.rotate_acw();
     assert_eq!(tm.getc(2, 0), 0);
     assert_eq!(tm.getc(0, 0), 1);
+  }
+
+  #[test]
+  fn test_iter() {
+    let mut tm = TerrainMap::<usize>::new(Dims {
+      width: 3,
+      height: 3,
+      ..Default::default()
+    });
+
+    tm.rotate_acw();
+
+    tm.setc(0, 0, 1);
+
+    assert_eq!(tm.into_iter().fold(0, |acc, e| acc + e), 1);
+
+    for e in &mut tm {
+      *e += 1;
+    }
+    assert_eq!(tm.into_iter().fold(0, |acc, e| acc + e), 10);
+
+    assert_eq!(tm.getc(0, 0), 2);
   }
 }
