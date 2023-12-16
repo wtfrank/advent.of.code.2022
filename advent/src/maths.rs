@@ -64,3 +64,36 @@ pub fn lcm(numbers: &[usize]) -> usize {
 
   result
 }
+
+/* a version of modulus that maps negative
+ * remainders into the positive range
+ */
+pub fn pos_mod<T>(a: T, b: T) -> T
+where
+  T: num::Integer + num::Signed + Copy,
+{
+  let c = a % b;
+  if c < num::zero() {
+    c + b
+  } else {
+    c
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_pos_mod() {
+    assert_eq!(pos_mod(-5, 3), 1);
+    assert_eq!(pos_mod(-4, 3), 2);
+    assert_eq!(pos_mod(-3, 3), 0);
+    assert_eq!(pos_mod(-2, 3), 1);
+    assert_eq!(pos_mod(-1, 3), 2);
+    assert_eq!(pos_mod(1, 3), 1);
+    assert_eq!(pos_mod(2, 3), 2);
+    assert_eq!(pos_mod(3, 3), 0);
+    assert_eq!(pos_mod(4, 3), 1);
+  }
+}
