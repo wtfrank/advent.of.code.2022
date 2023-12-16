@@ -42,10 +42,7 @@ impl<T: Copy + Default> TerrainMap<T> {
   }
 
   fn coords_to_offset(&self, x: isize, y: isize) -> usize {
-    assert!(x >= self.dims.minx);
-    assert!(y >= self.dims.miny);
-    assert!(x < self.dims.minx.saturating_add_unsigned(self.dims.width));
-    assert!(y < self.dims.miny.saturating_add_unsigned(self.dims.height));
+    assert!(self.dims.containsc(x, y));
 
     let x1: usize = (x - self.dims.minx) as usize;
     let y1: usize = (y - self.dims.miny) as usize;
@@ -98,25 +95,27 @@ impl<T: Copy + Default> TerrainMap3<T> {
     tm
   }
 
-  fn point_to_offset(&self, p: &Point3) -> usize {
-    assert!(p.x >= self.dims.minx);
-    assert!(p.y >= self.dims.miny);
-    assert!(p.z >= self.dims.minz);
-    assert!(p.x < self.dims.minx.saturating_add_unsigned(self.dims.width));
-    assert!(p.y < self.dims.miny.saturating_add_unsigned(self.dims.height));
-    assert!(p.z < self.dims.minz.saturating_add_unsigned(self.dims.depth));
+  fn coords_to_offset(&self, x: isize, y: isize, z: isize) -> usize {
+    assert!(self.dims.containsc(x, y, z));
 
-    ((p.z - self.dims.minz) * self.dims.height as isize * self.dims.width as isize
-      + (p.y - self.dims.miny) * self.dims.width as isize
-      + (p.x - self.dims.minx)) as usize
+    ((z - self.dims.minz) * self.dims.height as isize * self.dims.width as isize
+      + (y - self.dims.miny) * self.dims.width as isize
+      + (x - self.dims.minx)) as usize
   }
 
   pub fn get(&self, p: &Point3) -> T {
-    self.v[self.point_to_offset(p)]
+    self.getc(p.x, p.y, p.z)
+  }
+
+  pub fn getc(&self, x: isize, y: isize, z: isize) -> T {
+    self.v[self.coords_to_offset(x, y, z)]
   }
 
   pub fn set(&mut self, p: &Point3, val: T) {
-    let offset = self.point_to_offset(p);
+    self.setc(p.x, p.y, p.z, val);
+  }
+  pub fn setc(&mut self, x: isize, y: isize, z: isize, val: T) {
+    let offset = self.coords_to_offset(x, y, z);
     self.v[offset] = val;
   }
 }
@@ -169,6 +168,25 @@ mod tests {
     tm.rotate_cw();
     tm.set(&Point { x: 2, y: 3 }, 17);
     assert!(tm.get(&Point { x: 2, y: 3 }) == 17);
+    assert!(tm.getc(2, 3) == 17);
+  }
+
+  #[test]
+  fn test_get_set3() {
+    let mut tm = TerrainMap3::<usize>::new(Dims3 {
+      width: 5,
+      height: 5,
+      depth: 5,
+      ..Default::default()
+    });
+    tm.set(&Point3 { x: 1, y: 2, z: 3 }, 15);
+    assert!(tm.get(&Point3 { x: 1, y: 2, z: 3 }) == 15);
+    tm.set(&Point3 { x: 4, y: 4, z: 4 }, 16);
+    assert!(tm.get(&Point3 { x: 4, y: 4, z: 4 }) == 16);
+    //tm.rotate_cw();
+    tm.set(&Point3 { x: 2, y: 3, z: 4 }, 17);
+    assert!(tm.get(&Point3 { x: 2, y: 3, z: 4 }) == 17);
+    assert!(tm.getc(2, 3, 4) == 17);
   }
 
   #[test]
