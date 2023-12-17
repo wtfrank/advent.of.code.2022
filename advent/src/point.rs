@@ -1,3 +1,5 @@
+use enum_iterator::Sequence;
+
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct Point {
   pub x: isize,
@@ -70,12 +72,23 @@ impl Point3 {
   }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Sequence)]
 pub enum Direction {
   North,
   East,
   South,
   West,
+}
+
+impl Direction {
+  pub fn reverse(&self) -> Direction {
+    match self {
+      Direction::North => Direction::South,
+      Direction::East => Direction::West,
+      Direction::South => Direction::North,
+      Direction::West => Direction::East,
+    }
+  }
 }
 
 #[cfg(test)]
