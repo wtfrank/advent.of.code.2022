@@ -1,22 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_visibility() {
-    let map = load_map("testinput.txt");
-    assert!(visible_trees(&map) == 21);
-  }
-  #[test]
-  fn test_best_scenic_score() {
-    let map = load_map("test_input.txt");
-    assert!(best_scenic_score(&map) == 8);
-  }
-}
-
 pub struct TreeMap<T: Copy + Default> {
   v: Vec<Vec<T>>, //each inner vector is a horizontal row
   dim: usize,
@@ -226,4 +210,20 @@ fn main() -> std::io::Result<()> {
   println!("best scenic score: {}", best_scenic_score(&map));
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_visibility() {
+    let map = load_map("testinput.txt");
+    assert!(visible_trees(&map) == 21);
+  }
+  #[test]
+  fn test_best_scenic_score() {
+    let map = load_map("test_input.txt");
+    assert!(best_scenic_score(&map) == 8);
+  }
 }

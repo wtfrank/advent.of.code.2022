@@ -4,20 +4,6 @@ use advent::TerrainMap3;
 use std::fs::File;
 use std::io::Read;
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_1() {
-    let points = load_points("testinput.txt");
-    let num_adj = find_adjacent(&points);
-    assert_eq!(num_adj, 64);
-    let ff = flood_fill(&points);
-    assert_eq!(ff, 58);
-  }
-}
-
 fn load_points(filename: &str) -> Vec<Point3> {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
@@ -235,4 +221,18 @@ fn main() {
   //so its n^2 algorithm
   //
   //
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_1() {
+    let points = load_points("testinput.txt");
+    let num_adj = find_adjacent(&points);
+    assert_eq!(num_adj, 64);
+    let ff = flood_fill(&points);
+    assert_eq!(ff, 58);
+  }
 }

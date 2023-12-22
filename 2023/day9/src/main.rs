@@ -23,24 +23,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_load1() {
-    let data = load_data("testinput.txt");
-    let score = analyse_data(&data);
-    assert_eq!(score, 114);
-  }
-  #[test]
-  fn test_load2() {
-    let data = load_data("testinput.txt");
-    let score = analyse_data2(&data);
-    assert_eq!(score, 2);
-  }
-}
-
 fn extrapolate_seq(seq: &Vec<isize>) -> isize {
   let mut deltas = Vec::new();
   let mut all_zeroes = true;
@@ -116,4 +98,22 @@ fn main() {
   println!("score1: {score1}");
   let score2 = analyse_data2(&sequences);
   println!("score2: {score2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_load1() {
+    let data = load_data("testinput.txt");
+    let score = analyse_data(&data);
+    assert_eq!(score, 114);
+  }
+  #[test]
+  fn test_load2() {
+    let data = load_data("testinput.txt");
+    let score = analyse_data2(&data);
+    assert_eq!(score, 2);
+  }
 }

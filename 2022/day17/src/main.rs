@@ -3,145 +3,6 @@ use std::io::prelude::*;
 
 use advent::{Dims, Point, TerrainMap};
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_rocks() {
-    let mut rocks = init_rocks();
-    let r5 = rocks.pop().unwrap();
-    assert_eq!(r5.dims.width, 2);
-    assert_eq!(r5.dims.height, 2);
-
-    let r4 = rocks.pop().unwrap();
-    assert_eq!(r4.dims.width, 1);
-    assert_eq!(r4.dims.height, 4);
-
-    let r3 = rocks.pop().unwrap();
-    assert_eq!(r3.dims.width, 3);
-    assert_eq!(r3.dims.height, 3);
-
-    let r2 = rocks.pop().unwrap();
-    assert_eq!(r2.dims.width, 3);
-    assert_eq!(r2.dims.height, 3);
-
-    let r1 = rocks.pop().unwrap();
-    assert_eq!(r1.dims.width, 4);
-    assert_eq!(r1.dims.height, 1);
-  }
-
-  #[test]
-  fn test_compare() {
-    let jets = load_jets("testinput.txt");
-    let (_, height) = drop_rocks(&jets, 2022);
-    assert_eq!(height, 3068);
-  }
-  #[test]
-  #[ignore]
-  fn test_compare_smart() {
-    let jets = load_jets("testinput.txt");
-    let height = drop_rocks_smart(&jets, 1000000000000);
-    assert_eq!(height, 1514285714288);
-  }
-
-  #[test]
-  #[ignore]
-  fn test_compare_smart2() {
-    let jets = load_jets("input17.txt");
-
-    for i in 3450..4000 {
-      let (_, h1) = drop_rocks(&jets, i);
-      let h2 = drop_rocks_smart(&jets, i);
-      assert_eq!(h1, h2);
-    }
-  }
-
-  #[test]
-  fn test_single_left() {
-    let jets = vec![Jet::Left];
-    let (column, height) = drop_rocks(&jets, 1);
-    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
-    assert_eq!(height, 1);
-  }
-  #[test]
-  fn test_single_right() {
-    let jets = vec![Jet::Right];
-    let (column, height) = drop_rocks(&jets, 1);
-    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 4, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 5, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 6, y: 0 }), Material::Rock);
-    assert_eq!(height, 1);
-  }
-  #[test]
-  fn test_double() {
-    let jets = vec![Jet::Left];
-    let (column, height) = drop_rocks(&jets, 2);
-    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
-
-    assert_eq!(column.get(&Point { x: 0, y: 1 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 1, y: 1 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 1 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 3, y: 1 }), Material::Air);
-
-    assert_eq!(column.get(&Point { x: 0, y: 2 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 1, y: 2 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 2 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 3, y: 2 }), Material::Air);
-
-    assert_eq!(column.get(&Point { x: 0, y: 3 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 1, y: 3 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 3 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 3, y: 3 }), Material::Air);
-
-    assert_eq!(height, 4);
-  }
-  #[test]
-  fn test_triple() {
-    let jets = vec![Jet::Left];
-    let (column, height) = drop_rocks(&jets, 3);
-
-    visualise_column(&column, 8);
-
-    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
-
-    assert_eq!(column.get(&Point { x: 0, y: 1 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 1, y: 1 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 1 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 3, y: 1 }), Material::Air);
-
-    assert_eq!(column.get(&Point { x: 0, y: 2 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 1, y: 2 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 2 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 3, y: 2 }), Material::Air);
-
-    assert_eq!(column.get(&Point { x: 0, y: 3 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 1, y: 3 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 3 }), Material::Air);
-    assert_eq!(column.get(&Point { x: 3, y: 3 }), Material::Air);
-
-    assert_eq!(column.get(&Point { x: 0, y: 4 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 1, y: 4 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 2, y: 4 }), Material::Rock);
-    assert_eq!(column.get(&Point { x: 3, y: 4 }), Material::Air);
-
-    assert_eq!(height, 7);
-  }
-}
-
 enum Jet {
   Left,
   Right,
@@ -468,4 +329,143 @@ fn main() {
   let height = drop_rocks_smart(&jets, 1_000_000_000_000);
   //let (_,height) = drop_rocks(&jets, 300_000);
   println!("{height}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_rocks() {
+    let mut rocks = init_rocks();
+    let r5 = rocks.pop().unwrap();
+    assert_eq!(r5.dims.width, 2);
+    assert_eq!(r5.dims.height, 2);
+
+    let r4 = rocks.pop().unwrap();
+    assert_eq!(r4.dims.width, 1);
+    assert_eq!(r4.dims.height, 4);
+
+    let r3 = rocks.pop().unwrap();
+    assert_eq!(r3.dims.width, 3);
+    assert_eq!(r3.dims.height, 3);
+
+    let r2 = rocks.pop().unwrap();
+    assert_eq!(r2.dims.width, 3);
+    assert_eq!(r2.dims.height, 3);
+
+    let r1 = rocks.pop().unwrap();
+    assert_eq!(r1.dims.width, 4);
+    assert_eq!(r1.dims.height, 1);
+  }
+
+  #[test]
+  fn test_compare() {
+    let jets = load_jets("testinput.txt");
+    let (_, height) = drop_rocks(&jets, 2022);
+    assert_eq!(height, 3068);
+  }
+  #[test]
+  #[ignore]
+  fn test_compare_smart() {
+    let jets = load_jets("testinput.txt");
+    let height = drop_rocks_smart(&jets, 1000000000000);
+    assert_eq!(height, 1514285714288);
+  }
+
+  #[test]
+  #[ignore]
+  fn test_compare_smart2() {
+    let jets = load_jets("input17.txt");
+
+    for i in 3450..4000 {
+      let (_, h1) = drop_rocks(&jets, i);
+      let h2 = drop_rocks_smart(&jets, i);
+      assert_eq!(h1, h2);
+    }
+  }
+
+  #[test]
+  fn test_single_left() {
+    let jets = vec![Jet::Left];
+    let (column, height) = drop_rocks(&jets, 1);
+    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
+    assert_eq!(height, 1);
+  }
+  #[test]
+  fn test_single_right() {
+    let jets = vec![Jet::Right];
+    let (column, height) = drop_rocks(&jets, 1);
+    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 4, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 5, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 6, y: 0 }), Material::Rock);
+    assert_eq!(height, 1);
+  }
+  #[test]
+  fn test_double() {
+    let jets = vec![Jet::Left];
+    let (column, height) = drop_rocks(&jets, 2);
+    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
+
+    assert_eq!(column.get(&Point { x: 0, y: 1 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 1 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 1 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 1 }), Material::Air);
+
+    assert_eq!(column.get(&Point { x: 0, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 2 }), Material::Air);
+
+    assert_eq!(column.get(&Point { x: 0, y: 3 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 3 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 3 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 3 }), Material::Air);
+
+    assert_eq!(height, 4);
+  }
+  #[test]
+  fn test_triple() {
+    let jets = vec![Jet::Left];
+    let (column, height) = drop_rocks(&jets, 3);
+
+    visualise_column(&column, 8);
+
+    assert_eq!(column.get(&Point { x: 0, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 0 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 0 }), Material::Rock);
+
+    assert_eq!(column.get(&Point { x: 0, y: 1 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 1 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 1 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 1 }), Material::Air);
+
+    assert_eq!(column.get(&Point { x: 0, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 2 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 2 }), Material::Air);
+
+    assert_eq!(column.get(&Point { x: 0, y: 3 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 1, y: 3 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 3 }), Material::Air);
+    assert_eq!(column.get(&Point { x: 3, y: 3 }), Material::Air);
+
+    assert_eq!(column.get(&Point { x: 0, y: 4 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 1, y: 4 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 2, y: 4 }), Material::Rock);
+    assert_eq!(column.get(&Point { x: 3, y: 4 }), Material::Air);
+
+    assert_eq!(height, 7);
+  }
 }

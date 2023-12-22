@@ -2,19 +2,6 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::prelude::*;
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_prio() {
-    assert_eq!(item_prio(&'a'), 1);
-    assert_eq!(item_prio(&'z'), 26);
-    assert_eq!(item_prio(&'A'), 27);
-    assert_eq!(item_prio(&'Z'), 52);
-  }
-}
-
 fn item_prio(c: &char) -> u32 {
   let mut v = *c as u32;
   if v >= 97 {
@@ -114,4 +101,17 @@ fn main() -> std::io::Result<()> {
   println!("score2: {score2}");
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_prio() {
+    assert_eq!(item_prio(&'a'), 1);
+    assert_eq!(item_prio(&'z'), 26);
+    assert_eq!(item_prio(&'A'), 27);
+    assert_eq!(item_prio(&'Z'), 52);
+  }
 }

@@ -4,41 +4,6 @@ use std::io::prelude::*;
 
 use advent::{Dims, Point, TerrainMap};
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_map() {
-    let (tm, start, end) = load_terrain("testinput.txt");
-    assert!(start.x == 0);
-    assert!(start.y == 0);
-    assert!(end.x == 5);
-    assert!(end.y == 2);
-
-    assert!(tm.get(&start) == 0);
-    assert!(tm.get(&end) == 25);
-    assert!(tm.get(&Point { x: 2, y: 0 }) == 1);
-  }
-
-  #[test]
-  fn test_path() {
-    let (tm, start, end) = load_terrain("testinput.txt");
-    let dist = shortest_path(&tm, start, end);
-    assert_eq!(dist, 31);
-  }
-  #[test]
-  fn test_path_goal() {
-    let (tm, _start, end) = load_terrain("testinput.txt");
-    let dist = shortest_path_to_goal(&tm, end);
-    assert_eq!(dist, 29);
-  }
-  #[test]
-  fn test_inspections() {}
-  #[test]
-  fn test_inspections_lotsofworry() {}
-}
-
 fn trace_back(parents: &TerrainMap<Point>, start: Point, end: Point) -> usize {
   let mut cur = start;
   let mut dist: usize = 0;
@@ -192,4 +157,39 @@ fn main() -> std::io::Result<()> {
   println!("shortest to goal: {}", shortest_path_to_goal(&tm, end));
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_map() {
+    let (tm, start, end) = load_terrain("testinput.txt");
+    assert!(start.x == 0);
+    assert!(start.y == 0);
+    assert!(end.x == 5);
+    assert!(end.y == 2);
+
+    assert!(tm.get(&start) == 0);
+    assert!(tm.get(&end) == 25);
+    assert!(tm.get(&Point { x: 2, y: 0 }) == 1);
+  }
+
+  #[test]
+  fn test_path() {
+    let (tm, start, end) = load_terrain("testinput.txt");
+    let dist = shortest_path(&tm, start, end);
+    assert_eq!(dist, 31);
+  }
+  #[test]
+  fn test_path_goal() {
+    let (tm, _start, end) = load_terrain("testinput.txt");
+    let dist = shortest_path_to_goal(&tm, end);
+    assert_eq!(dist, 29);
+  }
+  #[test]
+  fn test_inspections() {}
+  #[test]
+  fn test_inspections_lotsofworry() {}
 }

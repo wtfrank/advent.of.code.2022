@@ -23,38 +23,6 @@ type HashMap<T, U> = FxHashMap<T, U>;
  *
  */
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_compare() {
-    let graph = load_graph("testinput.txt");
-    let room_distances = simplify_graph(&graph);
-    //check crap rooms aren't present
-    assert!(room_distances.get("AA").unwrap().get("FF").is_none());
-
-    assert_eq!(*room_distances.get("AA").unwrap().get("DD").unwrap(), 2);
-    assert_eq!(*room_distances.get("AA").unwrap().get("CC").unwrap(), 3);
-    assert_eq!(*room_distances.get("CC").unwrap().get("AA").unwrap(), 3);
-    assert_eq!(*room_distances.get("DD").unwrap().get("AA").unwrap(), 2);
-
-    let max_pressure = calc_releasable_pressure(&graph, &room_distances, 30);
-    assert_eq!(max_pressure, 1651);
-    let max_pressure = calc_releasable_pressure_v2(&graph, &room_distances, 26);
-    assert_eq!(max_pressure, 1707);
-  }
-
-  #[test]
-  fn test_unopened_valve() {
-    let graph = load_graph("testinput.txt");
-    let room_distances = simplify_graph(&graph);
-    let discovered = HashSet::<String>::default();
-    let largest_unopened_valve = calc_largest_valve(&graph, &room_distances, &discovered);
-    assert_eq!(largest_unopened_valve, 22);
-  }
-}
-
 fn load_graph(filename: &str) -> HashMap<String, Room> {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
@@ -558,4 +526,36 @@ fn main() -> std::io::Result<()> {
   println!("setup: {setup_duration:?}, part1: {part1_duration:?}, part2: {part2_duration:?} total: {total_duration:?}");
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_compare() {
+    let graph = load_graph("testinput.txt");
+    let room_distances = simplify_graph(&graph);
+    //check crap rooms aren't present
+    assert!(room_distances.get("AA").unwrap().get("FF").is_none());
+
+    assert_eq!(*room_distances.get("AA").unwrap().get("DD").unwrap(), 2);
+    assert_eq!(*room_distances.get("AA").unwrap().get("CC").unwrap(), 3);
+    assert_eq!(*room_distances.get("CC").unwrap().get("AA").unwrap(), 3);
+    assert_eq!(*room_distances.get("DD").unwrap().get("AA").unwrap(), 2);
+
+    let max_pressure = calc_releasable_pressure(&graph, &room_distances, 30);
+    assert_eq!(max_pressure, 1651);
+    let max_pressure = calc_releasable_pressure_v2(&graph, &room_distances, 26);
+    assert_eq!(max_pressure, 1707);
+  }
+
+  #[test]
+  fn test_unopened_valve() {
+    let graph = load_graph("testinput.txt");
+    let room_distances = simplify_graph(&graph);
+    let discovered = HashSet::<String>::default();
+    let largest_unopened_valve = calc_largest_valve(&graph, &room_distances, &discovered);
+    assert_eq!(largest_unopened_valve, 22);
+  }
 }

@@ -292,12 +292,14 @@ mod tests {
 
     tm.setc(0, 0, 1);
 
-    assert_eq!(tm.into_iter().fold(0, |acc, e| acc + e), 1);
+    //assert_eq!(tm.into_iter().fold(0, |acc, e| acc + e), 1);
+    assert_eq!(tm.into_iter().sum::<usize>(), 1);
 
     for e in &mut tm {
       *e += 1;
     }
-    assert_eq!(tm.into_iter().fold(0, |acc, e| acc + e), 10);
+    //assert_eq!(tm.into_iter().fold(0, |acc, e| acc + e), 10);
+    assert_eq!(tm.into_iter().sum::<usize>(), 10);
 
     assert_eq!(tm.getc(0, 0), 2);
   }

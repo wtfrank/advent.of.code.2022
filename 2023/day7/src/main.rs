@@ -21,84 +21,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_load1() {
-    let mut data = load_data("testinput.txt");
-    let score = analyse_data(&mut data);
-
-    assert_eq!(data[0].bid, 765);
-    assert_eq!(data[1].bid, 220);
-    assert_eq!(data[2].bid, 28);
-    assert_eq!(data[3].bid, 684);
-    assert_eq!(data[4].bid, 483);
-    println!("{data:?}");
-    assert_eq!(score, 6440);
-  }
-
-  #[test]
-  fn test_load2() {
-    let mut data = load_data("testinput.txt");
-    let score = analyse_data_j(&mut data);
-
-    assert_eq!(data[0].bid, 765);
-    assert_eq!(data[1].bid, 28);
-    assert_eq!(data[2].bid, 684);
-    assert_eq!(data[3].bid, 483);
-    assert_eq!(data[4].bid, 220);
-    println!("{data:?}");
-    assert_eq!(score, 5905);
-  }
-
-  #[test]
-  fn test_hand_eval() {
-    let s1 = hand_strength("KKKKK");
-    assert_eq!(s1, HandStrength::FiveOAK);
-    let s2 = hand_strength("KKKKJ");
-    assert_eq!(s2, HandStrength::FourOAK);
-    let s3 = hand_strength("KKK11");
-    assert_eq!(s3, HandStrength::FullHouse);
-    let s4 = hand_strength("22234");
-    assert_eq!(s4, HandStrength::ThreeOAK);
-    let s5 = hand_strength("KK5TT");
-    assert_eq!(s5, HandStrength::TwoPair);
-    let s6 = hand_strength("J123J");
-    assert_eq!(s6, HandStrength::OnePair);
-    let s7 = hand_strength("KA987");
-    assert_eq!(s7, HandStrength::HighCard);
-  }
-
-  #[test]
-  fn test_hand_eval_j() {
-    let s0 = hand_strength_j("JJJJJ");
-    assert_eq!(s0, HandStrength::FiveOAK);
-    let s1 = hand_strength_j("KKJKK");
-    assert_eq!(s1, HandStrength::FiveOAK);
-    let s2 = hand_strength_j("KJJJ1");
-    assert_eq!(s2, HandStrength::FourOAK);
-    let s3 = hand_strength_j("KKJ11");
-    assert_eq!(s3, HandStrength::FullHouse);
-    let s4 = hand_strength_j("2J234");
-    assert_eq!(s4, HandStrength::ThreeOAK);
-    let s5 = hand_strength_j("KK5TT");
-    assert_eq!(s5, HandStrength::TwoPair);
-    let s6 = hand_strength_j("J1234");
-    assert_eq!(s6, HandStrength::OnePair);
-    let s7 = hand_strength_j("KAQ87");
-    assert_eq!(s7, HandStrength::HighCard);
-
-    let s8 = hand_strength_j("T55J5");
-    assert_eq!(s8, HandStrength::FourOAK);
-    let s9 = hand_strength_j("KTJJT");
-    assert_eq!(s9, HandStrength::FourOAK);
-    let s10 = hand_strength_j("QQQJA");
-    assert_eq!(s10, HandStrength::FourOAK);
-  }
-}
-
 #[derive(Debug, Eq)]
 struct Hand {
   cards: String,
@@ -491,4 +413,82 @@ fn main() {
 
   let score2 = analyse_data_j(&mut data);
   println!("score2: {score2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_load1() {
+    let mut data = load_data("testinput.txt");
+    let score = analyse_data(&mut data);
+
+    assert_eq!(data[0].bid, 765);
+    assert_eq!(data[1].bid, 220);
+    assert_eq!(data[2].bid, 28);
+    assert_eq!(data[3].bid, 684);
+    assert_eq!(data[4].bid, 483);
+    println!("{data:?}");
+    assert_eq!(score, 6440);
+  }
+
+  #[test]
+  fn test_load2() {
+    let mut data = load_data("testinput.txt");
+    let score = analyse_data_j(&mut data);
+
+    assert_eq!(data[0].bid, 765);
+    assert_eq!(data[1].bid, 28);
+    assert_eq!(data[2].bid, 684);
+    assert_eq!(data[3].bid, 483);
+    assert_eq!(data[4].bid, 220);
+    println!("{data:?}");
+    assert_eq!(score, 5905);
+  }
+
+  #[test]
+  fn test_hand_eval() {
+    let s1 = hand_strength("KKKKK");
+    assert_eq!(s1, HandStrength::FiveOAK);
+    let s2 = hand_strength("KKKKJ");
+    assert_eq!(s2, HandStrength::FourOAK);
+    let s3 = hand_strength("KKK11");
+    assert_eq!(s3, HandStrength::FullHouse);
+    let s4 = hand_strength("22234");
+    assert_eq!(s4, HandStrength::ThreeOAK);
+    let s5 = hand_strength("KK5TT");
+    assert_eq!(s5, HandStrength::TwoPair);
+    let s6 = hand_strength("J123J");
+    assert_eq!(s6, HandStrength::OnePair);
+    let s7 = hand_strength("KA987");
+    assert_eq!(s7, HandStrength::HighCard);
+  }
+
+  #[test]
+  fn test_hand_eval_j() {
+    let s0 = hand_strength_j("JJJJJ");
+    assert_eq!(s0, HandStrength::FiveOAK);
+    let s1 = hand_strength_j("KKJKK");
+    assert_eq!(s1, HandStrength::FiveOAK);
+    let s2 = hand_strength_j("KJJJ1");
+    assert_eq!(s2, HandStrength::FourOAK);
+    let s3 = hand_strength_j("KKJ11");
+    assert_eq!(s3, HandStrength::FullHouse);
+    let s4 = hand_strength_j("2J234");
+    assert_eq!(s4, HandStrength::ThreeOAK);
+    let s5 = hand_strength_j("KK5TT");
+    assert_eq!(s5, HandStrength::TwoPair);
+    let s6 = hand_strength_j("J1234");
+    assert_eq!(s6, HandStrength::OnePair);
+    let s7 = hand_strength_j("KAQ87");
+    assert_eq!(s7, HandStrength::HighCard);
+
+    let s8 = hand_strength_j("T55J5");
+    assert_eq!(s8, HandStrength::FourOAK);
+    let s9 = hand_strength_j("KTJJT");
+    assert_eq!(s9, HandStrength::FourOAK);
+    let s10 = hand_strength_j("QQQJA");
+    assert_eq!(s10, HandStrength::FourOAK);
+  }
 }

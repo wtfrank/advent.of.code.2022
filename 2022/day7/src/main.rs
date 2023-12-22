@@ -3,32 +3,6 @@ use std::io::prelude::*;
 
 use std::collections::VecDeque;
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_sum() {
-    let mut v: VecDeque<FsNode> = VecDeque::new();
-    v.push_back(FsNode {
-      name: String::from("/"),
-      index: 0,
-      parent: None,
-      size: None,
-      cum_space: 0,
-    });
-    let mut current_dir_index = 0;
-
-    parse_input("testinput.txt", &mut current_dir_index, &mut v);
-
-    calc_usage(&mut v);
-
-    assert_eq!(part1_total_usage(&v), 95437);
-
-    assert_eq!(part2_freeable_space(&v), 24933642);
-  }
-}
-
 fn process_cmd(tokens: &mut std::str::SplitWhitespace, current_dir_index: &mut usize, tree: &VecDeque<FsNode>) {
   let cmd = tokens.next().unwrap();
   if cmd == "ls" {
@@ -183,4 +157,30 @@ fn main() -> std::io::Result<()> {
   println!("freeable space: {}", part2_freeable_space(&v));
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_sum() {
+    let mut v: VecDeque<FsNode> = VecDeque::new();
+    v.push_back(FsNode {
+      name: String::from("/"),
+      index: 0,
+      parent: None,
+      size: None,
+      cum_space: 0,
+    });
+    let mut current_dir_index = 0;
+
+    parse_input("testinput.txt", &mut current_dir_index, &mut v);
+
+    calc_usage(&mut v);
+
+    assert_eq!(part1_total_usage(&v), 95437);
+
+    assert_eq!(part2_freeable_space(&v), 24933642);
+  }
 }

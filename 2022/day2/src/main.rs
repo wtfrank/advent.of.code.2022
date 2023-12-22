@@ -65,24 +65,6 @@ fn match_score(mv1: Move, mv2: Move) -> i32 {
   m1 + 3 * ((4 + m1 - m2) % 3)
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_match_score() {
-    assert_eq!(match_score(Move::Rock, Move::Paper), 1);
-    assert_eq!(match_score(Move::Rock, Move::Rock), 4);
-    assert_eq!(match_score(Move::Rock, Move::Scissors), 7);
-    assert_eq!(match_score(Move::Paper, Move::Paper), 5);
-    assert_eq!(match_score(Move::Paper, Move::Rock), 8);
-    assert_eq!(match_score(Move::Paper, Move::Scissors), 2);
-    assert_eq!(match_score(Move::Scissors, Move::Paper), 3 + 6);
-    assert_eq!(match_score(Move::Scissors, Move::Rock), 3 + 0);
-    assert_eq!(match_score(Move::Scissors, Move::Scissors), 3 + 3);
-  }
-}
-
 fn main() -> std::io::Result<()> {
   let mut file = File::open("input.txt")?;
   let mut contents = String::new();
@@ -103,4 +85,22 @@ fn main() -> std::io::Result<()> {
 
   println!("{score}, {score2}");
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_match_score() {
+    assert_eq!(match_score(Move::Rock, Move::Paper), 1);
+    assert_eq!(match_score(Move::Rock, Move::Rock), 4);
+    assert_eq!(match_score(Move::Rock, Move::Scissors), 7);
+    assert_eq!(match_score(Move::Paper, Move::Paper), 5);
+    assert_eq!(match_score(Move::Paper, Move::Rock), 8);
+    assert_eq!(match_score(Move::Paper, Move::Scissors), 2);
+    assert_eq!(match_score(Move::Scissors, Move::Paper), 3 + 6);
+    assert_eq!(match_score(Move::Scissors, Move::Rock), 3);
+    assert_eq!(match_score(Move::Scissors, Move::Scissors), 3 + 3);
+  }
 }

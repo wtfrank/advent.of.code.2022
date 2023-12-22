@@ -7,74 +7,6 @@ use std::io::prelude::*;
 use serde::de::Error;
 use serde::{Deserialize, Deserializer, Serialize};
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_remap() {
-    let input = "Monkey 0:\n\
-  Test: divisible by 23\n\
-    If true: throw to monkey 2\n";
-    let expected = "Monkey 0:\n\
-  Test: divisible by 23\n\
-  If true: throw to monkey 2\n";
-    let output = remap_to_yaml(&input);
-    assert!(output == expected);
-  }
-
-  #[test]
-  fn test_parse() {
-    let monke_states = load_monke("testinput.txt");
-    assert!(monke_states.len() == 4);
-    let m0 = &monke_states[0];
-    assert!(m0.has.len() == 2);
-    assert!(m0.test_divisor == 23);
-    assert!(m0.success_monke == 2);
-    assert!(m0.failure_monke == 3);
-  }
-  #[test]
-  fn test_round() {
-    let mut monke_states = load_monke("testinput.txt");
-    process_round(&mut monke_states, true);
-    let m0 = &monke_states[0];
-    assert!(m0.has.len() == 4);
-    assert!(m0.has[0] == 20);
-    assert!(m0.has[1] == 23);
-    assert!(m0.has[2] == 27);
-    assert!(m0.has[3] == 26);
-    let m1 = &monke_states[1];
-    assert!(m1.has.len() == 6);
-    assert!(m1.has[0] == 2080);
-    assert!(m1.has[1] == 25);
-    assert!(m1.has[2] == 167);
-    assert!(m1.has[3] == 207);
-    assert!(m1.has[4] == 401);
-    assert!(m1.has[5] == 1046);
-    assert!(monke_states[2].has.len() == 0);
-    assert!(monke_states[3].has.len() == 0);
-  }
-  #[test]
-  fn test_inspections() {
-    let mut monke_states = load_monke("testinput.txt");
-    for _ in 0..20 {
-      process_round(&mut monke_states, true);
-    }
-    let monke_business = calc_monke_business(&monke_states);
-    assert!(monke_business.0 * monke_business.1 == 10605);
-  }
-  #[test]
-  fn test_inspections_lotsofworry() {
-    let mut monke_states = load_monke("testinput.txt");
-    for _ in 0..10_000 {
-      process_round(&mut monke_states, false);
-    }
-    let mb = calc_monke_business(&monke_states);
-    assert!(mb.0 == 52166);
-    assert!(mb.1 == 52013);
-  }
-}
-
 /* The input for this task is similar to yaml
  * so we make some small alterations which allow
  * the input to be processed by a yaml parser
@@ -377,4 +309,72 @@ fn main() -> std::io::Result<()> {
   println!("monke business: {} {}:{}", mb.0, mb.1, mb.0 * mb.1);
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_remap() {
+    let input = "Monkey 0:\n\
+  Test: divisible by 23\n\
+    If true: throw to monkey 2\n";
+    let expected = "Monkey 0:\n\
+  Test: divisible by 23\n\
+  If true: throw to monkey 2\n";
+    let output = remap_to_yaml(input);
+    assert!(output == expected);
+  }
+
+  #[test]
+  fn test_parse() {
+    let monke_states = load_monke("testinput.txt");
+    assert!(monke_states.len() == 4);
+    let m0 = &monke_states[0];
+    assert!(m0.has.len() == 2);
+    assert!(m0.test_divisor == 23);
+    assert!(m0.success_monke == 2);
+    assert!(m0.failure_monke == 3);
+  }
+  #[test]
+  fn test_round() {
+    let mut monke_states = load_monke("testinput.txt");
+    process_round(&mut monke_states, true);
+    let m0 = &monke_states[0];
+    assert!(m0.has.len() == 4);
+    assert!(m0.has[0] == 20);
+    assert!(m0.has[1] == 23);
+    assert!(m0.has[2] == 27);
+    assert!(m0.has[3] == 26);
+    let m1 = &monke_states[1];
+    assert!(m1.has.len() == 6);
+    assert!(m1.has[0] == 2080);
+    assert!(m1.has[1] == 25);
+    assert!(m1.has[2] == 167);
+    assert!(m1.has[3] == 207);
+    assert!(m1.has[4] == 401);
+    assert!(m1.has[5] == 1046);
+    assert!(monke_states[2].has.is_empty());
+    assert!(monke_states[3].has.is_empty());
+  }
+  #[test]
+  fn test_inspections() {
+    let mut monke_states = load_monke("testinput.txt");
+    for _ in 0..20 {
+      process_round(&mut monke_states, true);
+    }
+    let monke_business = calc_monke_business(&monke_states);
+    assert!(monke_business.0 * monke_business.1 == 10605);
+  }
+  #[test]
+  fn test_inspections_lotsofworry() {
+    let mut monke_states = load_monke("testinput.txt");
+    for _ in 0..10_000 {
+      process_round(&mut monke_states, false);
+    }
+    let mb = calc_monke_business(&monke_states);
+    assert!(mb.0 == 52166);
+    assert!(mb.1 == 52013);
+  }
 }

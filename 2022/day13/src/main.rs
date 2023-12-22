@@ -4,86 +4,6 @@ use std::io::prelude::*;
 
 //use advent::{TerrainMap,Dims,Point};
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_compare() {
-    let r = compare_packets("testinput.txt");
-    assert_eq!(r, 13);
-  }
-  #[test]
-  fn test_decoder_key() {
-    let r = decoder_key("testinput.txt");
-    assert_eq!(r, 140);
-  }
-
-  #[test]
-  fn test_parse1() {
-    let p = parse_packet("[]");
-    assert!(matches!(p, Packet::List(_)));
-    if let Packet::List(v) = p {
-      assert_eq!(v.len(), 0);
-      println!("asserted inside if let");
-    }
-  }
-  #[test]
-  fn test_parse2() {
-    let p = parse_packet("[10]");
-    assert!(matches!(p, Packet::List(_)));
-    if let Packet::List(v) = p {
-      assert_eq!(v.len(), 1);
-      assert!(matches!(v[0], Packet::Integer(10)));
-    }
-  }
-  #[test]
-  fn test_parse3() {
-    let p = parse_packet("[[]]");
-    assert!(matches!(p, Packet::List(_)));
-    if let Packet::List(v) = p {
-      assert_eq!(v.len(), 1);
-      assert!(matches!(v[0], Packet::List(_)));
-    }
-  }
-
-  #[test]
-  fn test_cmp1() {
-    let p = parse_packet("[1,1]");
-    let q = parse_packet("[1,2]");
-    let order = packets_cmp(&p, &q);
-    assert_eq!(order, Ordering::Less);
-  }
-  #[test]
-  fn test_cmp2() {
-    let p = parse_packet("[1]");
-    let q = parse_packet("[[2]]");
-    let order = packets_cmp(&p, &q);
-    assert_eq!(order, Ordering::Less);
-  }
-  #[test]
-  fn test_cmp3() {
-    let p = parse_packet("[1,1]");
-    let q = parse_packet("[[1,2,2]]");
-    let order = packets_cmp(&p, &q);
-    assert_eq!(order, Ordering::Less);
-  }
-  #[test]
-  fn test_cmp4() {
-    let p = parse_packet("[]");
-    let q = parse_packet("[[1,2,2]]");
-    let order = packets_cmp(&p, &q);
-    assert_eq!(order, Ordering::Less);
-  }
-  #[test]
-  fn test_cmp5() {
-    let p = parse_packet("[[],[]]");
-    let q = parse_packet("[[],[1,2,2]]");
-    let order = packets_cmp(&p, &q);
-    assert_eq!(order, Ordering::Less);
-  }
-}
-
 /* This function expects an iterator at a position just after
  * an opening '['.
  * This function continues parsing until (and including) the
@@ -277,4 +197,84 @@ fn main() -> std::io::Result<()> {
   println!("{r}");
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_compare() {
+    let r = compare_packets("testinput.txt");
+    assert_eq!(r, 13);
+  }
+  #[test]
+  fn test_decoder_key() {
+    let r = decoder_key("testinput.txt");
+    assert_eq!(r, 140);
+  }
+
+  #[test]
+  fn test_parse1() {
+    let p = parse_packet("[]");
+    assert!(matches!(p, Packet::List(_)));
+    if let Packet::List(v) = p {
+      assert_eq!(v.len(), 0);
+      println!("asserted inside if let");
+    }
+  }
+  #[test]
+  fn test_parse2() {
+    let p = parse_packet("[10]");
+    assert!(matches!(p, Packet::List(_)));
+    if let Packet::List(v) = p {
+      assert_eq!(v.len(), 1);
+      assert!(matches!(v[0], Packet::Integer(10)));
+    }
+  }
+  #[test]
+  fn test_parse3() {
+    let p = parse_packet("[[]]");
+    assert!(matches!(p, Packet::List(_)));
+    if let Packet::List(v) = p {
+      assert_eq!(v.len(), 1);
+      assert!(matches!(v[0], Packet::List(_)));
+    }
+  }
+
+  #[test]
+  fn test_cmp1() {
+    let p = parse_packet("[1,1]");
+    let q = parse_packet("[1,2]");
+    let order = packets_cmp(&p, &q);
+    assert_eq!(order, Ordering::Less);
+  }
+  #[test]
+  fn test_cmp2() {
+    let p = parse_packet("[1]");
+    let q = parse_packet("[[2]]");
+    let order = packets_cmp(&p, &q);
+    assert_eq!(order, Ordering::Less);
+  }
+  #[test]
+  fn test_cmp3() {
+    let p = parse_packet("[1,1]");
+    let q = parse_packet("[[1,2,2]]");
+    let order = packets_cmp(&p, &q);
+    assert_eq!(order, Ordering::Less);
+  }
+  #[test]
+  fn test_cmp4() {
+    let p = parse_packet("[]");
+    let q = parse_packet("[[1,2,2]]");
+    let order = packets_cmp(&p, &q);
+    assert_eq!(order, Ordering::Less);
+  }
+  #[test]
+  fn test_cmp5() {
+    let p = parse_packet("[[],[]]");
+    let q = parse_packet("[[],[1,2,2]]");
+    let order = packets_cmp(&p, &q);
+    assert_eq!(order, Ordering::Less);
+  }
 }

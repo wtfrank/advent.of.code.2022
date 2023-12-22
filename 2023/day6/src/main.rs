@@ -19,26 +19,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_parse_line() {}
-  #[test]
-  fn test_load1() {
-    let (pairs, (ct, cd)) = load_data("testinput.txt");
-    let score = analyse1(&pairs);
-    assert_eq!(score, 288);
-    assert_eq!(ct, 71530);
-    assert_eq!(cd, 940200);
-
-    let v = vec![(ct, cd)];
-    let score2 = analyse1(&v);
-    assert_eq!(score2, 71503);
-  }
-}
-
 fn analyse1(pairs: &Vec<(usize, usize)>) -> usize {
   let mut score = 1;
   for (t, d) in pairs {
@@ -110,4 +90,24 @@ fn main() {
   let v = vec![(ct, cd)];
   let score2 = analyse1(&v);
   println!("score2: {score2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_parse_line() {}
+  #[test]
+  fn test_load1() {
+    let (pairs, (ct, cd)) = load_data("testinput.txt");
+    let score = analyse1(&pairs);
+    assert_eq!(score, 288);
+    assert_eq!(ct, 71530);
+    assert_eq!(cd, 940200);
+
+    let v = vec![(ct, cd)];
+    let score2 = analyse1(&v);
+    assert_eq!(score2, 71503);
+  }
 }

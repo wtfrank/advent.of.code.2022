@@ -4,25 +4,6 @@ use std::io::prelude::*;
 
 use advent::{Dims, Point, TerrainMap};
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_compare() {
-    let mut m = load_scan("testinput.txt");
-    let units = simulate_fall(&mut m);
-    assert_eq!(units, 24);
-  }
-  #[test]
-  fn test_compare2() {
-    let mut m = load_scan("testinput.txt");
-    add_floor(&mut m);
-    let units = simulate_fall(&mut m);
-    assert_eq!(units, 93);
-  }
-}
-
 #[derive(Default, Copy, Clone, PartialEq, Eq)]
 enum ScanData {
   #[default]
@@ -168,4 +149,23 @@ fn main() -> std::io::Result<()> {
   println!("{units}");
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_compare() {
+    let mut m = load_scan("testinput.txt");
+    let units = simulate_fall(&mut m);
+    assert_eq!(units, 24);
+  }
+  #[test]
+  fn test_compare2() {
+    let mut m = load_scan("testinput.txt");
+    add_floor(&mut m);
+    let units = simulate_fall(&mut m);
+    assert_eq!(units, 93);
+  }
 }

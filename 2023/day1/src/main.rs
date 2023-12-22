@@ -30,23 +30,6 @@ struct Blueprint {
   geodebot: Materials,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_load1() {
-    let calib = load_calib("testinput.txt");
-    assert_eq!(calib, 142);
-  }
-
-  #[test]
-  fn test_load2() {
-    let calib = load_calib2("testinput2.txt");
-    assert_eq!(calib, 281);
-  }
-}
-
 fn load_calib(filename: &str) -> usize {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
@@ -141,4 +124,21 @@ fn main() {
   println!("answer: {answer1}");
   let answer2 = load_calib2("input1.txt");
   println!("answer: {answer2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_load1() {
+    let calib = load_calib("testinput.txt");
+    assert_eq!(calib, 142);
+  }
+
+  #[test]
+  fn test_load2() {
+    let calib = load_calib2("testinput2.txt");
+    assert_eq!(calib, 281);
+  }
 }

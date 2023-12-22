@@ -19,26 +19,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_parse_line() {}
-  #[test]
-  fn test_load1() {
-    let almanac = load_data("testinput.txt");
-    let score1 = find_lowest(&almanac);
-    assert_eq!(score1, 35);
-  }
-  #[test]
-  fn test_load2() {
-    let almanac = load_data("testinput.txt");
-    let score2 = find_lowest2(&almanac);
-    assert_eq!(score2, 46);
-  }
-}
-
 struct RangeComponent {
   interval: Interval,
   dest: usize,
@@ -477,4 +457,24 @@ fn main() {
   let score1 = find_lowest(&almanac);
   let score2 = find_lowest2(&almanac);
   println!("score: {score1}, {score2} ");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_parse_line() {}
+  #[test]
+  fn test_load1() {
+    let almanac = load_data("testinput.txt");
+    let score1 = find_lowest(&almanac);
+    assert_eq!(score1, 35);
+  }
+  #[test]
+  fn test_load2() {
+    let almanac = load_data("testinput.txt");
+    let score2 = find_lowest2(&almanac);
+    assert_eq!(score2, 46);
+  }
 }

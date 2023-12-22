@@ -42,34 +42,6 @@ struct Game {
   draws: Vec<GameDraw>,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_parse_line() {
-    let line = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green";
-    let game = parse_line(&line);
-    assert_eq!(game.id, 1);
-    assert_eq!(game.draws.len(), 3);
-    assert_eq!(game.draws[0].balls[0].count, 3);
-    assert_eq!(game.draws[0].balls[0].colour, BallColour::Blue);
-  }
-
-  #[test]
-  fn test_load1() {
-    let games = load_games("testinput.txt");
-    let game_score = eval_games(&games);
-    assert_eq!(game_score, 8);
-  }
-  #[test]
-  fn test_load2() {
-    let games = load_games("testinput.txt");
-    let game_score = eval_games2(&games);
-    assert_eq!(game_score, 2286);
-  }
-}
-
 fn parse_line(line: &str) -> Game {
   let r = sscanf::sscanf_unescaped!(line, "Game {u16}:{String}").unwrap();
   let id = r.0;
@@ -188,4 +160,32 @@ fn main() {
   println!("answer1: {answer1}");
   let answer2 = eval_games2(&games);
   println!("answer2: {answer2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_parse_line() {
+    let line = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green";
+    let game = parse_line(line);
+    assert_eq!(game.id, 1);
+    assert_eq!(game.draws.len(), 3);
+    assert_eq!(game.draws[0].balls[0].count, 3);
+    assert_eq!(game.draws[0].balls[0].colour, BallColour::Blue);
+  }
+
+  #[test]
+  fn test_load1() {
+    let games = load_games("testinput.txt");
+    let game_score = eval_games(&games);
+    assert_eq!(game_score, 8);
+  }
+  #[test]
+  fn test_load2() {
+    let games = load_games("testinput.txt");
+    let game_score = eval_games2(&games);
+    assert_eq!(game_score, 2286);
+  }
 }

@@ -23,35 +23,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_load1() {
-    let (directions, nodes) = load_data("testinput.txt");
-    let score = analyse_data(&directions, &nodes);
-
-    assert_eq!(score, 2);
-  }
-
-  #[test]
-  fn test_load2() {
-    let (directions, nodes) = load_data("testinput2.txt");
-    let score = analyse_data(&directions, &nodes);
-
-    assert_eq!(score, 6);
-  }
-
-  #[test]
-  fn test_load3() {
-    let (directions, nodes) = load_data("testinput3.txt");
-    let score = analyse_data2(&directions, &nodes);
-
-    assert_eq!(score, 6);
-  }
-}
-
 fn analyse_data(dirs: &str, nodes: &HashMap<String, (String, String)>) -> usize {
   let mut score = 0;
   let mut i = 0;
@@ -293,4 +264,33 @@ fn main() {
   println!("score1: {score1}");
   let score2 = analyse_data3(&dirs, &nodes);
   println!("score2: {score2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_load1() {
+    let (directions, nodes) = load_data("testinput.txt");
+    let score = analyse_data(&directions, &nodes);
+
+    assert_eq!(score, 2);
+  }
+
+  #[test]
+  fn test_load2() {
+    let (directions, nodes) = load_data("testinput2.txt");
+    let score = analyse_data(&directions, &nodes);
+
+    assert_eq!(score, 6);
+  }
+
+  #[test]
+  fn test_load3() {
+    let (directions, nodes) = load_data("testinput3.txt");
+    let score = analyse_data2(&directions, &nodes);
+
+    assert_eq!(score, 6);
+  }
 }

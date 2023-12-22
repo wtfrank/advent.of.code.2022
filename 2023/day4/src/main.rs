@@ -16,26 +16,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_parse_line() {
-    let line = "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53";
-    let (card_id, winning_nos, elf_nos) = parse_line(&line);
-    assert_eq!(card_id, 1);
-    assert_eq!(winning_nos.len(), 5);
-    assert_eq!(elf_nos.len(), 8);
-  }
-  #[test]
-  fn test_load1() {
-    let (score1, score2) = load_data("testinput.txt");
-    assert_eq!(score1, 13);
-    assert_eq!(score2, 30);
-  }
-}
-
 fn parse_line(line: &str) -> (usize, HashSet<usize>, Vec<usize>) {
   let mut winning_nos = HashSet::<usize>::new();
   let mut elf_nos = Vec::<usize>::new();
@@ -133,4 +113,24 @@ fn main() {
 
   let (score1, score2) = load_data("input4.txt");
   println!("score: {score1}, {score2} ");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_parse_line() {
+    let line = "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53";
+    let (card_id, winning_nos, elf_nos) = parse_line(line);
+    assert_eq!(card_id, 1);
+    assert_eq!(winning_nos.len(), 5);
+    assert_eq!(elf_nos.len(), 8);
+  }
+  #[test]
+  fn test_load1() {
+    let (score1, score2) = load_data("testinput.txt");
+    assert_eq!(score1, 13);
+    assert_eq!(score2, 30);
+  }
 }

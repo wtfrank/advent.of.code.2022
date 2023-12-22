@@ -86,71 +86,6 @@ struct Blueprint {
   geodebot: Materials,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_parse_line() {
-    let l = "Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.";
-    let bp = parse_line(l);
-    assert_eq!(
-      bp,
-      Blueprint {
-        orebot: Materials {
-          ore: 4,
-          clay: 0,
-          obsidian: 0
-        },
-        claybot: Materials {
-          ore: 2,
-          clay: 0,
-          obsidian: 0
-        },
-        obsidianbot: Materials {
-          ore: 3,
-          clay: 14,
-          obsidian: 0
-        },
-        geodebot: Materials {
-          ore: 2,
-          clay: 0,
-          obsidian: 7
-        },
-      }
-    );
-  }
-
-  #[test]
-  fn test_evaluate_blueprint_1() {
-    let bps = load_blueprints("testinput.txt");
-    assert_eq!(evaluate_blueprint(&bps[0], 24), 9);
-  }
-
-  #[test]
-  fn test_evaluate_blueprint_2() {
-    let bps = load_blueprints("testinput.txt");
-    assert_eq!(evaluate_blueprint2(&bps[0], 24), 9);
-  }
-
-  #[test]
-  fn test_evaluate_blueprints() {
-    let bps = load_blueprints("testinput.txt");
-    let e = evaluate_all_blueprints(&bps[0..], 24);
-    assert_eq!(e[0], 9);
-    assert_eq!(e[1], 12);
-    let q = calc_quality_level(&e);
-    assert_eq!(q, 33);
-  }
-  #[test]
-  #[ignore]
-  fn test_evaluate_blueprints2() {
-    let bps = load_blueprints("testinput.txt");
-    let e = evaluate_all_blueprints(&bps, 32);
-    assert_eq!(e[1], 62);
-  }
-}
-
 fn parse_line(line: &str) -> Blueprint {
   let r = sscanf::sscanf_unescaped!(line, "Blueprint {u16}: Each ore robot costs {u16} ore. Each clay robot costs {u16} ore. Each obsidian robot costs {u16} ore and {u16} clay. Each geode robot costs {u16} ore and {u16} obsidian.").unwrap();
   Blueprint {
@@ -976,4 +911,69 @@ fn main() {
   let e = evaluate_all_blueprints2(&blueprints[0..3], 32);
   let m = calc_mult(&e);
   println!("mult: {m}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_parse_line() {
+    let l = "Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.";
+    let bp = parse_line(l);
+    assert_eq!(
+      bp,
+      Blueprint {
+        orebot: Materials {
+          ore: 4,
+          clay: 0,
+          obsidian: 0
+        },
+        claybot: Materials {
+          ore: 2,
+          clay: 0,
+          obsidian: 0
+        },
+        obsidianbot: Materials {
+          ore: 3,
+          clay: 14,
+          obsidian: 0
+        },
+        geodebot: Materials {
+          ore: 2,
+          clay: 0,
+          obsidian: 7
+        },
+      }
+    );
+  }
+
+  #[test]
+  fn test_evaluate_blueprint_1() {
+    let bps = load_blueprints("testinput.txt");
+    assert_eq!(evaluate_blueprint(&bps[0], 24), 9);
+  }
+
+  #[test]
+  fn test_evaluate_blueprint_2() {
+    let bps = load_blueprints("testinput.txt");
+    assert_eq!(evaluate_blueprint2(&bps[0], 24), 9);
+  }
+
+  #[test]
+  fn test_evaluate_blueprints() {
+    let bps = load_blueprints("testinput.txt");
+    let e = evaluate_all_blueprints(&bps[0..], 24);
+    assert_eq!(e[0], 9);
+    assert_eq!(e[1], 12);
+    let q = calc_quality_level(&e);
+    assert_eq!(q, 33);
+  }
+  #[test]
+  #[ignore]
+  fn test_evaluate_blueprints2() {
+    let bps = load_blueprints("testinput.txt");
+    let e = evaluate_all_blueprints(&bps, 32);
+    assert_eq!(e[1], 62);
+  }
 }

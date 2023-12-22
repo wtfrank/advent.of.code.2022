@@ -1,32 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_visibility() {
-    let x_states = simulate_execution("testinput.txt");
-    let signal_strength = calculate_signal_strength(&x_states);
-    assert!(signal_strength == 13140);
-  }
-  #[test]
-  fn test_render() {
-    let expected = "##..##..##..##..##..##..##..##..##..##..\n\
-###...###...###...###...###...###...###.\n\
-####....####....####....####....####....\n\
-#####.....#####.....#####.....#####.....\n\
-######......######......######......####\n\
-#######.......#######.......#######.....\n";
-    let x_states = simulate_execution("testinput.txt");
-    let screenshot = render_image(&x_states);
-    println!("Rendered:\n{screenshot}");
-    println!("Expected:\n{expected}");
-    assert!(screenshot == expected);
-  }
-}
-
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 struct Point {
   x: isize,
@@ -114,4 +88,30 @@ fn main() -> std::io::Result<()> {
   print!("{screenshot}");
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_visibility() {
+    let x_states = simulate_execution("testinput.txt");
+    let signal_strength = calculate_signal_strength(&x_states);
+    assert!(signal_strength == 13140);
+  }
+  #[test]
+  fn test_render() {
+    let expected = "##..##..##..##..##..##..##..##..##..##..\n\
+###...###...###...###...###...###...###.\n\
+####....####....####....####....####....\n\
+#####.....#####.....#####.....#####.....\n\
+######......######......######......####\n\
+#######.......#######.......#######.....\n";
+    let x_states = simulate_execution("testinput.txt");
+    let screenshot = render_image(&x_states);
+    println!("Rendered:\n{screenshot}");
+    println!("Expected:\n{expected}");
+    assert!(screenshot == expected);
+  }
 }

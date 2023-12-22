@@ -16,24 +16,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_load1() {
-    let schematic = load_data("testinput.txt");
-    let schematic_score = analyse_schematic(&schematic);
-    assert_eq!(schematic_score, 4361);
-  }
-  #[test]
-  fn test_load2() {
-    let schematic = load_data("testinput.txt");
-    let schematic_score = analyse_schematic2(&schematic);
-    assert_eq!(schematic_score, 467835);
-  }
-}
-
 fn check_around(schematic: &TerrainMap<char>, start: &Point, end: &Point) -> bool {
   //check entire surrounding rectangle including the number which is redundant but simple to code
   let mut s = Point {
@@ -352,4 +334,22 @@ fn main() {
   println!("score: {score}");
   let score2 = analyse_schematic2(&schematic);
   println!("score2: {score2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_load1() {
+    let schematic = load_data("testinput.txt");
+    let schematic_score = analyse_schematic(&schematic);
+    assert_eq!(schematic_score, 4361);
+  }
+  #[test]
+  fn test_load2() {
+    let schematic = load_data("testinput.txt");
+    let schematic_score = analyse_schematic2(&schematic);
+    assert_eq!(schematic_score, 467835);
+  }
 }

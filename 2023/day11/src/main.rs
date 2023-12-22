@@ -32,25 +32,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_load1() {
-    let data = load_data("testinput1.txt");
-    //let data = expand_galaxy( &data );
-    //let expanded_data = load_data( "testinput2.txt" );
-    //assert_eq!(data, expanded_data);
-    let score = analyse_data(&data, 1);
-    assert_eq!(score, 374);
-    let score = analyse_data(&data, 9);
-    assert_eq!(score, 1030);
-    let score = analyse_data(&data, 99);
-    assert_eq!(score, 8410);
-  }
-}
-
 fn empty_col(x: usize, map: &TerrainMap<bool>) -> bool {
   let mut p = Point { x: x as isize, y: 0 };
   for y in 0..map.dims.height {
@@ -205,4 +186,23 @@ fn main() {
   let score2 = analyse_data(&data, 999_999);
   println!("score1: {score1}");
   println!("score2: {score2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_load1() {
+    let data = load_data("testinput1.txt");
+    //let data = expand_galaxy( &data );
+    //let expanded_data = load_data( "testinput2.txt" );
+    //assert_eq!(data, expanded_data);
+    let score = analyse_data(&data, 1);
+    assert_eq!(score, 374);
+    let score = analyse_data(&data, 9);
+    assert_eq!(score, 1030);
+    let score = analyse_data(&data, 99);
+    assert_eq!(score, 8410);
+  }
 }

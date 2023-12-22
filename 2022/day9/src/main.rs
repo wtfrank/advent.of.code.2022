@@ -3,21 +3,6 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::prelude::*;
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_visibility() {
-    let total_positions = process_path("testinput.txt", 2);
-    assert!(total_positions == 13);
-    let total_positions = process_path("testinput.txt", 10);
-    assert!(total_positions == 1);
-    let total_positions = process_path("testinput2.txt", 10);
-    assert!(total_positions == 36);
-  }
-}
-
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 struct Point {
   x: isize,
@@ -124,4 +109,19 @@ fn main() -> std::io::Result<()> {
   println!("covered {total_positions} positions");
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_visibility() {
+    let total_positions = process_path("testinput.txt", 2);
+    assert!(total_positions == 13);
+    let total_positions = process_path("testinput.txt", 10);
+    assert!(total_positions == 1);
+    let total_positions = process_path("testinput2.txt", 10);
+    assert!(total_positions == 36);
+  }
 }

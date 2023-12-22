@@ -32,49 +32,6 @@ struct Args {
   benchmark: bool,
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_load1() {
-    let (mut data, start) = load_data("testinput1.txt");
-    let (score, loop_map) = analyse_data(&mut data, start);
-    assert_eq!(score, 4);
-    let score2 = find_inside(&data, &loop_map);
-    assert_eq!(score2, 1);
-  }
-  #[test]
-  fn test_load2() {
-    let (mut data, start) = load_data("testinput2.txt");
-    let (score, loop_map) = analyse_data(&mut data, start);
-    assert_eq!(score, 8);
-    let score2 = find_inside(&data, &loop_map);
-    assert_eq!(score2, 1);
-  }
-  #[test]
-  fn test_load3() {
-    let (mut data, start) = load_data("testinput3.txt");
-    let (_score, loop_map) = analyse_data(&mut data, start);
-    let score2 = find_inside(&data, &loop_map);
-    assert_eq!(score2, 4);
-  }
-  #[test]
-  fn test_load4() {
-    let (mut data, start) = load_data("testinput4.txt");
-    let (_score, loop_map) = analyse_data(&mut data, start);
-    let score2 = find_inside(&data, &loop_map);
-    assert_eq!(score2, 8);
-  }
-  #[test]
-  fn test_load5() {
-    let (mut data, start) = load_data("testinput5.txt");
-    let (_score, loop_map) = analyse_data(&mut data, start);
-    let score2 = find_inside(&data, &loop_map);
-    assert_eq!(score2, 10);
-  }
-}
-
 //pushed edges may not be valid points
 //could implement this as a state machine iterator
 fn adjacent_edges(p: Point, pipe: Pipe) -> Vec<Point> {
@@ -520,4 +477,47 @@ fn main() {
   println!("score1: {score1}");
   let score2 = find_inside(&data, &loop_map);
   println!("score2: {score2}");
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_load1() {
+    let (mut data, start) = load_data("testinput1.txt");
+    let (score, loop_map) = analyse_data(&mut data, start);
+    assert_eq!(score, 4);
+    let score2 = find_inside(&data, &loop_map);
+    assert_eq!(score2, 1);
+  }
+  #[test]
+  fn test_load2() {
+    let (mut data, start) = load_data("testinput2.txt");
+    let (score, loop_map) = analyse_data(&mut data, start);
+    assert_eq!(score, 8);
+    let score2 = find_inside(&data, &loop_map);
+    assert_eq!(score2, 1);
+  }
+  #[test]
+  fn test_load3() {
+    let (mut data, start) = load_data("testinput3.txt");
+    let (_score, loop_map) = analyse_data(&mut data, start);
+    let score2 = find_inside(&data, &loop_map);
+    assert_eq!(score2, 4);
+  }
+  #[test]
+  fn test_load4() {
+    let (mut data, start) = load_data("testinput4.txt");
+    let (_score, loop_map) = analyse_data(&mut data, start);
+    let score2 = find_inside(&data, &loop_map);
+    assert_eq!(score2, 8);
+  }
+  #[test]
+  fn test_load5() {
+    let (mut data, start) = load_data("testinput5.txt");
+    let (_score, loop_map) = analyse_data(&mut data, start);
+    let score2 = find_inside(&data, &loop_map);
+    assert_eq!(score2, 10);
+  }
 }

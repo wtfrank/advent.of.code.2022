@@ -6,158 +6,6 @@ use std::ops::Range;
 
 use advent::Point;
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_compare() {
-    let (ranges, beacons) = load_scan("testinput.txt", 20);
-    println!("{ranges:?}");
-    let spaces = sum_ranges(&ranges[10], &beacons, 10);
-    assert_eq!(spaces, 26);
-    let tf = calc_tuning_frequency(&ranges, 20);
-    assert_eq!(tf, 56000011);
-  }
-
-  #[test]
-  fn test_create_range1() {
-    let r_opt = create_range(Point { x: 0, y: 0 }, Point { x: 1, y: 0 }, 1);
-    assert!(r_opt.is_some());
-    let r = r_opt.unwrap();
-    assert_eq!(r.start, 0);
-    assert_eq!(r.end, 1);
-  }
-  #[test]
-  fn test_create_range2() {
-    let r_opt = create_range(Point { x: 0, y: 0 }, Point { x: 1, y: 1 }, 1);
-    assert!(r_opt.is_some());
-    let r = r_opt.unwrap();
-    assert_eq!(r.start, -1);
-    assert_eq!(r.end, 2);
-  }
-
-  #[test]
-  fn test_insert_at_pos_after() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 0, end: 1 });
-    insert_at_pos(Range { start: 2, end: 3 }, 1, &mut l);
-    assert_eq!(l.len(), 2);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 0);
-  }
-
-  #[test]
-  fn test_insert_at_pos_before() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 0, end: 1 });
-    insert_at_pos(Range { start: 2, end: 3 }, 0, &mut l);
-    assert_eq!(l.len(), 2);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 2);
-  }
-
-  #[test]
-  fn test_insert_after() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 0, end: 1 });
-    insert_range(Range { start: 2, end: 3 }, &mut l);
-    assert_eq!(l.len(), 2);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 0);
-  }
-
-  #[test]
-  fn test_insert_after2() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 0, end: 1 });
-    l.push_back(Range { start: 4, end: 9 });
-    insert_range(Range { start: 2, end: 3 }, &mut l);
-    assert_eq!(l.len(), 3);
-    let mut i = l.iter();
-    let first = i.next().unwrap();
-    assert_eq!(first.start, 0);
-    let second = i.next().unwrap();
-    assert_eq!(second.start, 2);
-  }
-
-  #[test]
-  fn test_insert_before() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 2, end: 3 });
-    insert_range(Range { start: 0, end: 1 }, &mut l);
-    assert_eq!(l.len(), 2);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 0);
-  }
-
-  #[test]
-  fn test_insert_merge1() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 0, end: 1 });
-    insert_range(Range { start: 1, end: 2 }, &mut l);
-    assert_eq!(l.len(), 1);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 0);
-    assert_eq!(first.end, 2);
-  }
-
-  #[test]
-  fn test_insert_merge2() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 2, end: 3 });
-    insert_range(Range { start: 1, end: 2 }, &mut l);
-    assert_eq!(l.len(), 1);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 1);
-    assert_eq!(first.end, 3);
-  }
-
-  #[test]
-  fn test_insert_merge3() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 2, end: 5 });
-    insert_range(Range { start: 0, end: 3 }, &mut l);
-    assert_eq!(l.len(), 1);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 0);
-    assert_eq!(first.end, 5);
-  }
-
-  #[test]
-  fn test_insert_merge_overlap() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 2, end: 5 });
-    l.push_back(Range { start: 10, end: 15 });
-    insert_range(Range { start: 3, end: 12 }, &mut l);
-    assert_eq!(l.len(), 1);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 2);
-    assert_eq!(first.end, 15);
-  }
-
-  #[test]
-  fn test_insert_merge_overlap2() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    l.push_back(Range { start: 2, end: 5 });
-    l.push_back(Range { start: 10, end: 15 });
-    l.push_back(Range { start: 16, end: 22 });
-    insert_range(Range { start: 3, end: 20 }, &mut l);
-    assert_eq!(l.len(), 1);
-    let first = l.iter().next().unwrap();
-    assert_eq!(first.start, 2);
-    assert_eq!(first.end, 22);
-  }
-
-  #[test]
-  fn test_sum_ranges() {
-    let mut l = LinkedList::<Range<isize>>::new();
-    insert_range(Range { start: 0, end: 3 }, &mut l);
-    insert_range(Range { start: 5, end: 7 }, &mut l);
-    assert_eq!(sum_ranges(&l, &HashSet::new(), 1), 5);
-  }
-}
-
 fn insert_at_pos(range: Range<isize>, pos: usize, list: &mut LinkedList<Range<isize>>) {
   let mut list2 = list.split_off(pos);
   list.push_back(range);
@@ -311,4 +159,156 @@ fn main() -> std::io::Result<()> {
   println!("tuning freq: {tf}");
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_compare() {
+    let (ranges, beacons) = load_scan("testinput.txt", 20);
+    println!("{ranges:?}");
+    let spaces = sum_ranges(&ranges[10], &beacons, 10);
+    assert_eq!(spaces, 26);
+    let tf = calc_tuning_frequency(&ranges, 20);
+    assert_eq!(tf, 56000011);
+  }
+
+  #[test]
+  fn test_create_range1() {
+    let r_opt = create_range(Point { x: 0, y: 0 }, Point { x: 1, y: 0 }, 1);
+    assert!(r_opt.is_some());
+    let r = r_opt.unwrap();
+    assert_eq!(r.start, 0);
+    assert_eq!(r.end, 1);
+  }
+  #[test]
+  fn test_create_range2() {
+    let r_opt = create_range(Point { x: 0, y: 0 }, Point { x: 1, y: 1 }, 1);
+    assert!(r_opt.is_some());
+    let r = r_opt.unwrap();
+    assert_eq!(r.start, -1);
+    assert_eq!(r.end, 2);
+  }
+
+  #[test]
+  fn test_insert_at_pos_after() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 0, end: 1 });
+    insert_at_pos(Range { start: 2, end: 3 }, 1, &mut l);
+    assert_eq!(l.len(), 2);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 0);
+  }
+
+  #[test]
+  fn test_insert_at_pos_before() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 0, end: 1 });
+    insert_at_pos(Range { start: 2, end: 3 }, 0, &mut l);
+    assert_eq!(l.len(), 2);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 2);
+  }
+
+  #[test]
+  fn test_insert_after() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 0, end: 1 });
+    insert_range(Range { start: 2, end: 3 }, &mut l);
+    assert_eq!(l.len(), 2);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 0);
+  }
+
+  #[test]
+  fn test_insert_after2() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 0, end: 1 });
+    l.push_back(Range { start: 4, end: 9 });
+    insert_range(Range { start: 2, end: 3 }, &mut l);
+    assert_eq!(l.len(), 3);
+    let mut i = l.iter();
+    let first = i.next().unwrap();
+    assert_eq!(first.start, 0);
+    let second = i.next().unwrap();
+    assert_eq!(second.start, 2);
+  }
+
+  #[test]
+  fn test_insert_before() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 2, end: 3 });
+    insert_range(Range { start: 0, end: 1 }, &mut l);
+    assert_eq!(l.len(), 2);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 0);
+  }
+
+  #[test]
+  fn test_insert_merge1() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 0, end: 1 });
+    insert_range(Range { start: 1, end: 2 }, &mut l);
+    assert_eq!(l.len(), 1);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 0);
+    assert_eq!(first.end, 2);
+  }
+
+  #[test]
+  fn test_insert_merge2() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 2, end: 3 });
+    insert_range(Range { start: 1, end: 2 }, &mut l);
+    assert_eq!(l.len(), 1);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 1);
+    assert_eq!(first.end, 3);
+  }
+
+  #[test]
+  fn test_insert_merge3() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 2, end: 5 });
+    insert_range(Range { start: 0, end: 3 }, &mut l);
+    assert_eq!(l.len(), 1);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 0);
+    assert_eq!(first.end, 5);
+  }
+
+  #[test]
+  fn test_insert_merge_overlap() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 2, end: 5 });
+    l.push_back(Range { start: 10, end: 15 });
+    insert_range(Range { start: 3, end: 12 }, &mut l);
+    assert_eq!(l.len(), 1);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 2);
+    assert_eq!(first.end, 15);
+  }
+
+  #[test]
+  fn test_insert_merge_overlap2() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    l.push_back(Range { start: 2, end: 5 });
+    l.push_back(Range { start: 10, end: 15 });
+    l.push_back(Range { start: 16, end: 22 });
+    insert_range(Range { start: 3, end: 20 }, &mut l);
+    assert_eq!(l.len(), 1);
+    let first = l.iter().next().unwrap();
+    assert_eq!(first.start, 2);
+    assert_eq!(first.end, 22);
+  }
+
+  #[test]
+  fn test_sum_ranges() {
+    let mut l = LinkedList::<Range<isize>>::new();
+    insert_range(Range { start: 0, end: 3 }, &mut l);
+    insert_range(Range { start: 5, end: 7 }, &mut l);
+    assert_eq!(sum_ranges(&l, &HashSet::new(), 1), 5);
+  }
 }
