@@ -51,6 +51,10 @@ impl Interval {
       panic!("non-exhaustive if statement");
     }
   }
+
+  pub fn overlaps(&self, other: &Interval) -> bool {
+    !matches!(self.cmp_overlap(other), Overlap::Less | Overlap::Greater)
+  }
 }
 
 #[cfg(test)]

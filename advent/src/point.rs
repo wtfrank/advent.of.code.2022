@@ -40,6 +40,7 @@ impl Point {
   }
 }
 
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct Point3 {
   pub x: isize,
   pub y: isize,
