@@ -278,43 +278,6 @@ fn analyse_data2(map: &TerrainMap<char>) -> usize {
   let (start, end) = find_start_end(map);
   queue.push((start, start));
 
-  /*
-  while let some((p, p2)) = queue.pop() {
-    let prev = p;
-    let mut cur = p;
-    let mut dist = 0;
-    let mut prev2 = p2;
-    loop {
-      //println!("visiting {cur}");
-      dist += 1;
-      visited.set(&cur, true);
-      let mut neigh = expand3(map, &visited, &cur, &prev2);
-      if neigh.len() > 1 {
-        junctions.insert(cur);
-        println!("found junction at {cur} from {prev} with neighbours {neigh:?}");
-        for n in &neigh {
-          if visited.get(n) {
-            continue;
-          }
-          queue.push((*n, cur));
-        }
-        successors.insert(prev, (dist, cur, neigh));
-        break;
-      }
-
-      if neigh.is_empty() {
-        break;
-      }
-
-      prev2 = cur;
-      cur = neigh.pop().unwrap();
-      if cur == end {
-        println!("found end node coming from {prev}!");
-        successors.insert(prev, (dist, cur, vec![cur]));
-      }
-    }
-  }*/
-
   while let Some((p, p2)) = queue.pop() {
     let mut cur = p;
     let mut prev2 = p2;
