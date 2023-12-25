@@ -6,6 +6,7 @@ use std::io::Read;
 
 //use std::fmt;
 //use std::str::FromStr;
+use std::fmt::Write;
 
 //use advent::{determine_map_dims, Direction, Point, TerrainMap};
 //use advent::{Interval, Point3};
@@ -34,7 +35,9 @@ use std::io::Read;
 //use advent::{prime_factors, lcm};
 //use advent::Range;
 
-/// Day 23 of Advent of Code 2023
+use pyo3::{prelude::*, types::PyModule};
+
+/// Day 24 of Advent of Code 2023
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -65,28 +68,84 @@ fn analyse_data2(hailstones: &[(Position, Velocity)]) -> usize {
     println!("{} + r_{idx}*{} = pty + r_{idx}*vty", hs.0 .1, hs.1 .1);
     println!("{} + r_{idx}*{} = ptz + r_{idx}*vtz", hs.0 .2, hs.1 .2);
   }
+
+  let mut py = String::new();
+  writeln!(&mut py, "#!/usr/bin/env python3").unwrap();
+  writeln!(&mut py, "import sympy as sym\n").unwrap();
+  writeln!(&mut py, "def solve():").unwrap();
+  writeln!(
+    &mut py,
+    "  ptx, pty, ptz, vtx, vty, vtz = sym.symbols('ptx,pty,ptz,vtx,vty,vtz')"
+  )
+  .unwrap();
+
+  let mut eq_names = Vec::new();
+  let mut param_names = Vec::new();
   let mut eq_count = 0;
   for (idx, hs) in hailstones.iter().enumerate() {
-    println!(
-      "eq{eq_count} = sym.Eq({} + r_{idx}*{}, ptx + r_{idx}*vtx)",
+    if eq_count >= 9 {
+      break;
+    }
+
+    param_names.push(format!("r_{idx}"));
+    writeln!(&mut py, "  r_{idx} = sym.symbols('r_{idx}')").unwrap();
+    eq_names.push(format!("eq{eq_count}"));
+    writeln!(
+      &mut py,
+      "  eq{eq_count} = sym.Eq({} + r_{idx}*{}, ptx + r_{idx}*vtx)",
       hs.0 .0, hs.1 .0
-    );
-    //eq2 = sym.Eq(266007888635046 + r_298 * 35, ptz + r_298*vtz)
+    )
+    .unwrap();
 
     eq_count += 1;
-    println!(
-      "eq{eq_count} = sym.Eq({} + r_{idx}*{}, pty + r_{idx}*vty)",
+    eq_names.push(format!("eq{eq_count}"));
+    writeln!(
+      &mut py,
+      "  eq{eq_count} = sym.Eq({} + r_{idx}*{}, pty + r_{idx}*vty)",
       hs.0 .1, hs.1 .1
-    );
+    )
+    .unwrap();
     eq_count += 1;
-    println!(
-      "eq{eq_count} = sym.Eq({} + r_{idx}*{}, ptz + r_{idx}*vtz)",
+    eq_names.push(format!("eq{eq_count}"));
+    writeln!(
+      &mut py,
+      "  eq{eq_count} = sym.Eq({} + r_{idx}*{}, ptz + r_{idx}*vtz)",
       hs.0 .2, hs.1 .2
-    );
+    )
+    .unwrap();
     eq_count += 1;
   }
 
-  0
+  let eq_str = eq_names.join(",");
+  let params_str = param_names.join(",");
+
+  writeln!(
+    &mut py,
+    "  result = sym.solve([{eq_str}],(ptx, pty, ptz, vtx, vty, vtz, {params_str}))"
+  )
+  .unwrap();
+  writeln!(&mut py, "  return result").unwrap();
+
+  let code_loc = String::from("/tmp/gen_sym_eq.py");
+  println!("python code written to {code_loc}");
+  std::fs::write(code_loc, &py).unwrap();
+
+  execute_py(&py)
+}
+
+type SolnParams = (isize, isize, isize, isize, isize, isize, isize, isize, isize);
+
+fn execute_py(py: &str) -> usize {
+  let mut result = 0;
+  Python::with_gil(|p| {
+    let simeq = PyModule::from_code(p, py, "simeq.py", "simeq").unwrap();
+    //let res: (isize, isize, isize, isize, isize, isize, isize, isize, isize) =
+    let res: Vec<SolnParams> = simeq.getattr("solve").unwrap().call0().unwrap().extract().unwrap();
+    println!("result: {res:?}");
+    let r = res[0];
+    result = (r.0 + r.1 + r.2) as usize;
+  });
+  result
 }
 
 fn analyse_data(hailstones: &Vec<(Position, Velocity)>, min: usize, max: usize) -> usize {
@@ -187,6 +246,7 @@ fn main() {
   if args.benchmark {
     return;
   }
+  pyo3::prepare_freethreaded_python();
 
   let data = load_data("input24.txt");
   let score1 = analyse_data(&data, 200000000000000, 400000000000000);
@@ -208,6 +268,7 @@ mod tests {
 
   #[test]
   fn test_load2() {
+    pyo3::prepare_freethreaded_python();
     let data = load_data("testinput.txt");
     let score1 = analyse_data2(&data);
     assert_eq!(score1, 47);
