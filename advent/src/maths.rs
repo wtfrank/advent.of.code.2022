@@ -92,10 +92,10 @@ pub fn primes_lte(n: usize) -> Vec<usize> {
 
   let mut composite = bitvec![0; n+1];
 
-  *(composite.get_mut(0).unwrap()) = true;
-  *(composite.get_mut(1).unwrap()) = true;
+  composite.set(0, true);
+  composite.set(1, true);
   if n >= 2 {
-    *(composite.get_mut(2).unwrap()) = false;
+    composite.set(2, false);
   }
 
   let sqrtn = f64::sqrt(n as f64).floor() as usize;
