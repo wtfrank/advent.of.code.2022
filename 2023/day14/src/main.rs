@@ -28,7 +28,7 @@ use advent::{determine_map_dims, Point, TerrainMap};
 
 //use advent::{prime_factors, lcm};
 
-/// Day 12 of Advent of Code 2023
+/// Day 14 of Advent of Code 2023
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -252,7 +252,7 @@ fn cycle(data: &mut TerrainMap<char>) -> usize {
   calc_load(data)
 }
 
-fn check_for_cycle(data: &Vec<usize>) -> (bool, usize) {
+fn check_for_cycle(data: &[usize]) -> (bool, usize) {
   //subtract array at various offsets
   //to establish a cycle, we want to see 5 repeats
 

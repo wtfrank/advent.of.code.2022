@@ -14,7 +14,7 @@ use std::io::Read;
 
 //use advent::{prime_factors, lcm};
 
-/// Day 3 of Advent of Code 2023
+/// Day 9 of Advent of Code 2023
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -23,7 +23,7 @@ struct Args {
   benchmark: bool,
 }
 
-fn extrapolate_seq(seq: &Vec<isize>) -> isize {
+fn extrapolate_seq(seq: &[isize]) -> isize {
   let mut deltas = Vec::new();
   let mut all_zeroes = true;
   for i in 1..seq.len() {

@@ -233,7 +233,7 @@ fn drop_rock(
  * cycle in situations like this.
  *
  */
-fn drop_rocks_smart(jets: &Vec<Jet>, count: usize) -> isize {
+fn drop_rocks_smart(jets: &[Jet], count: usize) -> isize {
   let _total_jets = jets.len();
 
   let block_cycle = 1725; //after this number of blocks it cycles
@@ -267,7 +267,7 @@ fn whole_row_solid( y: isize, col: &TerrainMap<Material>) -> bool {
 }
 */
 
-fn drop_rocks(jets: &Vec<Jet>, count: usize) -> (TerrainMap<Material>, isize) {
+fn drop_rocks(jets: &[Jet], count: usize) -> (TerrainMap<Material>, isize) {
   //y is 0 at bottom
   let mut column = TerrainMap::<Material>::new(Dims {
     width: 7,

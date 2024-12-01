@@ -245,7 +245,7 @@ fn process_operation(initial: usize, operation: (MonkeVar, MonkeOperator, MonkeV
   }
 }
 
-fn process_round(monkes: &mut Vec<Monke>, reduce_worry: bool) {
+fn process_round(monkes: &mut [Monke], reduce_worry: bool) {
   let mut divisor_multiple = 1;
   for i in 0..monkes.len() {
     let m: &Monke = monkes.get(i).unwrap();

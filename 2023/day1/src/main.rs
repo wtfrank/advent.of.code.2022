@@ -6,28 +6,13 @@ use std::io::Read;
 use rustc_hash::FxHashMap;
 type HashMap<T, U> = FxHashMap<T, U>;
 
-/// Day 19 of Advent of Code 2022
+/// Day 1 of Advent of Code 2023
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
   /// Name of the person to greet
   #[arg(short, long, default_value_t = false)]
   benchmark: bool,
-}
-
-#[derive(Debug, PartialEq, Clone)]
-struct Materials {
-  ore: u16,
-  clay: u16,
-  obsidian: u16,
-}
-
-#[derive(Debug, PartialEq, Clone)]
-struct Blueprint {
-  orebot: Materials,
-  claybot: Materials,
-  obsidianbot: Materials,
-  geodebot: Materials,
 }
 
 fn load_calib(filename: &str) -> usize {

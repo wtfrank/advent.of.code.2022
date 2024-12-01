@@ -1,18 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-struct Point {
-  x: isize,
-  y: isize,
-}
-impl std::fmt::Display for Point {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "({}, {})", self.x, self.y)
-  }
-}
-
-fn render_image(x_states: &Vec<isize>) -> String {
+fn render_image(x_states: &[isize]) -> String {
   let mut output = String::new();
   for i in 1..x_states.len() {
     let x = x_states[i - 1];

@@ -122,7 +122,7 @@ fn part2_freeable_space(tree: &VecDeque<FsNode>) -> usize {
   const TOTAL_FS_SIZE: usize = 70_000_000;
   const MIN_SPACE_NEEDED: usize = 30_000_000;
 
-  let free_space = TOTAL_FS_SIZE - tree.get(0).unwrap().cum_space;
+  let free_space = TOTAL_FS_SIZE - tree.front().unwrap().cum_space;
   let needed_space = MIN_SPACE_NEEDED - free_space;
   println!("Needs {needed_space} more free space");
 
