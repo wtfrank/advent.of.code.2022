@@ -18,5 +18,7 @@ SAVE_FILE="$BASE_PATH/leaderboard.json"
 
 URL="https://adventofcode.com/$YEAR/leaderboard/private/view/$LEADERBOARD.json"
 
+echo $URL
+
 curl -b "$BASE_PATH"/../session_cookie.txt "$URL" -o "$SAVE_FILE"
 
