@@ -71,11 +71,10 @@ fn list_dist2(filename: &str) -> usize {
   left_list.sort();
   right_list.sort();
 
-  for i in 0..left_list.len() {
-    let left = left_list[i];
+  for left in left_list.iter() {
     let mut count = 0;
-    for j in 0..right_list.len() {
-      match left.cmp(&right_list[j]) {
+    for right in right_list.iter() {
+      match left.cmp(right) {
         std::cmp::Ordering::Less => continue,
         std::cmp::Ordering::Equal => count += 1,
         std::cmp::Ordering::Greater => continue,
