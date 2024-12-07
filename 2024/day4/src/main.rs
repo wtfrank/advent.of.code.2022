@@ -1,3 +1,6 @@
+#![feature(test)]
+extern crate test;
+
 use clap::Parser;
 use std::cmp::PartialEq;
 use std::fs::File;
@@ -21,7 +24,7 @@ struct WordsearchIter<'a, T: Clone> {
   cw: &'a Wordsearch<T>,
 }
 
-impl<'a, T: Clone> Iterator for WordsearchIter<'a, T> {
+impl<T: Clone> Iterator for WordsearchIter<'_, T> {
   type Item = T;
   fn next(&mut self) -> Option<Self::Item> {
     if self.x.is_none() || self.x.unwrap() >= self.cw.v[0].len() {
@@ -254,14 +257,17 @@ fn count_matches<T: Clone + PartialEq>(mut iter: WordsearchIter<T>, search: &[T]
   }
   count
 }
-
-fn analyse_input1(filename: &str) -> usize {
+fn load_data(filename: &str) -> String {
   let mut file = File::open(filename).unwrap();
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
+  contents
+}
+
+fn analyse_input1(puzzle_input: &str) -> usize {
   let mut total = 0;
   let mut cw = Wordsearch::<char>::new();
-  for line in contents.lines() {
+  for line in puzzle_input.lines() {
     cw.load_line(line.chars().collect());
   }
 
@@ -295,14 +301,10 @@ fn analyse_input1(filename: &str) -> usize {
   total
 }
 
-fn analyse_input2(filename: &str) -> usize {
-  let mut file = File::open(filename).unwrap();
-  let mut contents = String::new();
-  file.read_to_string(&mut contents).unwrap();
+fn analyse_input2(puzzle_input: &str) -> usize {
   let mut total = 0;
-
   let mut cw = Wordsearch::<char>::new();
-  for line in contents.lines() {
+  for line in puzzle_input.lines() {
     cw.load_line(line.chars().collect());
   }
 
@@ -340,9 +342,10 @@ fn main() {
     return;
   }
 
-  let answer1 = analyse_input1("input4.txt");
+  let data = load_data("input4.txt");
+  let answer1 = analyse_input1(&data);
   println!("answer: {answer1} (note: 2584 was too high)");
-  let answer2 = analyse_input2("input4.txt");
+  let answer2 = analyse_input2(&data);
   println!("answer2: {answer2}");
 }
 
@@ -352,13 +355,15 @@ mod tests {
 
   #[test]
   fn test_load1() {
-    let result = analyse_input1("testinput1.txt");
+    let data = load_data("testinput1.txt");
+    let result = analyse_input1(&data);
     assert_eq!(result, 18);
   }
 
   #[test]
   fn test_load2() {
-    let result = analyse_input2("testinput1.txt");
+    let data = load_data("testinput1.txt");
+    let result = analyse_input2(&data);
     assert_eq!(result, 9);
   }
 
@@ -686,5 +691,19 @@ mod tests {
       }
     }
     assert_eq!(total, 2);
+  }
+
+  use test::{black_box, Bencher};
+
+  #[bench]
+  fn bench_part1(b: &mut Bencher) {
+    let data = load_data("testinput1.txt");
+    b.iter(|| black_box(analyse_input1(&data)));
+  }
+
+  #[bench]
+  fn bench_part2(b: &mut Bencher) {
+    let data = load_data("testinput1.txt");
+    b.iter(|| black_box(analyse_input2(&data)));
   }
 }
