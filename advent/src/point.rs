@@ -90,6 +90,24 @@ impl Direction {
       Direction::West => Direction::East,
     }
   }
+
+  pub fn rotate_cw(&self) -> Direction {
+    match self {
+      Direction::North => Direction::East,
+      Direction::East => Direction::South,
+      Direction::South => Direction::West,
+      Direction::West => Direction::North,
+    }
+  }
+
+  pub fn rotate_acw(&self) -> Direction {
+    match self {
+      Direction::North => Direction::West,
+      Direction::East => Direction::North,
+      Direction::South => Direction::East,
+      Direction::West => Direction::South,
+    }
+  }
 }
 
 #[cfg(test)]
