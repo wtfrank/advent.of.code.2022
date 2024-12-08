@@ -221,7 +221,7 @@ fn analyse_input2(puzzle_input: &str) -> usize {
         visited.set(&guard, Some(guard_dir));
       } else if visited.get(&guard).unwrap() == guard_dir {
         total += 1;
-        println!("blocked loc {blocked_loc} led to loop (overlapped at {guard} {guard_dir:?}");
+        // println!("blocked loc {blocked_loc} led to loop (overlapped at {guard} {guard_dir:?}");
         break;
       }
     }

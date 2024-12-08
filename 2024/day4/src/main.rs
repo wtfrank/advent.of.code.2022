@@ -7,7 +7,7 @@ use std::fs::File;
 use std::io::Read;
 //use log::debug;
 
-/// Day r of Advent of Code 2024
+/// Day 4 of Advent of Code 2024
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -697,13 +697,13 @@ mod tests {
 
   #[bench]
   fn bench_part1(b: &mut Bencher) {
-    let data = load_data("testinput1.txt");
+    let data = load_data("input4.txt");
     b.iter(|| black_box(analyse_input1(&data)));
   }
 
   #[bench]
   fn bench_part2(b: &mut Bencher) {
-    let data = load_data("testinput1.txt");
+    let data = load_data("input4.txt");
     b.iter(|| black_box(analyse_input2(&data)));
   }
 }
