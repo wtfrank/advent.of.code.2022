@@ -115,7 +115,7 @@ fn analyse_input2(puzzle_input: &str) -> usize {
 }
 
 fn test_operands2(target: usize, cur: usize, operands: &[usize]) -> bool {
-  println!("target: {target}, cur: {cur}, {}", operands.len());
+  // println!("target: {target}, cur: {cur}, {}", operands.len());
   if cur > target {
     return false;
   }
@@ -136,7 +136,7 @@ fn test_operands2(target: usize, cur: usize, operands: &[usize]) -> bool {
       },
       &operands[1..operands.len()],
     ) {
-      println!("Success: {target}");
+      // println!("Success: {target}");
       return true;
     }
   }
