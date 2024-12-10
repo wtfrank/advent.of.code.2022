@@ -17,6 +17,8 @@ pub use interval::Interval;
 pub use interval::Overlap;
 
 mod maths;
+pub use maths::gcd;
+pub use maths::gcds;
 pub use maths::lcm;
 pub use maths::pos_mod;
 pub use maths::prime_factors;

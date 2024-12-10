@@ -67,6 +67,31 @@ pub fn lcm(numbers: &[usize]) -> usize {
   result
 }
 
+// euclidian algorithm
+pub fn gcd(a: usize, b: usize) -> usize {
+  let mut a = a;
+  let mut b = b;
+  loop {
+    if b == 0 {
+      return a;
+    }
+
+    (a, b) = (b, a.wrapping_rem(b));
+  }
+}
+
+pub fn gcds(a: isize, b: isize) -> isize {
+  let mut a = a;
+  let mut b = b;
+  loop {
+    if b == 0 {
+      return a.abs();
+    }
+
+    (a, b) = (b, a.wrapping_rem_euclid(b));
+  }
+}
+
 /* a version of modulus that maps negative
  * remainders into the positive range
  */
@@ -144,5 +169,36 @@ mod tests {
     assert_eq!(primes_lte(7), vec![2, 3, 5, 7]);
     assert_eq!(primes_lte(10), vec![2, 3, 5, 7]);
     assert_eq!(primes_lte(20), vec![2, 3, 5, 7, 11, 13, 17, 19]);
+  }
+  #[test]
+  fn test_gcd() {
+    assert_eq!(gcd(48, 18), 6);
+    assert_eq!(gcd(1, 1), 1);
+    assert_eq!(gcd(0, 0), 0);
+    assert_eq!(gcd(15, 10), 5);
+    assert_eq!(gcd(17, 3), 1);
+  }
+  #[test]
+  fn test_gcds() {
+    assert_eq!(gcds(48, 18), 6);
+    assert_eq!(gcds(1, 1), 1);
+    assert_eq!(gcds(0, 0), 0);
+    assert_eq!(gcds(15, 10), 5);
+    assert_eq!(gcds(17, 3), 1);
+
+    assert_eq!(gcds(-48, 18), 6);
+    assert_eq!(gcds(-1, 1), 1);
+    assert_eq!(gcds(-15, 10), 5);
+    assert_eq!(gcds(-17, 3), 1);
+
+    assert_eq!(gcds(48, -18), 6);
+    assert_eq!(gcds(1, -1), 1);
+    assert_eq!(gcds(15, -10), 5);
+    assert_eq!(gcds(17, -3), 1);
+
+    assert_eq!(gcds(-48, -18), 6);
+    assert_eq!(gcds(-1, -1), 1);
+    assert_eq!(gcds(-15, -10), 5);
+    assert_eq!(gcds(-17, -3), 1);
   }
 }
