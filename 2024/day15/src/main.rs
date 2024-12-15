@@ -170,8 +170,195 @@ fn draw_map(map: &TerrainMap<MapEntity>, robot: &Point) {
     println!("{s}");
   }
 }
-fn analyse_input2(_puzzle_input: &str) -> usize {
-  0
+
+#[allow(dead_code)]
+fn draw_map2(map: &TerrainMap<MapEntity2>, robot: &Point) {
+  for y in 0..map.dims.height {
+    let mut chars = Vec::<char>::new();
+    for x in 0..map.dims.width {
+      if robot.x == x as isize && robot.y == y as isize {
+        chars.push('@');
+      } else {
+        chars.push(match map.getc(x as isize, y as isize) {
+          MapEntity2::Empty => '.',
+          MapEntity2::CrateLeft => '[',
+          MapEntity2::CrateRight => ']',
+          MapEntity2::Wall => '#',
+        });
+      }
+    }
+    let s: String = chars.into_iter().collect();
+    println!("{s}");
+  }
+}
+
+#[derive(Default, Clone, Copy, PartialEq)]
+enum MapEntity2 {
+  #[default]
+  Empty,
+  CrateLeft,
+  CrateRight,
+  Wall,
+}
+
+fn analyse_input2(puzzle_input: &str) -> usize {
+  let mut total = 0;
+
+  let mut height = 0;
+  for l in puzzle_input.lines() {
+    if l.is_empty() {
+      break;
+    }
+    height += 1;
+  }
+  let dims = Dims {
+    height,
+    width: puzzle_input.lines().next().unwrap().len() * 2,
+    ..Default::default()
+  };
+
+  println!("Height {}, Width {}", dims.height, dims.width);
+
+  let mut tm = TerrainMap::<MapEntity2>::new(dims);
+
+  let mut p = Point::default();
+  let mut start: Option<Point> = None;
+
+  let mut moves = Vec::<Direction>::new();
+  let mut checking_path = false;
+  for line in puzzle_input.lines() {
+    if line.is_empty() {
+      checking_path = true;
+      continue;
+    }
+    if checking_path {
+      for c in line.chars() {
+        moves.push(match c {
+          '^' => Direction::North,
+          '>' => Direction::East,
+          'v' => Direction::South,
+          '<' => Direction::West,
+          _ => panic!("unexpected direction"),
+        });
+      }
+    } else {
+      for c in line.chars() {
+        let e = match c {
+          '#' => MapEntity2::Wall,
+          'O' => MapEntity2::CrateLeft,
+          '.' => MapEntity2::Empty,
+          '@' => {
+            start = Some(p);
+            MapEntity2::Empty
+          }
+
+          _ => panic!("unexpected char"),
+        };
+        tm.set(&p, e);
+        p.x += 1;
+        let e = match c {
+          '#' => MapEntity2::Wall,
+          'O' => MapEntity2::CrateRight,
+          '.' => MapEntity2::Empty,
+          '@' => MapEntity2::Empty,
+          _ => panic!("unexpected char"),
+        };
+        tm.set(&p, e);
+        p.x += 1;
+      }
+      p.y += 1;
+      p.x = 0;
+    }
+  }
+
+  let mut cur = start.expect("robot start loc not found");
+  // draw_map2(&tm, &cur);
+  for m in moves.iter() {
+    if can_push(*m, cur, &tm) {
+      do_push(*m, cur, &mut tm);
+      cur = cur.neighbour(*m);
+    }
+    // draw_map2(&tm, &cur);
+  }
+
+  for y in 0..dims.height {
+    for x in 0..dims.width {
+      if tm.getc(x as isize, y as isize) == MapEntity2::CrateLeft {
+        total += x + 100 * y;
+      }
+    }
+  }
+
+  total
+}
+
+fn can_push(dir: Direction, from: Point, tm: &TerrainMap<MapEntity2>) -> bool {
+  let next = from.neighbour(dir);
+  match tm.get(&next) {
+    MapEntity2::Empty => true,
+    MapEntity2::Wall => false,
+    MapEntity2::CrateLeft => {
+      let next2 = next.neighbour(Direction::East);
+      match dir {
+        Direction::East => can_push(dir, next2, tm),
+        Direction::West => can_push(dir, next, tm),
+        Direction::North => can_push(dir, next, tm) && can_push(dir, next2, tm),
+        Direction::South => can_push(dir, next, tm) && can_push(dir, next2, tm),
+      }
+    }
+    MapEntity2::CrateRight => {
+      let next2 = next.neighbour(Direction::West);
+      match dir {
+        Direction::East => can_push(dir, next, tm),
+        Direction::West => can_push(dir, next2, tm),
+        Direction::North => can_push(dir, next, tm) && can_push(dir, next2, tm),
+        Direction::South => can_push(dir, next, tm) && can_push(dir, next2, tm),
+      }
+    }
+  }
+}
+
+fn do_push(dir: Direction, from: Point, tm: &mut TerrainMap<MapEntity2>) {
+  let next = from.neighbour(dir);
+  match tm.get(&next) {
+    MapEntity2::Empty => {}
+    MapEntity2::Wall => {
+      panic!("Not supposed to hit a wall while pushing");
+    }
+    MapEntity2::CrateLeft => {
+      let next2 = next.neighbour(Direction::East);
+      match dir {
+        Direction::East => do_push(dir, next, tm),
+        Direction::West => do_push(dir, next, tm),
+        Direction::North => {
+          do_push(dir, next, tm);
+          do_push(dir, next2, tm)
+        }
+        Direction::South => {
+          do_push(dir, next, tm);
+          do_push(dir, next2, tm)
+        }
+      }
+    }
+    MapEntity2::CrateRight => {
+      let next2 = next.neighbour(Direction::West);
+      match dir {
+        Direction::East => do_push(dir, next, tm),
+        Direction::West => do_push(dir, next, tm),
+        Direction::North => {
+          do_push(dir, next, tm);
+          do_push(dir, next2, tm)
+        }
+        Direction::South => {
+          do_push(dir, next, tm);
+          do_push(dir, next2, tm)
+        }
+      }
+    }
+  };
+
+  tm.set(&next, tm.get(&from));
+  tm.set(&from, MapEntity2::Empty);
 }
 
 fn main() {
