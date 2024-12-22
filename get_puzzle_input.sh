@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# this is a script downloads puzzle input for a particular day 
+# this script downloads puzzle input for a particular day 
 # Pass in the day as the first argument to the script
 #
 # to set this up, you need to have filled a file called session_cookie.txt with the cookie
