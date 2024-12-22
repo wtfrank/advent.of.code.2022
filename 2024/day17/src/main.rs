@@ -326,4 +326,9 @@ mod tests {
     let data = load_data("input17.txt");
     b.iter(|| black_box(analyse_input2(&data)));
   }
+  #[bench]
+  fn bench_parse(b: &mut Bencher) {
+    let data = load_data("input17.txt");
+    b.iter(|| black_box(load_prog(&data)));
+  }
 }
