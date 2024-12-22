@@ -131,20 +131,4 @@ mod tests {
     assert_eq!(evolve(12249484), 7753432);
     assert_eq!(evolve(7753432), 5908254);
   }
-
-  // ---------------------------------------------
-  /*
-    use test::{black_box, Bencher};
-    #[bench]
-    fn bench_part1(b: &mut Bencher) {
-      let data = load_data("input22.txt");
-      b.iter(|| black_box(analyse_input1(&data)));
-    }
-
-    #[bench]
-    fn bench_part2(b: &mut Bencher) {
-      let data = load_data("input22.txt");
-      b.iter(|| black_box(analyse_input2(&data)));
-    }
-  */
 }
