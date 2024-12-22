@@ -88,147 +88,7 @@ pub fn analyse_input1(puzzle_input: &str) -> usize {
   let end = end.expect("robot end loc not found");
   let start_dir = Direction::East;
 
-  let mut nodes = Vec::<Point>::new();
-  let mut nodes2 = HashSet::<PointDir>::default(); // every direction you enter a point from, or leave it in the direction of
-  nodes.push(start);
-  nodes.push(end);
-  nodes2.insert((start, start_dir));
-
-  let neigh = neighbour_dirs(start, &tm);
-  for d in neigh {
-    if d != Direction::East {
-      nodes2.insert((start, d));
-      nodes2.insert((start, d.reverse()));
-    }
-  }
-
-  // process maze into graph
-  let mut p = Point { x: 0, y: 0 };
-  for y in 0..dims.height {
-    p.y = y as isize;
-    for x in 0..dims.width {
-      p.x = x as isize;
-      if tm.get(&p) == MapEntity::Wall {
-        continue;
-      }
-      let neigh = neighbour_dirs(p, &tm);
-      if neigh.len() > 2 && p != start && p != end {
-        nodes.push(p);
-      }
-
-      if p == end {
-        // can only enter the end but not leave it
-        for d in neigh {
-          nodes2.insert((p, d.reverse()));
-        }
-      } else if neigh.len() > 2 {
-        for d in neigh {
-          nodes2.insert((p, d));
-          nodes2.insert((p, d.reverse()));
-        }
-      }
-      //}
-    }
-  }
-
-  println!("{} nodes in the graph. Start: {start}. End: {end}.", nodes.len());
-
-  let mut procd = HashMap::<Point, Vec<(Direction, Point, Direction, usize)>>::default();
-  let mut procd2 = HashMap::<(Point, Direction), (Point, Direction, usize)>::default();
-
-  /*
-  for d in all::<Direction>() {
-    if d == start_dir {
-      continue;
-    }
-
-    let n = start.neighbour(d);
-    if !tm.dims.contains(&n) {
-      continue;
-    }
-    if tm.get(&n) == MapEntity::Wall {
-      continue;
-    }
-
-    let cost = if d == start_dir.reverse() {
-      2 * TURN_COST
-    } else {
-      TURN_COST
-    };
-
-    let vec = procd.entry(start).or_insert(Vec::new());
-    let fw = (start_dir, start, d, cost);
-    vec.push(fw);
-
-    procd2.insert((start, start_dir), (start, d, cost));
-  }*/
-
-  for node in nodes.iter() {
-    for d in all::<Direction>() {
-      let n = node.neighbour(d);
-      if !tm.dims.contains(&n) {
-        continue;
-      }
-      if tm.get(&n) == MapEntity::Wall {
-        continue;
-      }
-      let mut cost = 1;
-      let mut cur_dir = d;
-      let mut cur = n;
-      loop {
-        let exit_dirs = neighbour_dirs(cur, &tm);
-        let qty = exit_dirs.len();
-        if n == end || n == start || qty > 2 {
-          // live end
-          println!("new segment {node} {d:?} to {cur} {cur_dir:?} cost {cost}");
-          let vec = procd.entry(*node).or_insert(Vec::new());
-          let fw = (d, cur, cur_dir, cost);
-          if !vec.contains(&fw) {
-            vec.push(fw);
-          } else {
-            // println!("avoided adding dup fw");
-          }
-          procd2.insert((*node, d), (cur, cur_dir, cost));
-          let bw = (cur_dir.reverse(), *node, d.reverse(), cost);
-          let vec = procd.entry(cur).or_insert(Vec::new());
-          if !vec.contains(&bw) {
-            vec.push(bw);
-          } else {
-            // println!("avoided adding dup bw");
-          }
-          procd2.insert((cur, cur_dir.reverse()), (*node, d.reverse(), cost));
-          break;
-        } else if qty < 2 {
-          println!("dead end at {cur}");
-          // dead end
-          break;
-        }
-
-        // there is one exit, move along it
-        let mut exit_found = false;
-        for e in exit_dirs {
-          if e != cur_dir.reverse() {
-            if e != cur_dir {
-              cost += TURN_COST;
-              cur_dir = e;
-            }
-            exit_found = true;
-            break;
-          }
-        }
-        assert!(exit_found);
-
-        cur = cur.neighbour(cur_dir);
-        cost += 1;
-      }
-    }
-  }
-
-  // assert!(procd2.contains_key(&(start, start_dir)));
-
-  println!("{:?}", procd.get(&start));
-  println!("{:?}", procd.get(&end));
-
+  let (_nodes, nodes2, procd, _procd2) = preprocess_map(start, start_dir, end, &tm);
   /*
   for d in all::<Direction>() {
     let n = end.neighbour(d);
@@ -312,6 +172,141 @@ pub fn analyse_input1(puzzle_input: &str) -> usize {
   panic!("Didn't reach goal");
 }
 
+#[allow(clippy::type_complexity)]
+fn preprocess_map(
+  start: Point,
+  start_dir: Direction,
+  end: Point,
+  tm: &TerrainMap<MapEntity>,
+) -> (
+  Vec<Point>,
+  HashSet<PointDir>,
+  HashMap<Point, Vec<(Direction, Point, Direction, usize)>>,
+  HashMap<(Point, Direction), (Point, Direction, usize)>,
+) {
+  let mut nodes = Vec::<Point>::new();
+  let mut nodes2 = HashSet::<PointDir>::default(); // every direction you enter a point from, or leave it in the direction of
+  nodes.push(start);
+  nodes.push(end);
+  nodes2.insert((start, start_dir));
+
+  let neigh = neighbour_dirs(start, tm);
+  for d in neigh {
+    if d != Direction::East {
+      nodes2.insert((start, d));
+      nodes2.insert((start, d.reverse()));
+    }
+  }
+
+  // process maze into graph
+  let mut p = Point { x: 0, y: 0 };
+  for y in 0..tm.dims.height {
+    p.y = y as isize;
+    for x in 0..tm.dims.width {
+      p.x = x as isize;
+      if tm.get(&p) == MapEntity::Wall {
+        continue;
+      }
+      let neigh = neighbour_dirs(p, tm);
+      if neigh.len() > 2 && p != start && p != end {
+        nodes.push(p);
+      }
+      /*
+            if p == end {
+              // can only enter the end but not leave it
+              for d in neigh {
+                nodes2.insert((p, d.reverse()));
+              }
+            } else if neigh.len() > 2 {
+              for d in neigh {
+                nodes2.insert((p, d));
+                nodes2.insert((p, d.reverse()));
+              }
+            }
+      */
+      if neigh.len() > 2 || p == start || p == end {
+        for d in neigh {
+          nodes2.insert((p, d));
+          nodes2.insert((p, d.reverse()));
+        }
+      }
+    }
+  }
+
+  println!("{} nodes in the graph. Start: {start}. End: {end}.", nodes.len());
+
+  let mut procd = HashMap::<Point, Vec<(Direction, Point, Direction, usize)>>::default();
+  let mut procd2 = HashMap::<(Point, Direction), (Point, Direction, usize)>::default();
+
+  for node in nodes.iter() {
+    for d in all::<Direction>() {
+      let n = node.neighbour(d);
+      if !tm.dims.contains(&n) {
+        continue;
+      }
+      if tm.get(&n) == MapEntity::Wall {
+        continue;
+      }
+      let mut cost = 1;
+      let mut cur_dir = d;
+      let mut cur = n;
+      loop {
+        let exit_dirs = neighbour_dirs(cur, tm);
+        let qty = exit_dirs.len();
+        if n == end || n == start || qty > 2 {
+          // live end
+          println!("new segment {node} {d:?} to {cur} {cur_dir:?} cost {cost}");
+          let vec = procd.entry(*node).or_insert(Vec::new());
+          let fw = (d, cur, cur_dir, cost);
+          if !vec.contains(&fw) {
+            vec.push(fw);
+          } else {
+            // println!("avoided adding dup fw");
+          }
+          procd2.insert((*node, d), (cur, cur_dir, cost));
+          let bw = (cur_dir.reverse(), *node, d.reverse(), cost);
+          let vec = procd.entry(cur).or_insert(Vec::new());
+          if !vec.contains(&bw) {
+            vec.push(bw);
+          } else {
+            // println!("avoided adding dup bw");
+          }
+          procd2.insert((cur, cur_dir.reverse()), (*node, d.reverse(), cost));
+          break;
+        } else if qty < 2 {
+          println!("dead end at {cur}");
+          // dead end
+          break;
+        }
+
+        // there is one exit, move along it
+        let mut exit_found = false;
+        for e in exit_dirs {
+          if e != cur_dir.reverse() {
+            if e != cur_dir {
+              cost += TURN_COST;
+              cur_dir = e;
+            }
+            exit_found = true;
+            break;
+          }
+        }
+        assert!(exit_found);
+
+        cur = cur.neighbour(cur_dir);
+        cost += 1;
+      }
+    }
+  }
+
+  // assert!(procd2.contains_key(&(start, start_dir)));
+
+  println!("{:?}", procd.get(&start));
+  println!("{:?}", procd.get(&end));
+
+  (nodes, nodes2, procd, procd2)
+}
+
 /*
 fn find_cheapest_path(
   start: Point,
@@ -359,6 +354,7 @@ fn find_cheapest_path(
 }
 */
 
+/*
 fn find_path_routes(
   start: Point,
   dir: Direction,
@@ -409,6 +405,8 @@ fn find_path_routes(
 
   (best_cost, route_exists)
 }
+
+*/
 
 fn neighbour_dirs(p: Point, tm: &TerrainMap<MapEntity>) -> Vec<Direction> {
   let mut dirs = Vec::new();
@@ -489,146 +487,7 @@ pub fn analyse_input2(puzzle_input: &str) -> usize {
   let end = end.expect("robot end loc not found");
   let start_dir = Direction::East;
 
-  let mut nodes = Vec::<Point>::new();
-  let mut nodes2 = HashSet::<PointDir>::default(); // every direction you enter a point from, or leave it in the direction of
-  nodes.push(start);
-  nodes.push(end);
-  nodes2.insert((start, start_dir));
-
-  // process maze into graph
-  let mut p = Point { x: 0, y: 0 };
-  for y in 0..dims.height {
-    p.y = y as isize;
-    for x in 0..dims.width {
-      p.x = x as isize;
-      if tm.get(&p) == MapEntity::Wall {
-        continue;
-      }
-      let neigh = neighbour_dirs(p, &tm);
-      if neigh.len() > 2 && p != start && p != end {
-        nodes.push(p);
-      }
-
-      /*
-      if neigh.len() > 2 {
-        if p == end {
-          // can only enter the end but not leave it
-          for d in neigh {
-            nodes2.insert((p, d.reverse()));
-          }
-        } else {
-          for d in neigh {
-            nodes2.insert((p, d));
-            nodes2.insert((p, d.reverse()));
-          }
-        }
-      }*/
-      if neigh.len() > 2 || p == start || p == end {
-        for d in neigh {
-          nodes2.insert((p, d));
-          nodes2.insert((p, d.reverse()));
-        }
-      }
-    }
-  }
-
-  println!("{} nodes in the graph. Start: {start}. End: {end}.", nodes.len());
-
-  let mut procd = HashMap::<Point, Vec<(Direction, Point, Direction, usize)>>::default();
-  let mut procd2 = HashMap::<(Point, Direction), (Point, Direction, usize)>::default();
-
-  /*
-  for d in all::<Direction>() {
-    if d == start_dir {
-      continue;
-    }
-
-    let n = start.neighbour(d);
-    if !tm.dims.contains(&n) {
-      continue;
-    }
-    if tm.get(&n) == MapEntity::Wall {
-      continue;
-    }
-
-    let cost = if d == start_dir.reverse() {
-      2 * TURN_COST
-    } else {
-      TURN_COST
-    };
-
-    let vec = procd.entry(start).or_insert(Vec::new());
-    let fw = (start_dir, start, d, cost);
-    vec.push(fw);
-
-    procd2.insert((start, start_dir), (start, d, cost));
-  }*/
-
-  for node in nodes.iter() {
-    for d in all::<Direction>() {
-      let n = node.neighbour(d);
-      if !tm.dims.contains(&n) {
-        continue;
-      }
-      if tm.get(&n) == MapEntity::Wall {
-        continue;
-      }
-      let mut cost = 1;
-      let mut cur_dir = d;
-      let mut cur = n;
-      loop {
-        let exit_dirs = neighbour_dirs(cur, &tm);
-        let qty = exit_dirs.len();
-        if n == end || n == start || qty > 2 {
-          // live end
-          println!("new segment {node} {d:?} to {cur} {cur_dir:?} cost {cost}");
-          let vec = procd.entry(*node).or_insert(Vec::new());
-          let fw = (d, cur, cur_dir, cost);
-          if !vec.contains(&fw) {
-            vec.push(fw);
-          } else {
-            // println!("avoided adding dup fw");
-          }
-          procd2.insert((*node, d), (cur, cur_dir, cost));
-          let bw = (cur_dir.reverse(), *node, d.reverse(), cost);
-          let vec = procd.entry(cur).or_insert(Vec::new());
-          if !vec.contains(&bw) {
-            vec.push(bw);
-          } else {
-            // println!("avoided adding dup bw");
-          }
-          procd2.insert((cur, cur_dir.reverse()), (*node, d.reverse(), cost));
-          break;
-        } else if qty < 2 {
-          println!("dead end at {cur}");
-          // dead end
-          break;
-        }
-
-        // there is one exit, move along it
-        let mut exit_found = false;
-        for e in exit_dirs {
-          if e != cur_dir.reverse() {
-            if e != cur_dir {
-              cost += TURN_COST;
-              cur_dir = e;
-            }
-            exit_found = true;
-            break;
-          }
-        }
-        assert!(exit_found);
-
-        cur = cur.neighbour(cur_dir);
-        cost += 1;
-      }
-    }
-  }
-
-  // assert!(procd2.contains_key(&(start, start_dir)));
-
-  println!("{:?}", procd.get(&start));
-  println!("{:?}", procd.get(&end));
+  let (nodes, nodes2, procd, _procd2) = preprocess_map(start, start_dir, end, &tm);
 
   /*
   for d in all::<Direction>() {
@@ -711,9 +570,12 @@ pub fn analyse_input2(puzzle_input: &str) -> usize {
   let mut ok_nodes = HashSet::<PointDir>::default();
   let mut ok_points = HashSet::<Point>::default();
   for (k, v) in dist.iter() {
-    if *v > shortest_cost {
+    let min_end_dist =
+      end.x.abs_diff(k.0.x) + end.y.abs_diff(k.0.y) + if k.0.x != end.x || k.0.y != end.y { TURN_COST } else { 0 };
+    if *v > shortest_cost - min_end_dist {
+      // v might be usize::MAX
       if *v < usize::MAX {
-        println!("not on shortest path: {k:?} {v}");
+        println!("not on shortest path: {k:?} {v} {min_end_dist}");
       }
     } else {
       ok_nodes.insert(*k);
@@ -729,14 +591,17 @@ pub fn analyse_input2(puzzle_input: &str) -> usize {
     nodes.len()
   );
 
-  let mut visited = Vec::<Point>::default();
-  visited.push(start);
-  let start_cost = 0;
-  let (dfs_cost, possible) = find_path_routes(start, start_dir, end, start_cost, &procd, &mut visited, shortest_cost);
-  assert!(possible);
-  println!("dijkstra lowest cost {shortest_cost}, dfs {dfs_cost}");
-  assert_eq!(shortest_cost, dfs_cost);
+  // go through each node not on path and see if start -> N -> end is the same cost as start -> end
 
+  /*
+    let mut visited = Vec::<Point>::default();
+    visited.push(start);
+    let start_cost = 0;
+    let (dfs_cost, possible) = find_path_routes(start, start_dir, end, start_cost, &procd, &mut visited, shortest_cost);
+    assert!(possible);
+    println!("dijkstra lowest cost {shortest_cost}, dfs {dfs_cost}");
+    assert_eq!(shortest_cost, dfs_cost);
+  */
   panic!("Didn't reach goal");
 }
 
