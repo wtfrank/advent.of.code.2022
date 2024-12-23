@@ -35,7 +35,7 @@ pub fn load_data(filename: &str) -> String {
 
 type Node = [char; 2];
 
-pub fn analyse_input1(puzzle_input: &str) -> usize {
+fn adj_list(puzzle_input: &str) -> HashMap<Node, Vec<Node>> {
   let mut adjacency = HashMap::<Node, Vec<Node>>::default();
   for line in puzzle_input.lines() {
     let mut it = line.split("-");
@@ -46,7 +46,11 @@ pub fn analyse_input1(puzzle_input: &str) -> usize {
     adjacency.entry(first).or_insert(Vec::new()).push(second);
     adjacency.entry(second).or_insert(Vec::new()).push(first);
   }
+  adjacency
+}
 
+pub fn analyse_input1(puzzle_input: &str) -> usize {
+  let adjacency = adj_list(puzzle_input);
   let mut groups = HashSet::<[Node; 3]>::default();
 
   for (comp, seconds) in adjacency.iter().filter(|(k, _)| k[0] == 't') {
@@ -68,7 +72,13 @@ pub fn analyse_input1(puzzle_input: &str) -> usize {
   groups.len()
 }
 
-pub fn analyse_input2(_puzzle_input: &str) -> usize {
+pub fn analyse_input2(puzzle_input: &str) -> usize {
+  let adjacency = adj_list(puzzle_input);
+  println!(
+    "#nodes: {}. starting with t:{}",
+    adjacency.len(),
+    adjacency.keys().filter(|k| k[0] == 't').count()
+  );
   0
 }
 
