@@ -1,6 +1,6 @@
 use crate::{Dims, Dims3, Point, Point3};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 enum Origin {
   TopLeft,
   TopRight,
@@ -8,7 +8,7 @@ enum Origin {
   BottomLeft,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TerrainMap<T: Copy + Default> {
   v: Vec<T>,
   origin: Origin,
