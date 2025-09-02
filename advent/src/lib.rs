@@ -1,3 +1,5 @@
+#![feature(test)]
+#![feature(step_trait)]
 mod terrain_map;
 pub use terrain_map::TerrainMap;
 pub use terrain_map::TerrainMap3;
@@ -23,3 +25,6 @@ pub use maths::lcm;
 pub use maths::pos_mod;
 pub use maths::prime_factors;
 pub use maths::primes_lte;
+
+pub use maths::lcm2;
+pub use maths::IntegerMaths;

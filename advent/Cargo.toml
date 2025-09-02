@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 bitvec = "1.0.1"
 enum-iterator = "2.1.0"
+integer-sqrt = "0.1.5"
 num = "0.4.1"
