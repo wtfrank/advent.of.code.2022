@@ -28,7 +28,7 @@ fn parse_stack(columns: &mut Vec<Vec<char>>, line: &str) {
 
 fn apply_move(columns: &mut [Vec<char>], line: &str) {
   let (count, mut from, mut to) =
-    sscanf::sscanf!(line, "move {usize} from {usize} to {usize}").expect("invalid input line {line}");
+    sscanf::sscanf!(line, "move {usize} from {usize} to {usize}").expect("invalid input line");
   from -= 1;
   to -= 1;
   println!("moving {count} from {} to {}", from, to);
