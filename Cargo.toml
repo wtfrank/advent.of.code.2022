@@ -1,5 +1,5 @@
 [workspace]
-members = ["advent", "leaderboard", "2022/day*", "2023/day*", "2024/day*"]
+members = ["advent", "leaderboard", "2015/day*", "2022/day*", "2023/day*", "2024/day*"]
 resolver = "2"
 
 [profile.release-lto]
