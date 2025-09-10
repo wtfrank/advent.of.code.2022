@@ -214,7 +214,7 @@ fn seed_loc_range(almanac: &Almanac, seedranges: &[Interval]) -> Vec<Interval> {
 }
 
 fn find_lowest2(almanac: &Almanac) -> isize {
-  if almanac.seeds.len() % 2 != 0 {
+  if !almanac.seeds.len().is_multiple_of(2) {
     panic!("odd number of seed ranges")
   }
 

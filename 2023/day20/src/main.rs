@@ -226,7 +226,7 @@ fn load_data(filename: &str) -> HashMap<String, Module> {
   //ensure conjunctions have all inputs set up
   for (n, m) in inputs.iter_mut() {
     for (n2, m2) in modules.iter() {
-      if m2.outputs.iter().any(|o| *o == *n) {
+      if m2.outputs.contains(n) {
         m.push(n2.clone());
       }
     }

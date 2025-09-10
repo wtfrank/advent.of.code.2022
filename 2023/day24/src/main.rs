@@ -216,7 +216,7 @@ fn execute_py(py: &str) -> usize {
   result
 }
 
-fn analyse_data(hailstones: &Vec<(Position, Velocity)>, min: usize, max: usize) -> usize {
+fn analyse_data(hailstones: &[(Position, Velocity)], min: usize, max: usize) -> usize {
   let mut count = 0;
   for i in 0..hailstones.len() {
     let hs1 = &hailstones[i];
@@ -290,7 +290,7 @@ fn analyse_data(hailstones: &Vec<(Position, Velocity)>, min: usize, max: usize) 
  * written matrix calculation
  */
 #[allow(dead_code)]
-fn analyse_data1a(hailstones: &Vec<(Position, Velocity)>, min: usize, max: usize) -> usize {
+fn analyse_data1a(hailstones: &[(Position, Velocity)], min: usize, max: usize) -> usize {
   let mut count = 0;
   for i in 0..hailstones.len() {
     let hs1 = &hailstones[i];
@@ -362,7 +362,7 @@ fn analyse_data1a(hailstones: &Vec<(Position, Velocity)>, min: usize, max: usize
 
 /* 1a but uses other types to get the most elegant calculation */
 #[allow(dead_code)]
-fn analyse_data1b(hailstones: &Vec<(Position, Velocity)>, min: usize, max: usize) -> usize {
+fn analyse_data1b(hailstones: &[(Position, Velocity)], min: usize, max: usize) -> usize {
   let mut count = 0;
   for i in 0..hailstones.len() {
     let hs1 = &hailstones[i];
@@ -415,7 +415,7 @@ fn analyse_data1b(hailstones: &Vec<(Position, Velocity)>, min: usize, max: usize
 }
 
 #[allow(dead_code)]
-fn analyse_data1c(hailstones: &Vec<(Position, Velocity)>, min: usize, max: usize) -> usize {
+fn analyse_data1c(hailstones: &[(Position, Velocity)], min: usize, max: usize) -> usize {
   let mut count = 0;
   for i in 0..hailstones.len() {
     let hs1 = &hailstones[i];

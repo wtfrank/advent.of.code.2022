@@ -328,11 +328,13 @@ fn search_route(start: Point, end: Point, tm: &TerrainMap<MapEntity>) -> (Option
         continue;
       }
       let entry = pq.get(&n);
-      if entry.is_none() {
+      if let Some(val) = entry {
+        if val.1 .0 > priority.0 + 1 {
+          pq.change_priority(&n, Reverse(priority.0 + 1));
+          prev.insert(n, node);
+        }
+      } else {
         pq.push(n, Reverse(priority.0 + 1));
-        prev.insert(n, node);
-      } else if entry.unwrap().1 .0 > priority.0 + 1 {
-        pq.change_priority(&n, Reverse(priority.0 + 1));
         prev.insert(n, node);
       }
     }

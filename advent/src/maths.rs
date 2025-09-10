@@ -192,13 +192,13 @@ pub fn prime_factors(n: usize) -> Vec<usize> {
   let mut factors = Vec::<usize>::new();
 
   let mut n = n;
-  while n % 2 == 0 {
+  while n.is_multiple_of(2) {
     factors.push(2);
     n /= 2;
   }
 
   for i in (3..f64::sqrt(n as f64) as usize + 1).step_by(2) {
-    while n % i == 0 {
+    while n.is_multiple_of(i) {
       factors.push(i);
       n /= i;
     }

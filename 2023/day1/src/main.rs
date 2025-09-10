@@ -69,8 +69,7 @@ fn load_calib2(filename: &str) -> usize {
     let mut lowest_value = 0;
     for (token, value) in tokens.iter() {
       let pos = line.find(token);
-      if pos.is_some() {
-        let pos = pos.unwrap();
+      if let Some(pos) = pos {
         if pos < lowest_pos {
           lowest_pos = pos;
           lowest_value = *value;
@@ -83,8 +82,7 @@ fn load_calib2(filename: &str) -> usize {
     let mut highest_value = 0;
     for (token, value) in tokens.iter() {
       let pos = line.rfind(token);
-      if pos.is_some() {
-        let pos = pos.unwrap();
+      if let Some(pos) = pos {
         if pos >= highest_pos {
           highest_pos = pos;
           highest_value = *value;

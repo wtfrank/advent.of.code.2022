@@ -275,7 +275,7 @@ fn process_round(monkes: &mut [Monke], reduce_worry: bool) {
       //limit by multiple to ensure numbers don't grow to stupid levels
       w %= divisor_multiple;
       // throw object
-      if w % divisor == 0 {
+      if w.is_multiple_of(divisor) {
         monkes[sm].receive(w);
       } else {
         monkes[fm].receive(w);

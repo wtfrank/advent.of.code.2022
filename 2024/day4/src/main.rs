@@ -87,7 +87,7 @@ impl<T: Clone> Wordsearch<T> {
   pub fn at(&self, x: usize, y: usize) -> T {
     self.v[y][x].clone()
   }
-  pub fn row_iter_fw(&self, row: usize) -> WordsearchIter<T> {
+  pub fn row_iter_fw(&self, row: usize) -> WordsearchIter<'_, T> {
     WordsearchIter {
       x: if !self.v.is_empty() { Some(0) } else { None },
       y: if row >= self.v.len() { None } else { Some(row) },
@@ -96,7 +96,7 @@ impl<T: Clone> Wordsearch<T> {
       cw: self,
     }
   }
-  pub fn row_iter_bk(&self, row: usize) -> WordsearchIter<T> {
+  pub fn row_iter_bk(&self, row: usize) -> WordsearchIter<'_, T> {
     let (x, overflow) = if !self.v.is_empty() {
       self.v[0].len().overflowing_sub(1)
     } else {
@@ -110,7 +110,7 @@ impl<T: Clone> Wordsearch<T> {
       cw: self,
     }
   }
-  pub fn col_iter_down(&self, col: usize) -> WordsearchIter<T> {
+  pub fn col_iter_down(&self, col: usize) -> WordsearchIter<'_, T> {
     WordsearchIter {
       x: if !self.v.is_empty() && self.v[0].len() > col {
         Some(col)
@@ -123,7 +123,7 @@ impl<T: Clone> Wordsearch<T> {
       cw: self,
     }
   }
-  pub fn col_iter_up(&self, col: usize) -> WordsearchIter<T> {
+  pub fn col_iter_up(&self, col: usize) -> WordsearchIter<'_, T> {
     let (y, overflow) = self.v.len().overflowing_sub(1);
     WordsearchIter {
       x: if !self.v.is_empty() && self.v[0].len() > col {
@@ -139,7 +139,7 @@ impl<T: Clone> Wordsearch<T> {
   }
 
   // one of col & row must be zero. These represent the start of the diagonal.
-  pub fn diag_iter_tl_br(&self, col: usize, row: usize) -> WordsearchIter<T> {
+  pub fn diag_iter_tl_br(&self, col: usize, row: usize) -> WordsearchIter<'_, T> {
     let (x, y) = if self.v.is_empty()
       || self.v[0].is_empty()
       || (col != 0 && row != 0)
@@ -161,7 +161,7 @@ impl<T: Clone> Wordsearch<T> {
   }
 
   // one of col & row must be equal to one less than the max length of row or col
-  pub fn diag_iter_br_tl(&self, col: usize, row: usize) -> WordsearchIter<T> {
+  pub fn diag_iter_br_tl(&self, col: usize, row: usize) -> WordsearchIter<'_, T> {
     let (x, y) = if self.v.is_empty()
       || self.v[0].is_empty()
       || (col != self.v[0].len() - 1 && row != self.v.len() - 1)
@@ -183,7 +183,7 @@ impl<T: Clone> Wordsearch<T> {
   }
 
   // col must be equal to one less than the max length or row must be equal to 0
-  pub fn diag_iter_tr_bl(&self, col: usize, row: usize) -> WordsearchIter<T> {
+  pub fn diag_iter_tr_bl(&self, col: usize, row: usize) -> WordsearchIter<'_, T> {
     let (x, y) = if self.v.is_empty()
       || self.v[0].is_empty()
       || (col != self.v[0].len() - 1 && row != 0)
@@ -205,7 +205,7 @@ impl<T: Clone> Wordsearch<T> {
   }
 
   // col must be equal to zero or row must be one less than the max length
-  pub fn diag_iter_bl_tr(&self, col: usize, row: usize) -> WordsearchIter<T> {
+  pub fn diag_iter_bl_tr(&self, col: usize, row: usize) -> WordsearchIter<'_, T> {
     let (x, y) = if self.v.is_empty()
       || self.v[0].is_empty()
       || (col != 0 && row != self.v.len() - 1)

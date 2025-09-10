@@ -10,11 +10,9 @@ fn process_cmd(tokens: &mut std::str::SplitWhitespace, current_dir_index: &mut u
     let arg = tokens.next().unwrap();
     if arg == "/" {
       *current_dir_index = 0;
-      return;
     } else if arg == ".." {
       let current_dir = tree.get(*current_dir_index).unwrap();
       *current_dir_index = current_dir.parent.unwrap();
-      return;
     } else {
       //could be more efficient by starting at current_dir_index
       //but whatevs
