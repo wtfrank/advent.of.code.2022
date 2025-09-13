@@ -40,3 +40,8 @@ sed -E -i 's/_day[0-9]+"/_day'$1'"/g' Cargo.toml
 sed -E -i 's/Day [0-9]+ of Advent/Day '$1' of Advent/g' src/main.rs
 sed -E -i 's/_day[0-9]+::/_day'$1'::/g' src/main.rs benches/bench.rs
 
+cd ..
+YEAR=$(basename $(pwd))
+export YEAR
+cd $NEXT_DIR
+../../get_puzzle_input.sh $1
